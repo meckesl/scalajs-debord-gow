@@ -1,10 +1,11 @@
-package example
+package com.lms.gow
 
+import com.lms.gow.App
 import utest._
 
-object ScalaJSExampleTest extends TestSuite {
+object AppTest extends TestSuite {
 
-  import ScalaJSExample._
+  import App._
 
   def tests = TestSuite {
     'ScalaJSExample {
