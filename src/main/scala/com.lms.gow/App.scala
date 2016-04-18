@@ -1,6 +1,6 @@
 package com.lms.gow
 
-import com.lms.gow.model.{Game, Rules}
+import com.lms.gow.model.{Game, Rules, Tile}
 import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -17,7 +17,12 @@ object App extends js.JSApp {
     Rules.load() onSuccess {
       case _ => {
         val game = new Game
-        boardView.innerHTML = s"<strong>The board view => ${game.blueTurn}</strong>"
+        boardView.innerHTML = ""
+        val pre = dom.document.createElement("pre")
+        boardView.appendChild(pre)
+        game.board.terrainLayer.foreach { t =>
+          pre.innerHTML += t.char
+        }
       }
     }
   }

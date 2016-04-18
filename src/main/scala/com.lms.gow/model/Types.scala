@@ -2,7 +2,6 @@ package com.lms.gow.model
 
 abstract sealed case class Tile(char: Char, speed: Int, range: Int, attack: Int,
                                 defense: Int, isUnit: Boolean, isCom: Boolean, isBlue: Boolean)
-
 object VoidTile extends Tile('.', 0, 0, 0, 0, false, false, false)
 object Fortress extends Tile('F', 0, 0, 0, 4, false, false, false)
 object Mountain extends Tile('M', 0, 0, 0, 0, false, false, false)
@@ -23,7 +22,6 @@ object BlueInfantry extends Tile('i', 1, 2, 4, 6, true, false, true)
 object BlueCavalry extends Tile('v', 2, 2, 4, 5, true, false, true)
 
 abstract sealed case class Direction(y: Int, x: Int)
-
 object N extends Direction(-1, 0)
 object NE extends Direction(-1, 1)
 object E extends Direction(0, 1)

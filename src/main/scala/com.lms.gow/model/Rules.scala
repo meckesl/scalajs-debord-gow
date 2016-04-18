@@ -44,13 +44,15 @@ object Rules {
   def load(): Future[Boolean] = {
     val promise: Promise[Boolean] = Promise()
     loadTiles("init.board", terrainTilesRepository) onSuccess {
-      case tiles: Seq[Tile] => startingTerrain = tiles
+      case tiles: Seq[Tile] => {
+        startingTerrain = tiles
         loadTiles("init.units", unitTilesRepository) onSuccess {
           case tiles: Seq[Tile] => {
             startingUnits = tiles
             promise.success(true)
           }
         }
+      }
     }
     promise.future
   }
