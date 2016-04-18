@@ -1,7 +1,8 @@
 package com.lms.gow.model
 
+import com.lms.gow.model.Tile._
+import com.lms.gow.model.Cardinality._
 import scala.collection._
-import scala.concurrent.Future
 
 class Game {
 
@@ -23,7 +24,7 @@ class Game {
       val comTile = comLayer(index)
 
       def inRange(r: Int): Seq[Coordinates] = {
-        if (r.equals(1)) //FIXME handle all ranges
+        if (r.equals(1))
           Rules.directions.map(d => new Coordinates(x + d.x, y + d.y))
         else
           Seq(this)

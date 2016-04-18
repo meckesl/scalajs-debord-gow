@@ -1,5 +1,7 @@
 package com.lms.gow.model
 
+import com.lms.gow.model.Cardinality._
+import com.lms.gow.model.Tile._
 import org.scalajs.dom.{Event, XMLHttpRequest}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,42 +21,41 @@ object Rules {
   var startingUnits: Seq[Tile] = null
   val directions = Seq(N, NE, E, SE, S, SW, W, NW)
 
-  def loadTiles(file: String, tileRepository: Seq[Tile]): Future[Seq[Tile]] = {
-    val promise: Promise[Seq[Tile]] = Promise()
-    val xhr = new XMLHttpRequest()
-    xhr.open("GET", s"target/scala-2.11/classes/$file")
-    xhr.onload = {
-      (e: Event) =>
-        if (xhr.status == 200) {
-          val ret =
-            xhr.responseText.filter(_ > ' ')
-              .map((tileRepository.map(_.char) zip tileRepository)
-                .toMap
-                .get(_)
-                .getOrElse(VoidTile))
-          promise.success(ret)
-        } else {
-          promise.failure(new RuntimeException("cannot read tiles"))
-        }
-    }
-    xhr.send()
-    promise.future
-  }
-
   def load(): Future[Boolean] = {
-    val promise: Promise[Boolean] = Promise()
+
+    def loadTiles(file: String, tileRepository: Seq[Tile]): Future[Seq[Tile]] = {
+      val promise: Promise[Seq[Tile]] = Promise()
+      val xhr = new XMLHttpRequest()
+      xhr.open("GET", s"target/scala-2.11/classes/$file")
+      xhr.onload = {
+        (e: Event) =>
+          if (xhr.status == 200)
+            promise.success(
+              xhr.responseText.filter(_ > ' ')
+                .map((tileRepository.map(_.char) zip tileRepository)
+                  .toMap
+                  .get(_)
+                  .getOrElse(VoidTile)))
+          else
+            promise.failure(new RuntimeException("cannot read tiles"))
+      }
+      xhr.send()
+      promise.future
+    }
+
+    val loaded: Promise[Boolean] = Promise()
     loadTiles("init.board", terrainTilesRepository) onSuccess {
       case tiles: Seq[Tile] => {
         startingTerrain = tiles
         loadTiles("init.units", unitTilesRepository) onSuccess {
           case tiles: Seq[Tile] => {
             startingUnits = tiles
-            promise.success(true)
+            loaded.success(true)
           }
         }
       }
     }
-    promise.future
+    loaded.future
   }
 
 }
