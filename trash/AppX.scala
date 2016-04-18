@@ -12,7 +12,7 @@ import com.lms.gow.ui.BoardPane
 
 class AppX extends Application {
 
-  val game = new Game
+  val game = new Board
   val board = new BoardPane(game)
   val status = new Pane
   val scene = new Scene(board, Color.WHITESMOKE)

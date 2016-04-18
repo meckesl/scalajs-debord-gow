@@ -14,7 +14,7 @@ import com.lms.gow.model._
 
 import scala.collection.mutable
 
-class BoardPane(g: Game) extends Pane {
+class BoardPane(g: Board) extends Pane {
 
   def tileSize = 50
 
