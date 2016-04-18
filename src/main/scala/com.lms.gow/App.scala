@@ -65,6 +65,11 @@ object App extends js.JSApp {
                 val w = canvas.width / Rules.terrainWidth
                 val h = canvas.height / Rules.terrainHeight
                 ctx.drawImage(image, x * w, y * h, w, h)
+                if (u._1.isBlue)
+                  ctx.fillStyle = "rgb(0,0,255)"
+                else
+                  ctx.fillStyle = "rgb(255,0,0)"
+                ctx.fillRect(x * w, (y * h) + (h - h / 12), w, h / 12)
               }
             }
           })
