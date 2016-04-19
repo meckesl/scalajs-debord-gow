@@ -11,6 +11,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 
 import com.lms.gow.model._
+import Rules
 
 import scala.collection.mutable
 

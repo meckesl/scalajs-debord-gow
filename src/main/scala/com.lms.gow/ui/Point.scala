@@ -1,6 +1,6 @@
 package com.lms.gow.ui
 
-case class Point(x: Double, y: Double){
+case class Point(x: Double, y: Double) {
   def +(other: Point) = Point(x + other.x, y + other.y)
   def -(other: Point) = Point(x - other.x, y - other.y)
   def %(other: Point) = Point(x % other.x, y % other.y)
@@ -13,7 +13,7 @@ case class Point(x: Double, y: Double){
   def length = Math.sqrt(lengthSquared)
   def lengthSquared = x * x + y * y
   def within(a: Point, b: Point, extra: Point = Point(0, 0)) = {
-    import math.{min, max}
+    import math.{max, min}
     x >= min(a.x, b.x) - extra.x &&
       x < max(a.x, b.x) + extra.y &&
       y >= min(a.y, b.y) - extra.x &&

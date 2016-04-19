@@ -1,8 +1,7 @@
 package com.lms.gow.model
 
 import com.lms.gow.io.Loader
-import com.lms.gow.model.Cardinality._
-import com.lms.gow.model.Tile._
+import com.lms.gow.model.TileRepository._
 import org.scalajs.dom.{Event, XMLHttpRequest}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -15,16 +14,12 @@ object Rules {
   val totalTiles = terrainWidth * terrainHeight
   val movesPerTurn = 5
   val attacksPerTurn = 1
-  val terrainTilesRepository = Seq(Fortress, Mountain, MountainPass)
-  val unitTilesRepository = Seq(BlueCannon, BlueSwiftCannon, BlueRelay, BlueSwiftRelay, BlueInfantry, BlueCavalry, BlueArsenal,
-    RedCannon, RedSwiftCannon, RedRelay, RedSwiftRelay, RedInfantry, RedCavalry, RedArsenal)
   var startingTerrain: Seq[Tile] = null
   var startingUnits: Seq[Tile] = null
-  val directions = Seq(N, NE, E, SE, S, SW, W, NW)
 
   def load(): Future[Boolean] = {
 
-    def loadTiles(file: String, tileRepository: Seq[Tile]): Future[Seq[Tile]] = {
+    def loadInitialBoardPosition(file: String, tiles: Set[Tile]): Future[Seq[Tile]] = {
       val promise: Promise[Seq[Tile]] = Promise()
       val xhr = new XMLHttpRequest()
       xhr.open("GET", Loader.getResUrl(file))
@@ -33,10 +28,7 @@ object Rules {
           if (xhr.status == 200)
             promise.success(
               xhr.responseText.filter(_ > ' ')
-                .map((tileRepository.map(_.char) zip tileRepository)
-                  .toMap
-                  .get(_)
-                  .getOrElse(VoidTile)))
+                .map(TileRepository.getByChar(_)))
           else
             promise.failure(new RuntimeException("cannot read tiles"))
       }
@@ -45,10 +37,10 @@ object Rules {
     }
 
     val loaded: Promise[Boolean] = Promise()
-    loadTiles("init.board", terrainTilesRepository) onSuccess {
+    loadInitialBoardPosition("init.board", TileRepository.terrains) onSuccess {
       case tiles: Seq[Tile] => {
         startingTerrain = tiles
-        loadTiles("init.units", unitTilesRepository) onSuccess {
+        loadInitialBoardPosition("init.units", TileRepository.units) onSuccess {
           case tiles: Seq[Tile] => {
             startingUnits = tiles
             loaded.success(true)

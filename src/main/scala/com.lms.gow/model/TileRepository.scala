@@ -1,0 +1,36 @@
+package com.lms.gow.model
+
+import com.lms.gow.model.PlayerRepository.{Blue, Neutral, Red}
+
+object TileRepository {
+  abstract case class Tile(char: Char, speed: Int, range: Int, attack: Int,
+                           defense: Int, isCom: Boolean, player: PlayerRepository.Player) {
+    val isUnit = player.ne(PlayerRepository.Neutral)
+  }
+  object VoidTile extends Tile('.', 0, 0, 0, 0, false, Neutral)
+  object Fortress extends Tile('F', 0, 0, 0, 4, false, Neutral)
+  object Mountain extends Tile('M', 0, 0, 0, 0, false, Neutral)
+  object MountainPass extends Tile('=', 0, 0, 0, 2, false, Neutral)
+  object RedArsenal extends Tile('A', 0, 0, 0, 0, true, Red)
+  object RedRelay extends Tile('R', 1, 0, 0, 1, true, Red)
+  object RedSwiftRelay extends Tile('E', 2, 0, 0, 1, true, Red)
+  object RedCannon extends Tile('C', 1, 3, 5, 8, false, Red)
+  object RedSwiftCannon extends Tile('N', 2, 3, 5, 8, false, Red)
+  object RedInfantry extends Tile('I', 1, 2, 4, 6, false, Red)
+  object RedCavalry extends Tile('V', 2, 2, 4, 5, false, Red)
+  object BlueArsenal extends Tile('a', 0, 0, 0, 0, true, Blue)
+  object BlueRelay extends Tile('r', 1, 0, 0, 1, true, Blue)
+  object BlueSwiftRelay extends Tile('e', 2, 0, 0, 1, true, Blue)
+  object BlueCannon extends Tile('c', 1, 3, 5, 8, false, Blue)
+  object BlueSwiftCannon extends Tile('n', 2, 3, 5, 8, false, Blue)
+  object BlueInfantry extends Tile('i', 1, 2, 4, 6, false, Blue)
+  object BlueCavalry extends Tile('v', 2, 2, 4, 5, false, Blue)
+  val all = Set(VoidTile, Fortress, Mountain, MountainPass,
+    RedArsenal, RedRelay, RedSwiftRelay, RedCannon, RedSwiftCannon, RedInfantry, RedCavalry,
+    BlueArsenal, BlueRelay, BlueSwiftRelay, BlueCannon, BlueSwiftCannon, BlueInfantry, BlueCavalry)
+  val terrains = all.filter(_.player.eq(PlayerRepository.Neutral))
+  val units = all.filterNot(_.player.eq(PlayerRepository.Neutral))
+  def getByChar(c: Char) : Tile = {
+    all.filter(_.char.equals(c)).head
+  }
+}

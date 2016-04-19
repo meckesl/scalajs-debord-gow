@@ -1,12 +1,13 @@
 package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
-import com.lms.gow.model.{Game, Rules}
+import com.lms.gow.model.TileRepository.Tile
+import com.lms.gow.model.{Game, PlayerRepository, Rules, TileRepository}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLImageElement
 
-case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas) {
+case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas: Canvas) {
 
   val boardSize = new Point(Rules.terrainWidth, Rules.terrainWidth)
   var uiSize = new Point(gameCanvas.width, gameCanvas.height)
@@ -22,34 +23,37 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas) {
     val Highlight = rgba(0, 255, 0, 64)
   }
 
-  def redrawGame {
+  def redrawGame() {
     val ctx = gameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
+    // Background
     0 until Rules.totalTiles foreach { index =>
       val tile = Point.fromLinear(index, Rules.terrainWidth)
       if (index % 2 == 0) ctx.fillStyle = Color.Silver else ctx.fillStyle = Color.White
       ctx.fillRect(tile.x * tileSize.x, tile.y * tileSize.y, tileSize.x, tileSize.y)
     }
 
-    Rules.terrainTilesRepository.foreach(t => {
+    // Terrain
+    TileRepository.terrains.foreach(t => {
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
-        game.board.terrainLayer.zipWithIndex.filter(_._1.equals(t)).foreach { u =>
-          val tile = Point.fromLinear(u._2, Rules.terrainWidth)
+        game.board.terrainLayer.zipWithIndex.filter(_._1.equals(t)).foreach { t =>
+          val tile = Point.fromLinear(t._2, Rules.terrainWidth)
           ctx.drawImage(image, tile.x * tileSize.x, tile.y * tileSize.y, tileSize.x, tileSize.y)
         }
       }
     })
 
-    Rules.unitTilesRepository.foreach(t => {
+    // Units
+    TileRepository.units.foreach(t => {
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
         game.board.unitLayer.zipWithIndex.filter(_._1.equals(t)).foreach { u =>
           val tile = Point.fromLinear(u._2, Rules.terrainWidth)
           ctx.drawImage(image, tile.x * tileSize.x, tile.y * tileSize.y, tileSize.x, tileSize.y)
-          if (u._1.isBlue) ctx.fillStyle = Color.Blue else ctx.fillStyle = Color.Red
+          if (PlayerRepository.Blue.equals(u._1.player)) ctx.fillStyle = Color.Blue else ctx.fillStyle = Color.Red
           ctx.fillRect(
             tile.x * tileSize.x,
             (tile.y * tileSize.y) + (tileSize.y - tileSize.y / 12),
@@ -60,23 +64,33 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas) {
 
   }
 
-  def redrawMouseOverlay(mouse: Point): Unit = {
+  def redrawStatusOverlay() {
+    val ctx = statusCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    ctx.fillStyle = Color.Silver
+    ctx.fillRect(0, 0, statusCanvas.width, statusCanvas.height)
+  }
+
+  def redrawMouseOverlay(mouse: Point) {
     val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-    val x = (uiSize.x - (uiSize.x - mouse.x))
-    val y = (uiSize.y - (uiSize.y - mouse.y))
+    ctx.globalAlpha = 0.5
+    val x = uiSize.x - (uiSize.x - mouse.x)
+    val y = uiSize.y - (uiSize.y - mouse.y)
     ctx.clearRect(0, 0, uiSize.x, uiSize.y)
     ctx.fillStyle = Color.Highlight
-    ctx.fillRect((x - (x % tileSize.x)), (y - (y % tileSize.y)), tileSize.x, tileSize.y)
+    ctx.fillRect(x - (x % tileSize.x), y - (y % tileSize.y), tileSize.x, tileSize.y)
   }
 
   def resize(s: Point): Unit = {
     uiSize = s
     tileSize = uiSize / boardSize
-    gameCanvas.height = uiSize.y.toInt
-    gameCanvas.width = uiSize.x.toInt
-    gameOverlay.height = uiSize.y.toInt
-    gameOverlay.width = uiSize.x.toInt
-    redrawGame
+    gameCanvas.height = (tileSize.y * 20).toInt
+    gameCanvas.width = (tileSize.x * 25).toInt
+    gameOverlay.height = gameCanvas.height
+    gameOverlay.width = gameCanvas.width
+    statusCanvas.height = (uiSize.y - gameCanvas.height).toInt
+    statusCanvas.width = gameCanvas.width
+    redrawGame()
+    redrawStatusOverlay()
   }
 
 }

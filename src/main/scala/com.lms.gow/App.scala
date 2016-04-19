@@ -17,12 +17,14 @@ object App extends js.JSApp {
       .asInstanceOf[html.Canvas]
     val overlayCanvas = getElementById("overlayCanvas")
       .asInstanceOf[html.Canvas]
+    val statusCanvas = getElementById("statusCanvas")
+      .asInstanceOf[html.Canvas]
 
     Rules.load() onSuccess {
       case _ =>
 
         val game = new Game
-        val ui = new Ui(game, gameCanvas, overlayCanvas)
+        val ui = new Ui(game, gameCanvas, overlayCanvas, statusCanvas)
 
         import scala.scalajs.js.timers._
         var handle: SetTimeoutHandle = null
