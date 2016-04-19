@@ -6,9 +6,12 @@ import scala.collection._
 
 class Game {
 
-  var blueTurn = true
-  var remainingMoves = Rules.movesPerTurn
   val board = new Board
+
+  object Turn {
+    var blueTurn = true
+    var remainingMoves = Rules.movesPerTurn
+  }
 
   class Board {
 
@@ -30,14 +33,14 @@ class Game {
           Seq(this)
       }
 
-      def canMove = isOnline && blueTurn.equals(unitTile.isBlue) && unitTile.speed > 0
+      def canMove = isOnline && Turn.blueTurn.equals(unitTile.isBlue) && unitTile.speed > 0
 
       def isOnline = {
         inRange(1)
           .filter(c => {
-            c.unitTile.isUnit && c.unitTile.isBlue.equals(blueTurn) &&
-              (blueTurn && c.comTile._2.size > 0 ||
-                !blueTurn && c.comTile._1.size > 0)
+            c.unitTile.isUnit && c.unitTile.isBlue.equals(Turn.blueTurn) &&
+              (Turn.blueTurn && c.comTile._2.size > 0 ||
+                !Turn.blueTurn && c.comTile._1.size > 0)
           }).size > 0
       }
 
@@ -49,14 +52,14 @@ class Game {
       val dstUnit = unitLayer(dest.index)
       val dstTerrain = Rules.startingTerrain(dest.index)
 
-      if (unit.isBlue.equals(blueTurn)
+      if (unit.isBlue.equals(Turn.blueTurn)
         && dstUnit.equals(VoidTile)
         && !dstTerrain.equals(Mountain)
-        && remainingMoves > 0) {
-        remainingMoves = remainingMoves - 1
-        if (remainingMoves == 0) {
-          remainingMoves = Rules.movesPerTurn
-          blueTurn = !blueTurn
+        && Turn.remainingMoves > 0) {
+        Turn.remainingMoves = Turn.remainingMoves - 1
+        if (Turn.remainingMoves == 0) {
+          Turn.remainingMoves = Rules.movesPerTurn
+          Turn.blueTurn = !Turn.blueTurn
         }
 
         unitLayer.update(source.index, VoidTile)

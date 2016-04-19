@@ -1,7 +1,7 @@
 package com.lms.gow
 
 import com.lms.gow.model.{Game, Rules}
-import com.lms.gow.ui.Ui._
+import com.lms.gow.ui.{Point, Ui}
 import org.scalajs.dom
 import org.scalajs.dom.document._
 import org.scalajs.dom.html
@@ -12,26 +12,30 @@ import scala.scalajs.js
 object App extends js.JSApp {
 
   def main(): Unit = {
+
+    val gameCanvas = getElementById("gameCanvas")
+      .asInstanceOf[html.Canvas]
+    val overlayCanvas = getElementById("overlayCanvas")
+      .asInstanceOf[html.Canvas]
+
     Rules.load() onSuccess {
       case _ =>
 
         val game = new Game
+        val ui = new Ui(game, gameCanvas, overlayCanvas)
 
-        val gameCanvas = getElementById("gameCanvas")
-          .asInstanceOf[html.Canvas]
-        val overlayCanvas = getElementById("overlayCanvas")
-          .asInstanceOf[html.Canvas]
-
-        redrawGame(gameCanvas, game)
-        redrawOverlay(overlayCanvas, game)
-
+        import scala.scalajs.js.timers._
+        var handle: SetTimeoutHandle = null
+        ui.resize(new Point(dom.window.innerWidth, dom.window.innerHeight))
         dom.window.onresize = (e: dom.Event) => {
-          redrawGame(gameCanvas, game)
-          redrawOverlay(overlayCanvas, game)
+          clearTimeout(handle)
+          handle = setTimeout(200) {
+            ui.resize(new Point(dom.window.innerWidth, dom.window.innerHeight))
+          }
         }
+
         overlayCanvas.onmousemove = (e: dom.MouseEvent) => {
-          dom.console.log(s"${e.clientX}/${e.clientY}")
-          redrawMouseOverlay(overlayCanvas, game, e.clientX, e.clientY)
+          ui.redrawMouseOverlay(new Point(e.clientX, e.clientY))
         }
     }
   }

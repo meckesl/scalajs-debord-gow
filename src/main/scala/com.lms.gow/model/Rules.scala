@@ -1,6 +1,6 @@
 package com.lms.gow.model
 
-import com.lms.gow.Util
+import com.lms.gow.io.Loader
 import com.lms.gow.model.Cardinality._
 import com.lms.gow.model.Tile._
 import org.scalajs.dom.{Event, XMLHttpRequest}
@@ -27,7 +27,7 @@ object Rules {
     def loadTiles(file: String, tileRepository: Seq[Tile]): Future[Seq[Tile]] = {
       val promise: Promise[Seq[Tile]] = Promise()
       val xhr = new XMLHttpRequest()
-      xhr.open("GET", Util.getResUrl(file))
+      xhr.open("GET", Loader.getResUrl(file))
       xhr.onload = {
         (e: Event) =>
           if (xhr.status == 200)
