@@ -19,8 +19,8 @@ class BoardPane(g: Board) extends Pane {
 
   def tileSize = 50
 
-  val width = tileSize * RuleRepository.squareWidth
-  val height = tileSize * RuleRepository.squareHeight
+  val width = tileSize * RuleRepository.squareX
+  val height = tileSize * RuleRepository.squareY
 
   private def tileImage(t: Tile) = new Image("tiles/" + t.char.toString + ".png")
   val images = (g.terrainLayer ++ g.unitLayer)
@@ -197,8 +197,8 @@ class BoardPane(g: Board) extends Pane {
   }
 
   def scanBoardCoordinates(func: (Int, Int) => Unit) {
-    (0 until RuleRepository.squareWidth).foreach(x => {
-      (0 until RuleRepository.squareHeight).foreach(y => {
+    (0 until RuleRepository.squareX).foreach(x => {
+      (0 until RuleRepository.squareY).foreach(y => {
         func(x, y)
       })
     })

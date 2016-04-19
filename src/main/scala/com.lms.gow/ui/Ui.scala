@@ -10,7 +10,7 @@ import org.scalajs.dom.raw.HTMLImageElement
 
 case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas: Canvas) {
 
-  val boardSize = new Point(RuleRepository.squareWidth, RuleRepository.squareWidth)
+  val boardSize = new Point(RuleRepository.squareX, RuleRepository.squareX)
   var uiSize = new Point(gameCanvas.width, gameCanvas.height)
   var tileSize = uiSize / boardSize
 
@@ -29,7 +29,7 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
 
     // Background
     0 until RuleRepository.squareCount foreach { index =>
-      val tile = Point.fromLinear(index, RuleRepository.squareWidth)
+      val tile = Point.fromLinear(index, RuleRepository.squareX)
       if (index % 2 == 0) ctx.fillStyle = Color.Silver else ctx.fillStyle = Color.White
       ctx.fillRect(tile.x * tileSize.x, tile.y * tileSize.y, tileSize.x, tileSize.y)
     }

@@ -3,9 +3,9 @@ package com.lms.gow.model.repo
 import com.lms.gow.model.repo.TileRepository.Tile
 
 object RuleRepository {
-  val squareWidth = 25
-  val squareHeight = 20
-  val squareCount = squareWidth * squareHeight
+  val squareX = 25
+  val squareY = 20
+  val squareCount = squareX * squareY
   val turnMoves = 5
   val turnAttacks = 1
   var startingTerrain: Seq[Tile] = null

@@ -4,7 +4,7 @@ import com.lms.gow.model.repo.PlayerRepository._
 
 object TileRepository {
   abstract case class Tile(char: Char, speed: Int, range: Int, attack: Int,
-                           defense: Int, isCom: Boolean, player: PlayerRepository.Player)
+                           defense: Int, isCom: Boolean, player: Player)
   object VoidTile extends Tile('.', 0, 0, 0, 0, false, Neutral)
   object Fortress extends Tile('F', 0, 0, 0, 4, false, Neutral)
   object Mountain extends Tile('M', 0, 0, 0, 0, false, Neutral)
@@ -27,8 +27,8 @@ object TileRepository {
   val all = Set(VoidTile, Fortress, Mountain, MountainPass,
     RedArsenal, RedRelay, RedSwiftRelay, RedCannon, RedSwiftCannon, RedInfantry, RedCavalry,
     BlueArsenal, BlueRelay, BlueSwiftRelay, BlueCannon, BlueSwiftCannon, BlueInfantry, BlueCavalry)
-  val terrains = all.filter(_.player.eq(PlayerRepository.Neutral))
-  val units = all.filterNot(_.player.eq(PlayerRepository.Neutral))
+  val terrains = all.filter(_.player.eq(Neutral))
+  val units = all.filterNot(_.player.eq(Neutral))
   def getByChar(c: Char) : Tile = {
     all.filter(_.char.equals(c)).head
   }
