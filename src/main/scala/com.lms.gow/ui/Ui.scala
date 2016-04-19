@@ -1,8 +1,8 @@
 package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
-import com.lms.gow.model.repo.{PlayerRepository, TileRepository}
-import com.lms.gow.model.{Game, Rules}
+import com.lms.gow.model.repo.{PlayerRepository, RuleRepository, TileRepository}
+import com.lms.gow.model.Game
 import com.lms.gow.ui.model.Point
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
@@ -10,7 +10,7 @@ import org.scalajs.dom.raw.HTMLImageElement
 
 case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas: Canvas) {
 
-  val boardSize = new Point(Rules.terrainWidth, Rules.terrainWidth)
+  val boardSize = new Point(RuleRepository.squareWidth, RuleRepository.squareWidth)
   var uiSize = new Point(gameCanvas.width, gameCanvas.height)
   var tileSize = uiSize / boardSize
 
@@ -28,8 +28,8 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
     val ctx = gameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
     // Background
-    0 until Rules.totalTiles foreach { index =>
-      val tile = Point.fromLinear(index, Rules.terrainWidth)
+    0 until RuleRepository.squareCount foreach { index =>
+      val tile = Point.fromLinear(index, RuleRepository.squareWidth)
       if (index % 2 == 0) ctx.fillStyle = Color.Silver else ctx.fillStyle = Color.White
       ctx.fillRect(tile.x * tileSize.x, tile.y * tileSize.y, tileSize.x, tileSize.y)
     }
@@ -39,7 +39,7 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
-        game.board.boardTiles.filter(_.terrain.equals(t)).foreach { t =>
+        game.gameSquares.filter(_.terrain.equals(t)).foreach { t =>
           val te: Point = t.coords * tileSize
           ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
         }
@@ -51,7 +51,7 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
-        game.board.boardTiles.filter(_.unit.equals(t)).foreach { t =>
+        game.gameSquares.filter(_.unit.equals(t)).foreach { t =>
           val te: Point = t.coords * tileSize
           ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
           if (PlayerRepository.Blue.equals(t.unit.player)) ctx.fillStyle = Color.Blue else ctx.fillStyle = Color.Red

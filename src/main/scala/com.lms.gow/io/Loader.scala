@@ -1,6 +1,12 @@
 package com.lms.gow.io
 
-import com.lms.gow.model.repo.TileRepository
+import com.lms.gow.model.repo.{RuleRepository, TileRepository}
+import com.lms.gow.model.repo.TileRepository.Tile
+import org.scalajs.dom._
+import org.scalajs.dom.raw.XMLHttpRequest
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, Promise}
 
 object Loader {
 
@@ -10,6 +16,40 @@ object Loader {
 
   def getTileUrl(tile: TileRepository.Tile): String = {
     s"target/scala-2.11/classes/tiles/${tile.char}.png"
+  }
+
+  def loadStartingGamePosition(): Future[Boolean] = {
+
+    def loadInitialBoardPosition(file: String, tiles: Set[Tile]): Future[Seq[Tile]] = {
+      val promise: Promise[Seq[Tile]] = Promise()
+      val xhr = new XMLHttpRequest()
+      xhr.open("GET", Loader.getResUrl(file))
+      xhr.onload = {
+        (e: Event) =>
+          if (xhr.status == 200)
+            promise.success(
+              xhr.responseText.filter(_ > ' ')
+                .map(TileRepository.getByChar(_)))
+          else
+            promise.failure(new RuntimeException("cannot read tiles"))
+      }
+      xhr.send()
+      promise.future
+    }
+
+    val loaded: Promise[Boolean] = Promise()
+    loadInitialBoardPosition("init.board", TileRepository.terrains) onSuccess {
+      case tiles: Seq[Tile] => {
+        RuleRepository.startingTerrain = tiles
+        loadInitialBoardPosition("init.units", TileRepository.units) onSuccess {
+          case tiles: Seq[Tile] => {
+            RuleRepository.startingUnits = tiles
+            loaded.success(true)
+          }
+        }
+      }
+    }
+    loaded.future
   }
 
 }

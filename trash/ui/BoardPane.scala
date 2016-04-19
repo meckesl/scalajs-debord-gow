@@ -11,7 +11,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 
 import com.lms.gow.model._
-import Rules
+import com.lms.gow.model.repo.RuleRepository
 
 import scala.collection.mutable
 
@@ -19,8 +19,8 @@ class BoardPane(g: Board) extends Pane {
 
   def tileSize = 50
 
-  val width = tileSize * Rules.terrainWidth
-  val height = tileSize * Rules.terrainHeight
+  val width = tileSize * RuleRepository.squareWidth
+  val height = tileSize * RuleRepository.squareHeight
 
   private def tileImage(t: Tile) = new Image("tiles/" + t.char.toString + ".png")
   val images = (g.terrainLayer ++ g.unitLayer)
@@ -197,8 +197,8 @@ class BoardPane(g: Board) extends Pane {
   }
 
   def scanBoardCoordinates(func: (Int, Int) => Unit) {
-    (0 until Rules.terrainWidth).foreach(x => {
-      (0 until Rules.terrainHeight).foreach(y => {
+    (0 until RuleRepository.squareWidth).foreach(x => {
+      (0 until RuleRepository.squareHeight).foreach(y => {
         func(x, y)
       })
     })

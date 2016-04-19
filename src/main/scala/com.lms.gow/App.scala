@@ -1,6 +1,7 @@
 package com.lms.gow
 
-import com.lms.gow.model.{Game, Rules}
+import com.lms.gow.io.Loader
+import com.lms.gow.model.Game
 import com.lms.gow.ui.Ui
 import com.lms.gow.ui.model.Point
 import org.scalajs.dom
@@ -21,7 +22,7 @@ object App extends js.JSApp {
     val statusCanvas = getElementById("statusCanvas")
       .asInstanceOf[html.Canvas]
 
-    Rules.load() onSuccess {
+    Loader.loadStartingGamePosition() onSuccess {
       case _ =>
 
         val game = new Game
