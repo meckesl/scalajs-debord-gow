@@ -1,8 +1,9 @@
 package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
-import com.lms.gow.model.TileRepository.Tile
-import com.lms.gow.model.{Game, PlayerRepository, Rules, TileRepository}
+import com.lms.gow.model.repo.{PlayerRepository, TileRepository}
+import com.lms.gow.model.{Game, Rules}
+import com.lms.gow.ui.model.Point
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLImageElement
@@ -38,9 +39,9 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
-        game.board.terrainLayer.zipWithIndex.filter(_._1.equals(t)).foreach { t =>
-          val tile = Point.fromLinear(t._2, Rules.terrainWidth)
-          ctx.drawImage(image, tile.x * tileSize.x, tile.y * tileSize.y, tileSize.x, tileSize.y)
+        game.board.boardTiles.filter(_.terrain.equals(t)).foreach { t =>
+          val te: Point = t.coords * tileSize
+          ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
         }
       }
     })
@@ -50,13 +51,13 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
-        game.board.unitLayer.zipWithIndex.filter(_._1.equals(t)).foreach { u =>
-          val tile = Point.fromLinear(u._2, Rules.terrainWidth)
-          ctx.drawImage(image, tile.x * tileSize.x, tile.y * tileSize.y, tileSize.x, tileSize.y)
-          if (PlayerRepository.Blue.equals(u._1.player)) ctx.fillStyle = Color.Blue else ctx.fillStyle = Color.Red
+        game.board.boardTiles.filter(_.unit.equals(t)).foreach { t =>
+          val te: Point = t.coords * tileSize
+          ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
+          if (PlayerRepository.Blue.equals(t.unit.player)) ctx.fillStyle = Color.Blue else ctx.fillStyle = Color.Red
           ctx.fillRect(
-            tile.x * tileSize.x,
-            (tile.y * tileSize.y) + (tileSize.y - tileSize.y / 12),
+            te.x,
+            te.y + (tileSize.y - tileSize.y / 12),
             tileSize.x, tileSize.y / 12)
         }
       }

@@ -1,6 +1,6 @@
 package com.lms.gow.io
 
-import com.lms.gow.model.TileRepository
+import com.lms.gow.model.repo.TileRepository
 
 object Loader {
 

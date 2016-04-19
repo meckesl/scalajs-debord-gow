@@ -1,7 +1,8 @@
 package com.lms.gow
 
 import com.lms.gow.model.{Game, Rules}
-import com.lms.gow.ui.{Point, Ui}
+import com.lms.gow.ui.Ui
+import com.lms.gow.ui.model.Point
 import org.scalajs.dom
 import org.scalajs.dom.document._
 import org.scalajs.dom.html

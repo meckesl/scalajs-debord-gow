@@ -1,12 +1,10 @@
-package com.lms.gow.model
+package com.lms.gow.model.repo
 
-import com.lms.gow.model.PlayerRepository.{Blue, Neutral, Red}
+import com.lms.gow.model.repo.PlayerRepository._
 
 object TileRepository {
   abstract case class Tile(char: Char, speed: Int, range: Int, attack: Int,
-                           defense: Int, isCom: Boolean, player: PlayerRepository.Player) {
-    val isUnit = player.ne(PlayerRepository.Neutral)
-  }
+                           defense: Int, isCom: Boolean, player: PlayerRepository.Player)
   object VoidTile extends Tile('.', 0, 0, 0, 0, false, Neutral)
   object Fortress extends Tile('F', 0, 0, 0, 4, false, Neutral)
   object Mountain extends Tile('M', 0, 0, 0, 0, false, Neutral)
@@ -25,6 +23,7 @@ object TileRepository {
   object BlueSwiftCannon extends Tile('n', 2, 3, 5, 8, false, Blue)
   object BlueInfantry extends Tile('i', 1, 2, 4, 6, false, Blue)
   object BlueCavalry extends Tile('v', 2, 2, 4, 5, false, Blue)
+
   val all = Set(VoidTile, Fortress, Mountain, MountainPass,
     RedArsenal, RedRelay, RedSwiftRelay, RedCannon, RedSwiftCannon, RedInfantry, RedCavalry,
     BlueArsenal, BlueRelay, BlueSwiftRelay, BlueCannon, BlueSwiftCannon, BlueInfantry, BlueCavalry)

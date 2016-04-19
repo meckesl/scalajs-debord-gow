@@ -1,4 +1,4 @@
-package com.lms.gow.ui
+package com.lms.gow.ui.model
 
 case class Point(x: Double, y: Double) {
   def +(other: Point) = Point(x + other.x, y + other.y)
@@ -9,7 +9,7 @@ case class Point(x: Double, y: Double) {
   def /(value: Double) = Point(x / value, y / value)
   def /(other: Point) = Point(x / other.x, y / other.y)
   def *(value: Double) = Point(x * value, y * value)
-  def *(other: Point) = x * other.x + y * other.y
+  def *(other: Point) = Point(x * other.x, y * other.y)
   def length = Math.sqrt(lengthSquared)
   def lengthSquared = x * x + y * y
   def within(a: Point, b: Point, extra: Point = Point(0, 0)) = {
@@ -26,6 +26,7 @@ case class Point(x: Double, y: Double) {
 }
 
 object Point {
-  def fromLinear(linear: Int, refWidth: Int) =
+  def fromLinear(linear: Int, refWidth: Int): Point =
     Point(linear % refWidth, linear / refWidth)
+  def toLinear(p: Point, refWidth: Int) = p.y * refWidth + p.x
 }

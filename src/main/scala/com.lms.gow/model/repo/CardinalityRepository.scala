@@ -1,4 +1,4 @@
-package com.lms.gow.model
+package com.lms.gow.model.repo
 
 object CardinalityRepository {
   abstract case class Cardinality(y: Int, x: Int)

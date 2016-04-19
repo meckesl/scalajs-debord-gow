@@ -1,7 +1,7 @@
-package com.lms.gow.model
+package com.lms.gow.model.repo
 
 object PlayerRepository {
-  case class Player(c: Char)
+  abstract case class Player(c: Char)
   object Red extends Player('r')
   object Blue extends Player('b')
   object Neutral extends Player('n')

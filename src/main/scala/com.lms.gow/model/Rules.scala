@@ -1,7 +1,8 @@
 package com.lms.gow.model
 
 import com.lms.gow.io.Loader
-import com.lms.gow.model.TileRepository._
+import com.lms.gow.model.repo.TileRepository
+import com.lms.gow.model.repo.TileRepository.Tile
 import org.scalajs.dom.{Event, XMLHttpRequest}
 
 import scala.concurrent.ExecutionContext.Implicits.global

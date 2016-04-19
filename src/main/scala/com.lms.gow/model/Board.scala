@@ -1,68 +1,16 @@
 package com.lms.gow.model
 
-import com.lms.gow.model.CardinalityRepository.Cardinality
-import com.lms.gow.model.PlayerRepository.{Blue, Red}
-import com.lms.gow.model.TileRepository.{Mountain, VoidTile}
+import scala.collection.mutable
 
-import scala.collection.{Seq, mutable}
+class Board(g: Game) {
 
-class Board(game: Game) {
-
-  val terrainLayer = Rules.startingTerrain
-  val unitLayer = mutable.Seq(Rules.startingUnits: _*)
-  val comLayer = Seq.fill(Rules.totalTiles)(mutable.Set[Cardinality](), mutable.Set[Cardinality]())
-
-  class Coordinates(x: Int, y: Int) {
-
-    val index = x + y * Rules.terrainWidth
-    val unitTile = unitLayer(index)
-    val terrainTile = terrainLayer(index)
-    val comTile = comLayer(index)
-
-    def inRange(r: Int): Seq[Coordinates] = {
-      if (r.equals(1))
-        CardinalityRepository.all map (c => new Coordinates(x + c.x, y + c.y))
-      else
-        Seq(this)
-    }
-
-    def canMove = isOnline && game.turnPlayer == unitTile.player && unitTile.speed > 0
-
-    def isOnline = inRange(1)
-      .exists(c => {
-        game.turnPlayer == Blue && c.comTile._2.nonEmpty ||
-          game.turnPlayer == Red && c.comTile._1.nonEmpty
-      })
-
-  }
-
-  def move(source: Coordinates, dest: Coordinates): Boolean = {
-
-    val unit = unitLayer(source.index)
-    val dstUnit = unitLayer(dest.index)
-    val dstTerrain = Rules.startingTerrain(dest.index)
-
-    if (game.turnPlayer.equals(unit.player)
-      && dstUnit.equals(VoidTile)
-      && !dstTerrain.equals(Mountain)
-      && game.turnRemainingMoves > 0) {
-      game.turnRemainingMoves = game.turnRemainingMoves - 1
-      if (game.turnRemainingMoves == 0) {
-        game.turnRemainingMoves = Rules.movesPerTurn
-        if (game.turnPlayer == Red)
-          game.turnPlayer = Blue
-        else
-          game.turnPlayer = Red
-      }
-
-      unitLayer update(source.index, VoidTile)
-      unitLayer update(dest.index, unit)
-
-      //refreshComLayer
-      true
-    }
-    else
-      false
+  val boardTiles: mutable.Seq[BoardTile] = {
+    mutable.Seq[BoardTile](
+      0 until Rules.totalTiles map (i => {
+        val bt = new BoardTile(i, Rules.startingTerrain(i), this, g)
+        bt.unit = Rules.startingUnits(i)
+        bt
+      }): _*)
   }
 
   /*def refreshComLayer = {

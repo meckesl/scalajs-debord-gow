@@ -1,6 +1,6 @@
 package com.lms.gow.model
 
-import com.lms.gow.model.PlayerRepository.{Blue, Player}
+import com.lms.gow.model.repo.PlayerRepository.{Blue, Player}
 
 class Game {
   val board = new Board(this)

@@ -166,7 +166,7 @@ class BoardPane(g: Board) extends Pane {
       moveOptions = query.getCoordinatesInRange(x, y, 1)
       refreshUxLayer
     } else if (selectSquare != null) {
-      g.move(selected._1, selected._2, x, y)
+      g.moveUnit(selected._1, selected._2, x, y)
       scanBoardCoordinates(drawTileLayers)
     }
 
