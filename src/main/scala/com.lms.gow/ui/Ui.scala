@@ -50,6 +50,8 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
 
   def drawGame() {
     val ctx = gameCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    ctx.restore()
+    ctx.save()
 
     // Background
     0 until RuleRepository.squareCount foreach { index =>
@@ -85,12 +87,25 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
           ctx.shadowColor = Color.Gray
           ctx.shadowOffsetX = 5
           ctx.shadowOffsetY = 5
+
+          if (!sq.isOnline)
+            ctx.globalAlpha = 0.3
           ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
+          ctx.globalAlpha = 1
+
           ctx.fillStyle = Color.fromPlayer(sq.unit.player)
-          ctx.fillRect(
-            te.x + (tileSize.x / 20),
-            te.y + (tileSize.y - tileSize.y / 12),
-            tileSize.x - (tileSize.x / 20), tileSize.y / 12)
+
+          if (sq.canMove) {
+            ctx.fillRect(
+              te.x + (tileSize.x / 20),
+              te.y + (tileSize.y - tileSize.y / 12),
+              tileSize.x - (tileSize.x / 20), tileSize.y / 12)
+          } else {
+            ctx.fillRect(
+              te.x + (tileSize.x / 20),
+              te.y + (tileSize.y - tileSize.y / 12),
+              (tileSize.x / 20) , tileSize.y / 12)
+          }
         }
       }
     })
@@ -134,7 +149,7 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
     val ctx = statusCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     ctx.fillStyle = Color.Silver
     ctx.strokeStyle = Color.fromPlayer(game.turnPlayer)
-    ctx.lineWidth = 10
+    ctx.lineWidth = 5
     ctx.shadowBlur = 10
     ctx.shadowColor = Color.Gray
     ctx.shadowOffsetX = 10
@@ -196,6 +211,7 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
                  attack: ${sq.unit.attack}
                  defense: ${sq.unit.defense}
                  movement: ${sq.unit.speed}
+                 com: ${sq.com(sq.unit.player).mkString(",")}
                """, txtp.x, txtp.y, statusSize.x - margin)
         }
       }
@@ -223,10 +239,10 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
   def onMousemove(e: dom.MouseEvent) {
 
     val curSq = getGameSquare(new Point(e.clientX, e.clientY))
+    val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
     if (null == squareMoved || squareMoved == curSq) {
       if (curSq != squareHover) {
-        val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
         ctx.clearRect(0, 0, uiSize.x, uiSize.y)
         squareHighlight(curSq, 0.1)
         if (null != squareClicked)
@@ -234,7 +250,6 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
         squareHover = curSq
       }
     } else {
-      val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
       ctx.clearRect(0, 0, uiSize.x, uiSize.y)
       squareHighlight(squareMoved, 0.5)
       val from = squareMoved.coords * tileSize + tileSize / 2

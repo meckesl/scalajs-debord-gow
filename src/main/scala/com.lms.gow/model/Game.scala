@@ -5,10 +5,15 @@ import com.lms.gow.model.repo.PlayerRepository.{Blue, Neutral, Player, Red}
 import com.lms.gow.model.repo.TileRepository.{BlueArsenal, Mountain, RedArsenal}
 import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
 
+import scala.collection.mutable
+
 class Game {
 
-  var turnPlayer: Player = Blue
   var turnRemainingMoves = RuleRepository.turnMoves
+  val turnMovedUnits = mutable.Set[GameSquare]()
+  var turnAttack = RuleRepository.turnAttacks
+  var turnPlayer: Player = Blue
+
   val gameSquares =
     0 until RuleRepository.squareCount map (i => {
       val sq = new GameSquare(i, RuleRepository.startingTerrain(i), this)
@@ -18,6 +23,8 @@ class Game {
 
   def nextTurn() = {
     turnRemainingMoves = RuleRepository.turnMoves
+    turnMovedUnits.clear()
+    turnAttack = RuleRepository.turnAttacks
     if (turnPlayer == Red)
       turnPlayer = Blue
     else
