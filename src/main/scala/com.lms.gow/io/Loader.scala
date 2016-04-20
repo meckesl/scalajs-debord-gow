@@ -1,7 +1,7 @@
 package com.lms.gow.io
 
+import com.lms.gow.model.repo.TileRepository.{Tile, VoidTile}
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
-import com.lms.gow.model.repo.TileRepository.Tile
 import org.scalajs.dom._
 import org.scalajs.dom.raw.XMLHttpRequest
 
@@ -15,7 +15,12 @@ object Loader {
   }
 
   def getTileUrl(tile: TileRepository.Tile): String = {
-    s"target/scala-2.11/classes/tiles/${tile.char}.png"
+    var s = ""
+    if (tile.equals(VoidTile))
+      s = "dot"
+    else
+      s = tile.char.toString
+    s"target/scala-2.11/classes/tiles/$s.png"
   }
 
   def loadStartingGamePosition(): Future[Boolean] = {

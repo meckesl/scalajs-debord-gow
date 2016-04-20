@@ -29,6 +29,7 @@ object TileRepository {
     BlueArsenal, BlueRelay, BlueSwiftRelay, BlueCannon, BlueSwiftCannon, BlueInfantry, BlueCavalry)
   val terrains = all.filter(_.player.eq(Neutral))
   val units = all.filterNot(_.player.eq(Neutral))
+
   def getByChar(c: Char) : Tile = {
     all.filter(_.char.equals(c)).head
   }

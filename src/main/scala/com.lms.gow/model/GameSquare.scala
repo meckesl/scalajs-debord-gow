@@ -35,7 +35,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
   }
 
   def getAdjacentSquare(c: Cardinality) = {
-    val i = Point.toLinear(new Point(c.x, c.y) + coords, RuleRepository.squareX).toInt
+    val i = (new Point(c.x, c.y) + coords).toLinear(RuleRepository.squareX)
     if ((i < g.gameSquares.size && i >= 0) &&
         (!(coords.x == 0 && Seq(NW, SW, W).contains(c))) &&
         (!(coords.x == RuleRepository.squareX -1 && Seq(NE, SE, E).contains(c))))

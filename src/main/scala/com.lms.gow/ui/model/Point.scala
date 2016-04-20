@@ -23,10 +23,10 @@ case class Point(x: Double, y: Double) {
     val (cos, sin) = (Math.cos(theta), math.sin(theta))
     Point(cos * x - sin * y, sin * x + cos * y)
   }
+  def toLinear(refWidth: Int) : Int = (y * refWidth + x).toInt
 }
 
 object Point {
   def fromLinear(linear: Int, refWidth: Int): Point =
     Point(linear % refWidth, linear / refWidth)
-  def toLinear(p: Point, refWidth: Int) = p.y * refWidth + p.x
 }

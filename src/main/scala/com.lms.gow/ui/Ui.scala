@@ -1,11 +1,11 @@
 package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
-import com.lms.gow.model.{Game, GameSquare}
 import com.lms.gow.model.repo.CardinalityRepository._
 import com.lms.gow.model.repo.PlayerRepository.Blue
 import com.lms.gow.model.repo.TileRepository.VoidTile
 import com.lms.gow.model.repo.{PlayerRepository, RuleRepository, TileRepository}
+import com.lms.gow.model.{Game, GameSquare}
 import com.lms.gow.ui.model.Point
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
@@ -15,15 +15,19 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
 
   val boardSize = new Point(RuleRepository.squareX, RuleRepository.squareX)
   var uiSize = new Point(gameCanvas.width, gameCanvas.height)
+  var statusSize = new Point(statusCanvas.width, statusCanvas.height)
   var tileSize = uiSize / boardSize
+  var curStatusSquare: GameSquare = null
 
   object Color {
     def rgb(r: Int, g: Int, b: Int) = s"rgb($r, $g, $b)"
     def rgba(r: Int, g: Int, b: Int, a: Int) = s"rgba($r, $g, $b, $a)"
     val White = rgb(255, 255, 255)
-    val Silver = rgb(240, 240, 240)
+    val Silver = rgb(247, 247, 247)
     val Blue = rgb(0, 0, 255)
     val Red = rgb(255, 0, 0)
+    val BlueAlpha = rgba(0, 0, 255, 64)
+    val RedAlpha = rgba(255, 0, 0, 64)
     val Highlight = rgba(0, 255, 0, 64)
   }
 
@@ -38,7 +42,7 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
     }
 
     // Terrain
-    TileRepository.terrains.filterNot(_.eq(VoidTile)).foreach(t => {
+    TileRepository.terrains.foreach(t => {
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
@@ -59,9 +63,9 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
           ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
           if (PlayerRepository.Blue.equals(sq.unit.player)) ctx.fillStyle = Color.Blue else ctx.fillStyle = Color.Red
           ctx.fillRect(
-            te.x,
+            te.x + (tileSize.x / 20),
             te.y + (tileSize.y - tileSize.y / 12),
-            tileSize.x, tileSize.y / 12)
+            tileSize.x - (tileSize.x / 20), tileSize.y / 12)
         }
       }
     })
@@ -71,53 +75,45 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       sq.com.foreach(com => {
 
         if (com._1.equals(Blue))
-          ctx.strokeStyle = Color.Blue
+          ctx.strokeStyle = Color.BlueAlpha
         else
-          ctx.strokeStyle = Color.Red
+          ctx.strokeStyle = Color.RedAlpha
 
         com._2.foreach(c => {
-          //dom.console.log(s"drawing com line (${sq.coords.x},${sq.coords.y})")
 
           var a: Point = null
           var b: Point = null
 
-          if (Seq(NW, SE).contains(c)) {
+          ctx.beginPath()
+          if (Seq(NW, SE, SOURCE).contains(c)) {
             a = sq.coords * tileSize
             b = a + tileSize
-            ctx.beginPath()
             ctx.moveTo(a.x, a.y)
             ctx.lineTo(b.x, b.y)
             ctx.stroke()
-            ctx.closePath()
           }
-          if (Seq(N, S).contains(c)) {
+          if (Seq(N, S, SOURCE).contains(c)) {
             a = (sq.coords * tileSize) + new Point(tileSize.x / 2, 0)
             b = a + new Point(0, tileSize.y)
-            ctx.beginPath()
             ctx.moveTo(a.x, a.y)
             ctx.lineTo(b.x, b.y)
             ctx.stroke()
-            ctx.closePath()
           }
-          if (Seq(NE, SW).contains(c)) {
-            a = (sq.coords * tileSize) + new Point(tileSize.x, 0)
-            b = a - new Point(-tileSize.x, tileSize.y)
-            ctx.beginPath()
+          if (Seq(NE, SW, SOURCE).contains(c)) {
+            a = (sq.coords * tileSize) + new Point(0, tileSize.y)
+            b = a + new Point(tileSize.x, -tileSize.y)
             ctx.moveTo(a.x, a.y)
             ctx.lineTo(b.x, b.y)
             ctx.stroke()
-            ctx.closePath()
           }
-          if (Seq(W, E).contains(c)) {
+          if (Seq(W, E, SOURCE).contains(c)) {
             a = (sq.coords * tileSize) + new Point(0, tileSize.y / 2)
             b = a + new Point(tileSize.x, 0)
-            ctx.beginPath()
             ctx.moveTo(a.x, a.y)
             ctx.lineTo(b.x, b.y)
             ctx.stroke()
-            ctx.closePath()
           }
-
+          ctx.closePath()
         })
       })
     })
@@ -135,7 +131,7 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
     def getGameSquare(mouse: Point): GameSquare = {
       val np = uiSize - (uiSize - mouse)
       val abs = (np - (np % tileSize)) / tileSize
-      val index = Point.toLinear(abs, RuleRepository.squareX).toInt
+      val index = abs.toLinear(RuleRepository.squareX)
       val sq = game.gameSquares(index)
       dom.console.log(s"unit:${sq.unit.char} com:${sq.com.map(_._2.toString).mkString(",")}")
       sq
@@ -150,7 +146,46 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       ctx.fillRect(np.x, np.y, tileSize.x, tileSize.y)
     }
 
-    drawSquareHighlight(getGameSquare(mouse))
+    def drawSquareStatusInfo(sq: GameSquare) = {
+
+      val ctx = statusCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+      redrawStatusOverlay
+
+      val boxSize = tileSize * 1.5
+      val margin = 20
+      val p = new Point(margin, margin)
+
+      val terrain: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
+      terrain.src = Loader.getTileUrl(sq.terrain)
+      terrain.onload = (e: dom.Event) => {
+        ctx.drawImage(terrain, p.x, p.y, boxSize.x, boxSize.y)
+
+        if (!sq.unit.equals(VoidTile)) {
+          val unit: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
+          unit.src = Loader.getTileUrl(sq.unit)
+          unit.onload = (e: dom.Event) => {
+            ctx.drawImage(unit, p.x, p.y, boxSize.x, boxSize.y)
+            val txtp = p + new Point(0, boxSize.y + margin)
+            ctx.strokeText(
+              s"""
+                 |unit: ${sq.unit.char}
+                 |terrain: ${sq.terrain.char}
+                 |attack: ${sq.unit.attack}
+                 |defense: ${sq.unit.defense}
+                 |movement: ${sq.unit.speed}
+               """, txtp.x, txtp.y, statusSize.x - margin)
+
+          }
+        }
+      }
+    }
+
+    val currentSq = getGameSquare(mouse)
+    if (currentSq != curStatusSquare) {
+      drawSquareStatusInfo(currentSq)
+      drawSquareHighlight(currentSq)
+      curStatusSquare = currentSq
+    }
 
   }
 
@@ -163,6 +198,7 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
     gameOverlay.width = gameCanvas.width
     statusCanvas.height = (uiSize.y - gameCanvas.height).toInt
     statusCanvas.width = gameCanvas.width
+    statusSize = new Point(statusCanvas.width, statusCanvas.height)
     redrawGame()
     redrawStatusOverlay()
   }
