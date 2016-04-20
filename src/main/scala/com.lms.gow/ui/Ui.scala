@@ -1,7 +1,7 @@
 package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
-import com.lms.gow.model.Game
+import com.lms.gow.model.{Game, GameSquare}
 import com.lms.gow.model.repo.CardinalityRepository._
 import com.lms.gow.model.repo.PlayerRepository.Blue
 import com.lms.gow.model.repo.TileRepository.VoidTile
@@ -131,12 +131,27 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
   }
 
   def redrawMouseOverlay(mouse: Point) {
-    val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-    ctx.globalAlpha = 0.5
-    val np = uiSize - (uiSize - mouse)
-    ctx.clearRect(0, 0, uiSize.x, uiSize.y)
-    ctx.fillStyle = Color.Highlight
-    ctx.fillRect(np.x - (np.x % tileSize.x), np.y - (np.y % tileSize.y), tileSize.x, tileSize.y)
+
+    def getGameSquare(mouse: Point): GameSquare = {
+      val np = uiSize - (uiSize - mouse)
+      val abs = (np - (np % tileSize)) / tileSize
+      val index = Point.toLinear(abs, RuleRepository.squareX).toInt
+      val sq = game.gameSquares(index)
+      dom.console.log(s"unit:${sq.unit.char} com:${sq.com.map(_._2.toString).mkString(",")}")
+      sq
+    }
+
+    def drawSquareHighlight(sq: GameSquare) = {
+      val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+      ctx.globalAlpha = 0.5
+      ctx.clearRect(0, 0, uiSize.x, uiSize.y)
+      ctx.fillStyle = Color.Highlight
+      val np = sq.coords * tileSize
+      ctx.fillRect(np.x, np.y, tileSize.x, tileSize.y)
+    }
+
+    drawSquareHighlight(getGameSquare(mouse))
+
   }
 
   def resize(s: Point): Unit = {
