@@ -1,8 +1,11 @@
 package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
-import com.lms.gow.model.repo.{PlayerRepository, RuleRepository, TileRepository}
 import com.lms.gow.model.Game
+import com.lms.gow.model.repo.CardinalityRepository._
+import com.lms.gow.model.repo.PlayerRepository.Blue
+import com.lms.gow.model.repo.TileRepository.VoidTile
+import com.lms.gow.model.repo.{PlayerRepository, RuleRepository, TileRepository}
 import com.lms.gow.ui.model.Point
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
@@ -35,12 +38,12 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
     }
 
     // Terrain
-    TileRepository.terrains.foreach(t => {
+    TileRepository.terrains.filterNot(_.eq(VoidTile)).foreach(t => {
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
-        game.gameSquares.filter(_.terrain.equals(t)).foreach { t =>
-          val te: Point = t.coords * tileSize
+        game.gameSquares.filter(_.terrain.equals(t)).foreach { sq =>
+          val te: Point = sq.coords * tileSize
           ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
         }
       }
@@ -51,16 +54,72 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       val image: HTMLImageElement = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = Loader.getTileUrl(t)
       image.onload = (e: dom.Event) => {
-        game.gameSquares.filter(_.unit.equals(t)).foreach { t =>
-          val te: Point = t.coords * tileSize
+        game.gameSquares.filter(_.unit.equals(t)).foreach { sq =>
+          val te: Point = sq.coords * tileSize
           ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
-          if (PlayerRepository.Blue.equals(t.unit.player)) ctx.fillStyle = Color.Blue else ctx.fillStyle = Color.Red
+          if (PlayerRepository.Blue.equals(sq.unit.player)) ctx.fillStyle = Color.Blue else ctx.fillStyle = Color.Red
           ctx.fillRect(
             te.x,
             te.y + (tileSize.y - tileSize.y / 12),
             tileSize.x, tileSize.y / 12)
         }
       }
+    })
+
+    // Communication
+    game.gameSquares.foreach(sq => {
+      sq.com.foreach(com => {
+
+        if (com._1.equals(Blue))
+          ctx.strokeStyle = Color.Blue
+        else
+          ctx.strokeStyle = Color.Red
+
+        com._2.foreach(c => {
+          //dom.console.log(s"drawing com line (${sq.coords.x},${sq.coords.y})")
+
+          var a: Point = null
+          var b: Point = null
+
+          if (Seq(NW, SE).contains(c)) {
+            a = sq.coords * tileSize
+            b = a + tileSize
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.stroke()
+            ctx.closePath()
+          }
+          if (Seq(N, S).contains(c)) {
+            a = (sq.coords * tileSize) + new Point(tileSize.x / 2, 0)
+            b = a + new Point(0, tileSize.y)
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.stroke()
+            ctx.closePath()
+          }
+          if (Seq(NE, SW).contains(c)) {
+            a = (sq.coords * tileSize) + new Point(tileSize.x, 0)
+            b = a - new Point(-tileSize.x, tileSize.y)
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.stroke()
+            ctx.closePath()
+          }
+          if (Seq(W, E).contains(c)) {
+            a = (sq.coords * tileSize) + new Point(0, tileSize.y / 2)
+            b = a + new Point(tileSize.x, 0)
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.stroke()
+            ctx.closePath()
+          }
+
+        })
+      })
     })
 
   }
@@ -74,11 +133,10 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
   def redrawMouseOverlay(mouse: Point) {
     val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     ctx.globalAlpha = 0.5
-    val x = uiSize.x - (uiSize.x - mouse.x)
-    val y = uiSize.y - (uiSize.y - mouse.y)
+    val np = uiSize - (uiSize - mouse)
     ctx.clearRect(0, 0, uiSize.x, uiSize.y)
     ctx.fillStyle = Color.Highlight
-    ctx.fillRect(x - (x % tileSize.x), y - (y % tileSize.y), tileSize.x, tileSize.y)
+    ctx.fillRect(np.x - (np.x % tileSize.x), np.y - (np.y % tileSize.y), tileSize.x, tileSize.y)
   }
 
   def resize(s: Point): Unit = {

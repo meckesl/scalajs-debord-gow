@@ -1,6 +1,6 @@
 package com.lms.gow.model
 
-import com.lms.gow.model.repo.CardinalityRepository.Cardinality
+import com.lms.gow.model.repo.CardinalityRepository._
 import com.lms.gow.model.repo.PlayerRepository.{Blue, Red}
 import com.lms.gow.model.repo.TileRepository.{Mountain, Tile, VoidTile}
 import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
@@ -28,21 +28,25 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       g.turnRemainingMoves -= 1
       if (g.turnRemainingMoves == 0)
         g.nextTurn()
-      //refreshComLayer
       true
     }
     else
       false
   }
 
+  def getAdjacentSquare(c: Cardinality) = {
+    val i = Point.toLinear(new Point(c.x, c.y) + coords, RuleRepository.squareX).toInt
+    if ((i < g.gameSquares.size && i >= 0) &&
+        (!(coords.x == 0 && Seq(NW, SW, W).contains(c))) &&
+        (!(coords.x == RuleRepository.squareX -1 && Seq(NE, SE, E).contains(c))))
+      g.gameSquares(i)
+    else
+      null
+  }
+
   def inRange(r: Int): Seq[GameSquare] = {
     if (r.equals(1))
-      CardinalityRepository.all map (c => {
-        val i = Point.toLinear(
-          new Point(c.x, c.y) + coords,
-          RuleRepository.squareX).toInt
-        g.gameSquares(i)
-      })
+      CardinalityRepository.all map (getAdjacentSquare(_))
     else
       Seq(this)
   }

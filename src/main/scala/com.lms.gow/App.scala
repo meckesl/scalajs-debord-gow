@@ -24,7 +24,6 @@ object App extends js.JSApp {
 
     Loader.loadStartingGamePosition() onSuccess {
       case _ =>
-
         val game = new Game
         val ui = new Ui(game, gameCanvas, overlayCanvas, statusCanvas)
 

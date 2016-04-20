@@ -10,5 +10,6 @@ object CardinalityRepository {
   object SW extends Cardinality(1, -1)
   object W extends Cardinality(0, -1)
   object NW extends Cardinality(-1, -1)
-  def all = Seq(N, NE, E, SE, S, SW, W, NW)
+  object SOURCE extends Cardinality(0, 0)
+  def all = Seq(N, NE, E, SE, S, SW, W, NW, SOURCE)
 }
