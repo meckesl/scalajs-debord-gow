@@ -44,11 +44,15 @@ object Loader {
 
     val loaded: Promise[Boolean] = Promise()
     loadInitialBoardPosition("init.board", TileRepository.terrains) onSuccess {
-      case tiles: Seq[Tile] => {
-        RuleRepository.startingTerrain = tiles
+      case tilesT: Seq[Tile] => {
+        RuleRepository.startingTerrain = tilesT.map(t => {
+          if (TileRepository.terrains.contains(t)) t else VoidTile
+        })
         loadInitialBoardPosition("init.units", TileRepository.units) onSuccess {
-          case tiles: Seq[Tile] => {
-            RuleRepository.startingUnits = tiles
+          case tilesU: Seq[Tile] => {
+            RuleRepository.startingUnits = tilesU.map(u => {
+              if (TileRepository.units.contains(u)) u else VoidTile
+            })
             loaded.success(true)
           }
         }

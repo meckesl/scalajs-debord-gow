@@ -2,7 +2,7 @@ package com.lms.gow.model
 
 import com.lms.gow.model.repo.CardinalityRepository._
 import com.lms.gow.model.repo.PlayerRepository.{Blue, Red}
-import com.lms.gow.model.repo.TileRepository.{Mountain, Tile, VoidTile}
+import com.lms.gow.model.repo.TileRepository._
 import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
 
 import scala.collection.immutable.HashMap
@@ -11,7 +11,7 @@ import scala.collection.{Seq, mutable}
 case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
   val coords = Point.fromLinear(index, RuleRepository.squareX)
-  var unit:Tile = null
+  var unit:Tile = VoidTile
   val com = HashMap(Seq(Blue, Red).map(p => (p -> mutable.Set[Cardinality]())): _*)
 
   def canMove =
@@ -20,10 +20,17 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       unit.speed > 0 &&
       isOnline
 
+  def canMoveTo(dest: GameSquare) =
+    canMove &&
+      dest.unit.equals(VoidTile) &&
+      !dest.terrain.equals(Mountain) &&
+      inRange(unit.speed).contains(dest)
+
   def moveTo(dest: GameSquare): Boolean = {
-    if (canMove && dest.unit.equals(VoidTile) && !dest.terrain.equals(Mountain)) {
-      g.gameSquares(index).unit = unit
+    if (canMoveTo(dest)) {
+      dest.unit = unit
       unit = VoidTile
+      g.refreshComLayer()
       g.turnRemainingMoves -= 1
       if (g.turnRemainingMoves == 0)
         g.nextTurn()
@@ -43,13 +50,17 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       null
   }
 
-  def inRange(r: Int): Seq[GameSquare] = {
+  def inRange(r: Int): Set[GameSquare] = {
     if (r.equals(1))
-      CardinalityRepository.all map (getAdjacentSquare(_))
+      CardinalityRepository.all map (getAdjacentSquare(_)) toSet
+    else if (r.equals(2))
+      inRange(1) flatMap (_.inRange(1))
     else
-      Seq(this)
+      Set(this)
   }
 
   def isOnline = inRange(1).exists(_.com(g.turnPlayer).nonEmpty)
+
+  override def toString = s"(x=${coords.x} y=${coords.y}, unit=${unit.char})"
 
 }

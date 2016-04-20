@@ -37,12 +37,21 @@ object App extends js.JSApp {
         }
 
         overlayCanvas.onmousemove = (e: dom.MouseEvent) => {
-          ui.onHover(new Point(e.clientX, e.clientY))
+          ui.onMousemove(e)
         }
 
         overlayCanvas.onclick = (e: dom.MouseEvent) => {
-          ui.onClick(new Point(e.clientX, e.clientY))
+          ui.onClick(e)
         }
+
+        overlayCanvas.onmouseup = (e: dom.MouseEvent) => {
+          ui.onMouseup(e)
+        }
+
+        overlayCanvas.onmousedown = (e: dom.MouseEvent) => {
+          ui.onMousedown(e)
+        }
+
     }
   }
 

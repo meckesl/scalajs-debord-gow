@@ -13,13 +13,21 @@ import org.scalajs.dom.raw.HTMLImageElement
 case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas: Canvas) {
 
   val boardDimensions = new Point(RuleRepository.squareX, RuleRepository.squareY)
-
   var uiSize = new Point(gameCanvas.width, gameCanvas.height)
   var statusSize = new Point(statusCanvas.width, statusCanvas.height)
   var tileSize = uiSize / boardDimensions
 
   var squareHover: GameSquare = null
   var squareClicked: GameSquare = null
+  var squareMoved: GameSquare = null
+
+  var mouseDown = false
+
+  def getGameSquare(p: Point): GameSquare = {
+    val corrected = (p - (p % tileSize)) / tileSize
+    val index = corrected.toLinear(RuleRepository.squareX)
+    game.gameSquares(index)
+  }
 
   object Color {
     def rgb(r: Int, g: Int, b: Int) = s"rgb($r, $g, $b)"
@@ -170,7 +178,6 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
         unit.src = Loader.getTileUrl(sq.unit)
         unit.onload = (e: dom.Event) => {
           ctx.drawImage(unit, p.x, p.y, boxSize.x, boxSize.y)
-
           if (!sq.unit.player.equals(Neutral)) {
             ctx.fillStyle = Color.fromPlayer(sq.unit.player)
             ctx.fillRect(
@@ -178,7 +185,6 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
               p.y + (boxSize.y - boxSize.y / 12),
               boxSize.x - (boxSize.x / 20), boxSize.y / 12)
           }
-
           val txtp = p + new Point(0, boxSize.y + margin)
           ctx.closePath
           ctx.lineWidth = 1
@@ -194,37 +200,6 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
         }
       }
     }
-  }
-
-  def onHover(mouse: Point) {
-
-    def getGameSquare(mouse: Point): GameSquare = {
-      val np = uiSize - (uiSize - mouse)
-      val z = (np - (np % tileSize)) / tileSize
-      dom.console.log(z.x + "/" + z.y)
-      val index = z.toLinear(RuleRepository.squareX)
-      game.gameSquares(index)
-    }
-
-    val curSq = getGameSquare(mouse)
-
-    if (curSq != squareHover) {
-      val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-      ctx.clearRect(0, 0, uiSize.x, uiSize.y)
-      squareHighlight(curSq, 0.1)
-      if (null != squareClicked)
-        squareHighlight(squareClicked, 0.3)
-      squareHover = curSq
-    }
-
-  }
-
-  def onClick(mouse: Point): Unit = {
-    val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-    ctx.clearRect(0, 0, uiSize.x, uiSize.y)
-    squareClicked = squareHover
-    squareHighlight(squareHover, 0.3)
-    squareStatus(squareHover)
   }
 
   def onResize(s: Point): Unit = {
@@ -243,6 +218,65 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       squareHighlight(squareClicked, 0.3)
       squareStatus(squareClicked)
     }
+  }
+
+  def onMousemove(e: dom.MouseEvent) {
+
+    val curSq = getGameSquare(new Point(e.clientX, e.clientY))
+
+    if (null == squareMoved || squareMoved == curSq) {
+      if (curSq != squareHover) {
+        val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+        ctx.clearRect(0, 0, uiSize.x, uiSize.y)
+        squareHighlight(curSq, 0.1)
+        if (null != squareClicked)
+          squareHighlight(squareClicked, 0.3)
+        squareHover = curSq
+      }
+    } else {
+      val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+      ctx.clearRect(0, 0, uiSize.x, uiSize.y)
+      squareHighlight(squareMoved, 0.5)
+      val from = squareMoved.coords * tileSize + tileSize / 2
+      val to = curSq.coords * tileSize + tileSize / 2
+      ctx.beginPath()
+      if (squareMoved.canMoveTo(curSq))
+        ctx.strokeStyle = Color.fromPlayer(game.turnPlayer)
+      else
+        ctx.strokeStyle = Color.Gray
+      ctx.lineWidth = 10
+      ctx.moveTo(from.x, from.y)
+      ctx.lineTo(to.x, to.y)
+      ctx.stroke()
+      squareHover = curSq
+    }
+  }
+
+  def onClick(e: dom.MouseEvent): Unit = {
+    val ctx = gameOverlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    ctx.clearRect(0, 0, uiSize.x, uiSize.y)
+    squareClicked = squareHover
+    squareHighlight(squareHover, 0.3)
+    squareStatus(squareHover)
+  }
+
+  def onMouseup(e: dom.MouseEvent): Unit = {
+    if (null != squareMoved && squareMoved.canMoveTo(squareHover)) {
+      squareMoved.moveTo(squareHover)
+      drawGame()
+      drawStatus()
+    }
+    squareMoved = null
+  }
+
+  def onMousedown(e: dom.MouseEvent): Unit = {
+    val mouse = new Point(e.clientX, e.clientY)
+    if (getGameSquare(mouse).canMove) {
+      squareMoved = getGameSquare(mouse)
+      squareStatus(squareMoved)
+    }
+    else
+      squareMoved = null
   }
 
 }
