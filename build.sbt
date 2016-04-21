@@ -1,7 +1,7 @@
 lazy val root = project.in(file(".")).enablePlugins(ScalaJSPlugin)
 
 name := "scalajs-debord-gow"
-version := "0.1-SNAPSHOT"
+version := "0.2-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 scalaJSUseRhino in Global := false
