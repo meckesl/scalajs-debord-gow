@@ -20,7 +20,7 @@ object Loader {
       s = "dot"
     else
       s = tile.char.toString
-    s"target/scala-2.11/classes/tiles/$s.png"
+    s"target/scala-2.11/classes/tiles/$s/0.png"
   }
 
   def loadStartingGamePosition(): Future[Boolean] = {

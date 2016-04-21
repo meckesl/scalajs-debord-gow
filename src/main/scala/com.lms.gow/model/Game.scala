@@ -37,8 +37,8 @@ class Game {
       dir.foreach(d => {
         val sq = cursor.getAdjacentSquare(d)
         if (null != sq && !sq.com(pl).contains(d)) {
+          sq.com(pl) += d
           if (!sq.terrain.equals(Mountain) && Seq(Neutral, pl).contains(sq.unit.player)) {
-            sq.com(pl) += d
             if (sq.unit.isCom && sq.unit.player.equals(pl))
               propagate(sq, sq, CardinalityRepository.all)
             else

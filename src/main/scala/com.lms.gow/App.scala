@@ -14,7 +14,11 @@ object App extends js.JSApp {
 
   def main(): Unit = {
 
-    val gameCanvas = getElementById("gameCanvas")
+    val terrainCanvas = getElementById("terrainCanvas")
+      .asInstanceOf[html.Canvas]
+    val comCanvas = getElementById("comCanvas")
+      .asInstanceOf[html.Canvas]
+    val unitCanvas = getElementById("unitCanvas")
       .asInstanceOf[html.Canvas]
     val overlayCanvas = getElementById("overlayCanvas")
       .asInstanceOf[html.Canvas]
@@ -24,8 +28,7 @@ object App extends js.JSApp {
     Loader.loadStartingGamePosition() onSuccess {
       case _ =>
         val game = new Game
-        val ui = new Ui(game, gameCanvas, overlayCanvas, statusCanvas)
-
+        val ui = new Ui(game, terrainCanvas, comCanvas, unitCanvas, overlayCanvas, statusCanvas)
         import scala.scalajs.js.timers._
         var handle: SetTimeoutHandle = null
         ui.onResize(new Point(dom.window.innerWidth, dom.window.innerHeight))
@@ -35,22 +38,10 @@ object App extends js.JSApp {
             ui.onResize(new Point(dom.window.innerWidth, dom.window.innerHeight))
           }
         }
-
-        overlayCanvas.onmousemove = (e: dom.MouseEvent) => {
-          ui.onMousemove(e)
-        }
-
-        overlayCanvas.onclick = (e: dom.MouseEvent) => {
-          ui.onClick(e)
-        }
-
-        overlayCanvas.onmouseup = (e: dom.MouseEvent) => {
-          ui.onMouseup(e)
-        }
-
-        overlayCanvas.onmousedown = (e: dom.MouseEvent) => {
-          ui.onMousedown(e)
-        }
+        overlayCanvas.onmousemove = (e: dom.MouseEvent) => { ui onMousemove e }
+        overlayCanvas.onclick = (e: dom.MouseEvent) => { ui onClick e }
+        overlayCanvas.onmouseup = (e: dom.MouseEvent) => { ui onMouseup e }
+        overlayCanvas.onmousedown = (e: dom.MouseEvent) => { ui onMousedown e }
 
     }
   }

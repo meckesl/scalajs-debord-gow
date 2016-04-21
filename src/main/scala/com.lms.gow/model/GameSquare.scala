@@ -39,11 +39,10 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       (dest.com(unit.player).nonEmpty ||
       hasAdjacentOnlineAllies(dest))
 
-  def moveTo(dest: GameSquare): Boolean = {
+  def moveUnitTo(dest: GameSquare): Boolean = {
     if (canMoveTo(dest)) {
       dest.unit = unit
       unit = VoidTile
-      g.refreshComLayer()
       g.turnMovedUnits add dest //fixme unit
       g.turnRemainingMoves -= 1
       if (g.turnRemainingMoves == 0)
