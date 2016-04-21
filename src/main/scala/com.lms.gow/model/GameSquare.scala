@@ -14,13 +14,13 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
   var unit: Tile = VoidTile
   val com = HashMap(Seq(Blue, Red).map(p => p -> mutable.Set[Cardinality]()): _*)
 
-  private def hasAdjacentOnlineAllies(sq: GameSquare = this) : Boolean =
+  private def hasAdjacentOnlineAllies(sq: GameSquare = this): Boolean =
     sq.inRange(1)
-    .filterNot(_.equals(this))
-    .filter(s => {
-      s.unit.player.equals(unit.player) &&
-        s.com(unit.player).nonEmpty
-    }).nonEmpty
+      .filterNot(_.equals(this))
+      .filter(s => {
+        s.unit.player.equals(unit.player) &&
+          s.com(unit.player).nonEmpty
+      }).nonEmpty
 
   def isOnline = com(unit.player).nonEmpty || hasAdjacentOnlineAllies() || unit.isCom
 
@@ -36,13 +36,14 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       dest.unit.equals(VoidTile) &&
       !dest.terrain.equals(Mountain) &&
       inRange(unit.speed).contains(dest) &&
-      (dest.com(unit.player).nonEmpty ||
-      hasAdjacentOnlineAllies(dest))
+      (unit.isCom || dest.com(unit.player).nonEmpty ||
+        hasAdjacentOnlineAllies(dest))
 
   def moveUnitTo(dest: GameSquare): Boolean = {
     if (canMoveTo(dest)) {
       dest.unit = unit
       unit = VoidTile
+      g.refreshComLayer
       g.turnMovedUnits add dest //fixme unit
       g.turnRemainingMoves -= 1
       if (g.turnRemainingMoves == 0)
@@ -65,7 +66,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
   def inRange(r: Int): Set[GameSquare] = {
     if (r.equals(1))
-      CardinalityRepository.all map (getAdjacentSquare(_)) toSet
+      CardinalityRepository.all map (getAdjacentSquare(_)) filterNot (_.terrain.equals(Mountain)) toSet
     else if (r.equals(2))
       inRange(1) flatMap (_.inRange(1))
     else

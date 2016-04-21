@@ -2,8 +2,9 @@ package com.lms.gow.io
 
 import com.lms.gow.model.repo.TileRepository.{Tile, VoidTile}
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
+import org.scalajs.dom
 import org.scalajs.dom._
-import org.scalajs.dom.raw.XMLHttpRequest
+import org.scalajs.dom.raw.{HTMLImageElement, XMLHttpRequest}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
@@ -14,13 +15,21 @@ object Loader {
     s"target/scala-2.11/classes/$res"
   }
 
-  def getTileUrl(tile: TileRepository.Tile): String = {
+  private def getTileUrl(tile: TileRepository.Tile): String = {
     var s = ""
     if (tile.equals(VoidTile))
       s = "dot"
     else
       s = tile.char.toString
     s"target/scala-2.11/classes/tiles/$s/0.png"
+  }
+
+  def getTileAsync(t: Tile, callback: (HTMLImageElement) => Unit) {
+    val image = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
+    image.src = Loader.getTileUrl(t)
+    image.onload = (e: dom.Event) => {
+      callback(image)
+    }
   }
 
   def loadStartingGamePosition(): Future[Boolean] = {

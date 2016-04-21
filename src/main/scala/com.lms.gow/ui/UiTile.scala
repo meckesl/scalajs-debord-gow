@@ -1,17 +1,32 @@
 package com.lms.gow.ui
 
+import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.CardinalityRepository._
-import com.lms.gow.model.repo.RuleRepository
+import com.lms.gow.model.repo.{RuleRepository, TileRepository}
+import com.lms.gow.model.repo.TileRepository.Tile
 import com.lms.gow.model.{GameSquare, Point}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLImageElement
+
+import scala.collection.mutable
 
 class UiTile(canvas: Canvas) {
 
   val boardSize = new Point(RuleRepository.squareX, RuleRepository.squareY)
   def size = new Point(canvas.width, canvas.height)
   def tileSize = size / boardSize
+
+  val imageCache: mutable.HashMap[Tile, HTMLImageElement] = new mutable.HashMap()
+
+  /*TileRepository.units.foreach(t => {
+      Loader.getTileAsync(t, image => {
+        game.gameSquares.filter(_.unit.equals(t)).foreach { sq =>
+          uiUnits.drawUnit(sq, image)
+        }
+      })
+    })*/
+
 
   val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
@@ -45,7 +60,17 @@ class UiTile(canvas: Canvas) {
     ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
   }
 
-  def drawUnit(sq: GameSquare, image: HTMLImageElement) = {
+  def drawUnit(sq: GameSquare) {
+    if (imageCache.get(sq.unit).isDefined)
+      drawUnit(sq, imageCache.get(sq.unit).get)
+    else
+      Loader.getTileAsync(sq.unit, image => {
+        imageCache put(sq.unit, image)
+        drawUnit(sq, image)
+      })
+  }
+
+  def drawUnit(sq: GameSquare, image: HTMLImageElement) {
     val u: Point = sq.coords * tileSize
     ctx.shadowBlur = 5
     ctx.shadowColor = Color.Gray
@@ -106,7 +131,6 @@ class UiTile(canvas: Canvas) {
           b = a + new Point(tileSize.x, 0)
           drawLine(a, b)
         }
-
       })
     })
   }

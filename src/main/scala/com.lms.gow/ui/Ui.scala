@@ -2,12 +2,11 @@ package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.PlayerRepository._
-import com.lms.gow.model.repo.TileRepository.{Tile, VoidTile}
+import com.lms.gow.model.repo.TileRepository.VoidTile
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
 import com.lms.gow.model.{Game, GameSquare, Point}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
-import org.scalajs.dom.raw.HTMLImageElement
 
 case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, statusCanvas: Canvas) {
 
@@ -32,21 +31,13 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
     game.gameSquares(index)
   }
 
-  def getTileAsync(t: Tile, callback: (HTMLImageElement) => Unit) {
-    val image = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
-    image.src = Loader.getTileUrl(t)
-    image.onload = (e: dom.Event) => {
-      callback(image)
-    }
-  }
-
   def drawTerrain() {
     uiTerrain.resetStyle()
     0 until RuleRepository.squareCount foreach { index =>
       uiTerrain.drawBackground(index)
     }
     TileRepository.terrains.foreach(t => {
-      getTileAsync(t, image => {
+      Loader.getTileAsync(t, image => {
         game.gameSquares.filter(_.terrain.equals(t)).foreach { sq =>
           uiTerrain.drawTerrain(sq, image)
         }
@@ -55,21 +46,17 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
   }
 
   def drawUnits() {
-    uiUnits.resetStyle()
-    TileRepository.units.foreach(t => {
-      getTileAsync(t, image => {
-        game.gameSquares.filter(_.unit.equals(t)).foreach { sq =>
-          uiUnits.drawUnit(sq, image)
-        }
-      })
-    })
+    uiUnits.clearAll()
+    game.gameSquares.filterNot(_.unit.equals(VoidTile)).foreach { sq =>
+      uiUnits.drawUnit(sq)
+    }
   }
 
   def drawCom() {
-    uiCom.clearAll()
-    game.gameSquares.foreach { sq =>
+    game.gameSquares.foreach(sq => {
+      uiCom.clear(sq)
       uiCom.drawCommunication(sq)
-    }
+    })
   }
 
   def drawStatus() {
@@ -97,10 +84,10 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
     val margin = 20
     val p = new Point(margin, margin)
 
-    getTileAsync(sq.terrain, terrain => {
+    Loader.getTileAsync(sq.terrain, terrain => {
       ctx.drawImage(terrain, p.x, p.y, boxSize.x, boxSize.y)
       if (!sq.unit.equals(VoidTile)) {
-        getTileAsync(sq.unit, unit => {
+        Loader.getTileAsync(sq.unit, unit => {
           ctx.drawImage(unit, p.x, p.y, boxSize.x, boxSize.y)
           if (!sq.unit.player.equals(Neutral)) {
             ctx.fillStyle = Color.fromPlayer(sq.unit.player)
@@ -127,9 +114,7 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
     })
   }
 
-
-
-  def onResize(s: Point): Unit = {
+  def onResize(s: Point) {
     uiSize = s
     terrainCanvas.width = uiSize.x.toInt
     terrainCanvas.height = uiSize.y.toInt
@@ -137,8 +122,8 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
     comCanvas.height = uiSize.y.toInt
     unitCanvas.width = uiSize.x.toInt
     unitCanvas.height = uiSize.y.toInt
-    overlayCanvas.width = terrainCanvas.width
-    overlayCanvas.height = terrainCanvas.height
+    overlayCanvas.width = uiSize.x.toInt
+    overlayCanvas.height = uiSize.y.toInt
     statusSize = uiSize / new Point(3, 5)
     statusCanvas.width = statusSize.x.toInt
     statusCanvas.height = statusSize.y.toInt
@@ -187,30 +172,23 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
     }
   }
 
-  def onClick(e: dom.MouseEvent): Unit = {
+  def onClick(e: dom.MouseEvent) {
     squareClicked = squareHover
     uiOverlay.clearAll()
     uiOverlay.drawHighlight(squareHover, 0.3)
     squareStatus(squareHover)
   }
 
-  def onMouseup(e: dom.MouseEvent): Unit = {
+  def onMouseup(e: dom.MouseEvent) {
     if (null != squareMoved && squareMoved.canMoveTo(squareHover)) {
       squareMoved.moveUnitTo(squareHover)
-      //drawUnits()
+      drawUnits()
       drawCom()
-      val toClear = squareMoved
-      getTileAsync(squareHover.unit, image => {
-        uiUnits.clear(toClear)
-        uiUnits.drawUnit(squareHover, image)
-      })
-
-      //drawStatus()
     }
     squareMoved = null
   }
 
-  def onMousedown(e: dom.MouseEvent): Unit = {
+  def onMousedown(e: dom.MouseEvent) {
     val mouse = new Point(e.clientX, e.clientY)
     if (getGameSquare(mouse).canMove) {
       squareMoved = getGameSquare(mouse)
