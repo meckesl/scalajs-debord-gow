@@ -44,7 +44,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       dest.unit = unit
       unit = VoidTile
       g.refreshComLayer()
-      g.turnMovedUnits add dest
+      g.turnMovedUnits add dest //fixme unit
       g.turnRemainingMoves -= 1
       if (g.turnRemainingMoves == 0)
         g.nextTurn()

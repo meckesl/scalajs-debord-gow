@@ -87,14 +87,13 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
           ctx.shadowColor = Color.Gray
           ctx.shadowOffsetX = 5
           ctx.shadowOffsetY = 5
-
+          // Unit image
           if (!sq.isOnline)
             ctx.globalAlpha = 0.3
           ctx.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
           ctx.globalAlpha = 1
-
+          // Movement bar
           ctx.fillStyle = Color.fromPlayer(sq.unit.player)
-
           if (sq.canMove) {
             ctx.fillRect(
               te.x + (tileSize.x / 20),
@@ -118,27 +117,37 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
           var a: Point = null
           var b: Point = null
 
-          ctx.beginPath()
+          def drawLine(a: Point, b:Point) = {
+            ctx.globalAlpha = 0.5
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.stroke()
+            ctx.closePath()
+            ctx.globalAlpha = 1
+          }
+
           if (Seq(NW, SE, SOURCE).contains(c)) {
             a = sq.coords * tileSize
             b = a + tileSize
+            drawLine(a, b)
           }
           if (Seq(N, S, SOURCE).contains(c)) {
             a = (sq.coords * tileSize) + new Point(tileSize.x / 2, 0)
             b = a + new Point(0, tileSize.y)
+            drawLine(a, b)
           }
           if (Seq(NE, SW, SOURCE).contains(c)) {
             a = (sq.coords * tileSize) + new Point(0, tileSize.y)
             b = a + new Point(tileSize.x, -tileSize.y)
+            drawLine(a, b)
           }
           if (Seq(W, E, SOURCE).contains(c)) {
             a = (sq.coords * tileSize) + new Point(0, tileSize.y / 2)
             b = a + new Point(tileSize.x, 0)
+            drawLine(a, b)
           }
-          ctx.moveTo(a.x, a.y)
-          ctx.lineTo(b.x, b.y)
-          ctx.stroke()
-          ctx.closePath()
+
         })
       })
     })
@@ -254,14 +263,23 @@ case class Ui(game: Game, gameCanvas: Canvas, gameOverlay: Canvas, statusCanvas:
       squareHighlight(squareMoved, 0.5)
       val from = squareMoved.coords * tileSize + tileSize / 2
       val to = curSq.coords * tileSize + tileSize / 2
-      ctx.beginPath()
+
       if (squareMoved.canMoveTo(curSq))
         ctx.strokeStyle = Color.fromPlayer(game.turnPlayer)
       else
         ctx.strokeStyle = Color.Gray
       ctx.lineWidth = 10
+
+      //ctx.beginPath()
+      //ctx.moveTo(from.x, from.y)
+      //ctx.lineTo(to.x, to.y)
+
+      ctx.beginPath()
       ctx.moveTo(from.x, from.y)
-      ctx.lineTo(to.x, to.y)
+      //ctx.bezierCurveTo(145 + xoff, 68 + yoff, 175 + xoff, 77 + yoff, 175 + xoff, 77 + yoff)
+      ctx.bezierCurveTo(from.x, to.y, to.x , to.y, to.x, to.y)
+      ctx.stroke()
+
       ctx.stroke()
       squareHover = curSq
     }
