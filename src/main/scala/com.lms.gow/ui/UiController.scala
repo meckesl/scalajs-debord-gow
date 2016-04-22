@@ -8,8 +8,6 @@ import com.lms.gow.model.{Game, GameSquare, Point}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 
-import scala.collection.mutable
-
 case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
 
   val uiBackround = new UiLayer(backgroundCanvas)
@@ -18,13 +16,11 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   val uiUnits = new UiLayer(unitCanvas)
   val uiOverlay = new UiLayer(overlayCanvas)
 
-  val boardDimensions = new Point(RuleRepository.squareX, RuleRepository.squareY)
-  def tileSize = uiSize / boardDimensions
   var squareHover: GameSquare = null
   var squareClicked: GameSquare = null
   var squareMoved: GameSquare = null
-  var mouseDown = false
 
+  def tileSize = uiSize / new Point(RuleRepository.squareX, RuleRepository.squareY)
   var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
   var interfaceSize = new Point(interfaceCanvas.width, interfaceCanvas.height)
 
@@ -117,7 +113,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     interfaceCanvas.width = interfaceSize.x.toInt
     interfaceCanvas.height = interfaceSize.y.toInt
 
-    0 until RuleRepository.squareCount foreach (uiBackround.tileBackground(_))
+    0 until RuleRepository.squareCount foreach uiBackround.tileBackground
 
     uiTerrain.clearLayer()
     TileRepository.terrains.foreach(t => {
@@ -154,49 +150,49 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
     val curSq = getGameSquare(new Point(e.clientX, e.clientY))
 
-    if (null == squareMoved || squareMoved == curSq) {
-      if (curSq != squareHover) {
-        // No mouse drag
-        uiOverlay.clearLayer()
-        uiOverlay.tileUnitHighlight(curSq)
-        curSq.alliesInRange().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Green))
-        curSq.targetsInAttackRange().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Red))
-        squareHover = curSq
-      }
-    } else {
-      // Mouse drag
+    def onMousemoveHover = {
+      uiOverlay.clearLayer()
+      uiOverlay.tileUnitHighlight(curSq)
+      curSq.alliesInRange().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Green))
+      curSq.targetsInAttackRange().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Red))
+      squareHover = curSq
+    }
+
+    def onMousemoveDrag = {
       uiOverlay.clearLayer()
       uiOverlay.tileUnitHighlight(squareMoved)
       uiOverlay.drawActionArrow(squareMoved, curSq)
-      curSq.canBeTargetOf().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Green))
-      curSq.alliesInRange().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Red))
-
+      curSq.canBeTargetOf().foreach(
+        uiOverlay.tileHighlight(_, 0.1, Color.Green))
+      curSq.alliesInRange().foreach(
+        uiOverlay.tileHighlight(_, 0.1, Color.Red))
       if (squareMoved.canAttack(curSq))
         uiOverlay.tileHighlight(curSq, 0.3, Color.Red)
-
       squareHover = curSq
     }
+
+    if (null == squareMoved || squareMoved == curSq) {
+      if (curSq != squareHover)
+        onMousemoveHover
+    } else
+      onMousemoveDrag
+
   }
 
   def isCurrentTurn(sq: GameSquare) = game.turnPlayer.equals(sq.unit.player)
 
-
-
   def onClick(e: dom.MouseEvent) {
-
-    uiOverlay.clearLayer()
     if (isCurrentTurn(squareHover)) {
       squareClicked = squareHover
+      uiOverlay.clearLayer()
       uiOverlay.tileUnitHighlight(squareClicked)
       squareStatus(squareClicked)
     }
-
   }
 
   def onMouseup(e: dom.MouseEvent) {
     if (null != squareMoved && squareMoved.canMoveTo(squareHover)) {
       squareMoved.moveUnitTo(squareHover)
-
       uiUnits.clearLayer()
       TileRepository.units.foreach(u => {
         Loader.getTileAsync(u, image => {
@@ -205,7 +201,6 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
           })
         })
       })
-
       uiCom.clearLayer()
       game.gameSquares.foreach(sq => {
         uiCom.tileCommunication(sq)

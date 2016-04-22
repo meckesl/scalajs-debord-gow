@@ -34,7 +34,7 @@ class Game {
   }
 
   def refreshComLayer() = {
-    def propagate(source: GameSquare, cursor: GameSquare, dir: Seq[Cardinality]): Unit = {
+    def propagate(source: GameSquare, cursor: GameSquare, dir: Set[Cardinality]): Unit = {
       val pl = source.unit.player
       dir.foreach(d => {
         val sq = cursor.getAdjacentSquare(d)
@@ -44,7 +44,7 @@ class Game {
             if (sq.unit.isCom && sq.unit.player.equals(pl))
               propagate(sq, sq, CardinalityRepository.all)
             else
-              propagate(source, sq, Seq(d))
+              propagate(source, sq, Set(d))
           }
         }
       })

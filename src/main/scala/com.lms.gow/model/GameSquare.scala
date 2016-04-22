@@ -10,12 +10,11 @@ import scala.collection.{Seq, mutable}
 
 case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
-
-  val coords = Point.fromLinear(index, RuleRepository.squareX)
   var unit: Tile = VoidTile
+  val coords = Point.fromLinear(index, RuleRepository.squareX)
   val com = HashMap(Seq(Blue, Red).map(p => p -> mutable.Set[Cardinality]()): _*)
 
-  private def hasAdjacentOnlineAllies(sq: GameSquare = this): Boolean =
+  private def hasAdjacentOnlineAlly(sq: GameSquare = this): Boolean =
     sq.inRange(1)
       .filterNot(_.equals(this))
       .filter(s => {
@@ -23,7 +22,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
           s.com(unit.player).nonEmpty
       }).nonEmpty
 
-  def isOnline = com(unit.player).nonEmpty || hasAdjacentOnlineAllies() || unit.isCom
+  def isOnline = com(unit.player).nonEmpty || hasAdjacentOnlineAlly() || unit.isCom
 
   def canAttack(dest: GameSquare): Boolean = {
     targetsInAttackRange.contains(dest)
@@ -42,7 +41,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       !dest.terrain.equals(Mountain) &&
       inRange(unit.speed).contains(dest) &&
       (unit.isCom || dest.com(unit.player).nonEmpty ||
-        hasAdjacentOnlineAllies(dest))
+        hasAdjacentOnlineAlly(dest))
 
   def moveUnitTo(dest: GameSquare): Boolean = {
     if (canMoveTo(dest)) {
@@ -59,14 +58,14 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       false
   }
 
-  def targetsInAttackRange() = inRange(unit.range).filter(ir => {
+  def targetsInAttackRange() = inCombatRange(unit.range).filter(ir => {
     !Set(unit.player, Neutral).contains(ir.unit.player)
   })
 
-  def canBeTargetOf() : mutable.Set[GameSquare] = {
+  def canBeTargetOf(): mutable.Set[GameSquare] = {
     val enemies = mutable.Set[GameSquare]()
     1 to TileRepository.units.maxBy(_.range).range foreach (range => {
-      enemies ++= inRange(range)
+      enemies ++= inCombatRange(range)
         .filterNot(_.unit.player.equals(Neutral))
         .filterNot(_.unit.player.equals(unit.player))
         .filter(_.unit.range >= range)
@@ -78,7 +77,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
   def alliesInRange(): mutable.Set[GameSquare] = {
     val allies = mutable.Set[GameSquare]()
     1 to TileRepository.units.maxBy(_.range).range foreach (range => {
-      allies ++= inRange(range)
+      allies ++= inCombatRange(range)
         .filterNot(_.unit.player.equals(Neutral))
         .filter(_.unit.player.equals(unit.player))
         .filter(_.unit.range >= range)
@@ -97,7 +96,23 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       null
   }
 
-  def inRange(r: Int): Set[GameSquare] = {
+  private def inCombatRange(
+                             range: Int,
+                             dir: Set[Cardinality] = CardinalityRepository.all,
+                             cursor: GameSquare = this,
+                             acc: mutable.Set[GameSquare] = mutable.Set[GameSquare]()): mutable.Set[GameSquare] = {
+    dir.foreach(d => {
+      val cur = cursor.getAdjacentSquare(d)
+      if (null != cur && !cur.terrain.equals(Mountain)) {
+        acc += cur
+        if (range > 1)
+          acc ++= inCombatRange(range - 1, Set(d), cur, acc)
+      }
+    })
+    acc
+  }
+
+  private def inRange(r: Int): Set[GameSquare] = {
     if (r.equals(1))
       CardinalityRepository.all map (getAdjacentSquare(_)) filterNot (_.terrain.equals(Mountain)) toSet
     else if (r.equals(2))
