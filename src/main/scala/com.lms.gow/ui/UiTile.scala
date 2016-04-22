@@ -2,7 +2,7 @@ package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.CardinalityRepository._
-import com.lms.gow.model.repo.{RuleRepository, TileRepository}
+import com.lms.gow.model.repo.RuleRepository
 import com.lms.gow.model.repo.TileRepository.Tile
 import com.lms.gow.model.{GameSquare, Point}
 import org.scalajs.dom
@@ -13,27 +13,12 @@ import scala.collection.mutable
 
 class UiTile(canvas: Canvas) {
 
+  val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+  val imageCache: mutable.HashMap[Tile, HTMLImageElement] = new mutable.HashMap()
+
   val boardSize = new Point(RuleRepository.squareX, RuleRepository.squareY)
   def size = new Point(canvas.width, canvas.height)
   def tileSize = size / boardSize
-
-  val imageCache: mutable.HashMap[Tile, HTMLImageElement] = new mutable.HashMap()
-
-  /*TileRepository.units.foreach(t => {
-      Loader.getTileAsync(t, image => {
-        game.gameSquares.filter(_.unit.equals(t)).foreach { sq =>
-          uiUnits.drawUnit(sq, image)
-        }
-      })
-    })*/
-
-
-  val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-
-  def resetStyle() {
-    ctx.restore
-    ctx.save
-  }
 
   def clear(sq: GameSquare) {
     val p: Point = sq.coords * tileSize
@@ -41,7 +26,6 @@ class UiTile(canvas: Canvas) {
   }
 
   def clearAll() {
-    resetStyle
     ctx.clearRect(0, 0, size.x, size.y)
   }
 
@@ -72,16 +56,21 @@ class UiTile(canvas: Canvas) {
 
   def drawUnit(sq: GameSquare, image: HTMLImageElement) {
     val u: Point = sq.coords * tileSize
+    ctx.save()
     ctx.shadowBlur = 5
     ctx.shadowColor = Color.Gray
     ctx.shadowOffsetX = 5
     ctx.shadowOffsetY = 5
-    // Unit image
     if (!sq.isOnline)
       ctx.globalAlpha = 0.3
     ctx.drawImage(image, u.x, u.y, tileSize.x, tileSize.y)
     ctx.globalAlpha = 1
-    // Movement bar
+    drawMovementBar(sq)
+    ctx.restore()
+  }
+
+  def drawMovementBar(sq: GameSquare): Unit = {
+    val u: Point = sq.coords * tileSize
     ctx.fillStyle = Color.fromPlayer(sq.unit.player)
     if (sq.canMove) {
       ctx.fillRect(
@@ -96,41 +85,42 @@ class UiTile(canvas: Canvas) {
     }
   }
 
+  class sqCoords(sq: GameSquare) {
+    val nw = sq.coords * tileSize
+    val se = nw + tileSize
+    val n = nw + new Point(tileSize.x / 2, 0)
+    val s = se - new Point(tileSize.x / 2, 0)
+    val ne = nw + new Point(tileSize.x, 0)
+    val sw = se - new Point(tileSize.x, 0)
+    val e = nw + new Point(0, tileSize.y / 2)
+    val w = se - new Point(0, tileSize.y / 2)
+  }
+
   def drawCommunication(sq: GameSquare) = {
+
+    val co = new sqCoords(sq)
+
+    def drawLine(a: Point, b: Point) = {
+      ctx.globalAlpha = 0.5
+      ctx.beginPath()
+      ctx.moveTo(a.x, a.y)
+      ctx.lineTo(b.x, b.y)
+      ctx.stroke()
+      ctx.closePath()
+      ctx.globalAlpha = 1
+    }
+
     sq.com.foreach(com => {
       ctx.strokeStyle = Color.fromPlayer(com._1)
       com._2.foreach(c => {
-        var a: Point = null
-        var b: Point = null
-        def drawLine(a: Point, b: Point) = {
-          ctx.globalAlpha = 0.5
-          ctx.beginPath()
-          ctx.moveTo(a.x, a.y)
-          ctx.lineTo(b.x, b.y)
-          ctx.stroke()
-          ctx.closePath()
-          ctx.globalAlpha = 1
-        }
-        if (Seq(NW, SE, SOURCE).contains(c)) {
-          a = sq.coords * tileSize
-          b = a + tileSize
-          drawLine(a, b)
-        }
-        if (Seq(N, S, SOURCE).contains(c)) {
-          a = (sq.coords * tileSize) + new Point(tileSize.x / 2, 0)
-          b = a + new Point(0, tileSize.y)
-          drawLine(a, b)
-        }
-        if (Seq(NE, SW, SOURCE).contains(c)) {
-          a = (sq.coords * tileSize) + new Point(0, tileSize.y)
-          b = a + new Point(tileSize.x, -tileSize.y)
-          drawLine(a, b)
-        }
-        if (Seq(W, E, SOURCE).contains(c)) {
-          a = (sq.coords * tileSize) + new Point(0, tileSize.y / 2)
-          b = a + new Point(tileSize.x, 0)
-          drawLine(a, b)
-        }
+        if (Seq(NW, SE, SOURCE).contains(c))
+          drawLine(co.nw, co.se)
+        if (Seq(N, S, SOURCE).contains(c))
+          drawLine(co.n, co.s)
+        if (Seq(NE, SW, SOURCE).contains(c))
+          drawLine(co.ne, co.sw)
+        if (Seq(W, E, SOURCE).contains(c))
+          drawLine(co.e, co.w)
       })
     })
   }

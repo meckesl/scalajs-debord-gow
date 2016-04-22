@@ -8,10 +8,11 @@ import com.lms.gow.model.{Game, GameSquare, Point}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 
-case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, statusCanvas: Canvas) {
+case class Ui(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
 
-  val uiTerrain = new UiTile(terrainCanvas)
+  val uiBackround = new UiTile(backgroundCanvas)
   val uiCom = new UiTile(comCanvas)
+  val uiTerrain = new UiTile(terrainCanvas)
   val uiUnits = new UiTile(unitCanvas)
   val uiOverlay = new UiTile(overlayCanvas)
 
@@ -23,7 +24,7 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
   var mouseDown = false
 
   var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
-  var statusSize = new Point(statusCanvas.width, statusCanvas.height)
+  var interfaceSize = new Point(interfaceCanvas.width, interfaceCanvas.height)
 
   def getGameSquare(p: Point): GameSquare = {
     val corrected = (p - (p % tileSize)) / tileSize
@@ -31,25 +32,22 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
     game.gameSquares(index)
   }
 
+  def drawBackground() {
+    0 until RuleRepository.squareCount foreach (uiBackround.drawBackground(_))
+  }
+
   def drawTerrain() {
-    uiTerrain.resetStyle()
-    0 until RuleRepository.squareCount foreach { index =>
-      uiTerrain.drawBackground(index)
-    }
     TileRepository.terrains.foreach(t => {
       Loader.getTileAsync(t, image => {
-        game.gameSquares.filter(_.terrain.equals(t)).foreach { sq =>
-          uiTerrain.drawTerrain(sq, image)
-        }
+        game.gameSquares.filter(_.terrain.equals(t)).foreach (
+            uiTerrain.drawTerrain(_, image))
       })
     })
   }
 
   def drawUnits() {
-    uiUnits.clearAll()
-    game.gameSquares.filterNot(_.unit.equals(VoidTile)).foreach { sq =>
-      uiUnits.drawUnit(sq)
-    }
+    uiUnits.clearAll
+    game.gameSquares.filterNot(_.unit.equals(VoidTile)).foreach (uiUnits.drawUnit(_))
   }
 
   def drawCom() {
@@ -59,8 +57,8 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
     })
   }
 
-  def drawStatus() {
-    val ctx = statusCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+  def drawInterface() {
+    val ctx = interfaceCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
     ctx.fillStyle = Color.Silver
     ctx.strokeStyle = Color.Gray
     ctx.lineWidth = 5
@@ -69,7 +67,7 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
     ctx.shadowOffsetX = 10
     ctx.shadowOffsetY = 10
     ctx.beginPath
-    ctx.rect(0, 0, statusCanvas.width, statusCanvas.height)
+    ctx.rect(0, 0, interfaceCanvas.width, interfaceCanvas.height)
     ctx.fill
     ctx.stroke
     ctx.closePath
@@ -77,8 +75,8 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
 
   def squareStatus(sq: GameSquare) = {
 
-    val ctx = statusCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-    drawStatus()
+    val ctx = interfaceCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    drawInterface()
 
     val boxSize = tileSize * 3
     val margin = 20
@@ -102,13 +100,25 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
           ctx.strokeStyle = "rgb(0,0,0)"
           ctx.strokeText(
             s"""
-                 unit: ${sq.unit.char}
-                 terrain: ${sq.terrain.char}
-                 attack: ${sq.unit.attack}
-                 defense: ${sq.unit.defense}
-                 movement: ${sq.unit.speed}
-                 com: ${sq.com(sq.unit.player).mkString(",")}
-               """, txtp.x, txtp.y, statusSize.x - margin)
+                 unit: ${
+              sq.unit.char
+            }
+                 terrain: ${
+              sq.terrain.char
+            }
+                 attack: ${
+              sq.unit.attack
+            }
+                 defense: ${
+              sq.unit.defense
+            }
+                 movement: ${
+              sq.unit.speed
+            }
+                 com: ${
+              sq.com(sq.unit.player).mkString(",")
+            }
+               """, txtp.x, txtp.y, interfaceSize.x - margin)
         })
       }
     })
@@ -116,22 +126,25 @@ case class Ui(game: Game, terrainCanvas: Canvas, comCanvas: Canvas, unitCanvas: 
 
   def onResize(s: Point) {
     uiSize = s
-    terrainCanvas.width = uiSize.x.toInt
-    terrainCanvas.height = uiSize.y.toInt
+    backgroundCanvas.width = uiSize.x.toInt
+    backgroundCanvas.height = uiSize.y.toInt
     comCanvas.width = uiSize.x.toInt
     comCanvas.height = uiSize.y.toInt
+    terrainCanvas.width = uiSize.x.toInt
+    terrainCanvas.height = uiSize.y.toInt
     unitCanvas.width = uiSize.x.toInt
     unitCanvas.height = uiSize.y.toInt
     overlayCanvas.width = uiSize.x.toInt
     overlayCanvas.height = uiSize.y.toInt
-    statusSize = uiSize / new Point(3, 5)
-    statusCanvas.width = statusSize.x.toInt
-    statusCanvas.height = statusSize.y.toInt
+    interfaceSize = uiSize / new Point(3, 5)
+    interfaceCanvas.width = interfaceSize.x.toInt
+    interfaceCanvas.height = interfaceSize.y.toInt
 
-    drawTerrain()
+    drawBackground()
     drawCom()
+    drawTerrain()
     drawUnits()
-    drawStatus()
+    drawInterface()
 
     if (null != squareClicked) {
       uiOverlay.drawHighlight(squareClicked, 0.3)

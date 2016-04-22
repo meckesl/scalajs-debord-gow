@@ -14,21 +14,19 @@ object App extends js.JSApp {
 
   def main(): Unit = {
 
-    val terrainCanvas = getElementById("terrainCanvas")
+    def getCanvas(c: String) = getElementById(c)
       .asInstanceOf[html.Canvas]
-    val comCanvas = getElementById("comCanvas")
-      .asInstanceOf[html.Canvas]
-    val unitCanvas = getElementById("unitCanvas")
-      .asInstanceOf[html.Canvas]
-    val overlayCanvas = getElementById("overlayCanvas")
-      .asInstanceOf[html.Canvas]
-    val statusCanvas = getElementById("statusCanvas")
-      .asInstanceOf[html.Canvas]
+    val backgroundCanvas = getCanvas("backgroundCanvas")
+    val comCanvas = getCanvas("comCanvas")
+    val terrainCanvas = getCanvas("terrainCanvas")
+    val unitCanvas = getCanvas("unitCanvas")
+    val overlayCanvas = getCanvas("overlayCanvas")
+    val interfaceCanvas = getCanvas("interfaceCanvas")
 
     Loader.loadStartingGamePosition() onSuccess {
       case _ =>
         val game = new Game
-        val ui = new Ui(game, terrainCanvas, comCanvas, unitCanvas, overlayCanvas, statusCanvas)
+        val ui = new Ui(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
         import scala.scalajs.js.timers._
         var handle: SetTimeoutHandle = null
         ui.onResize(new Point(dom.window.innerWidth, dom.window.innerHeight))
