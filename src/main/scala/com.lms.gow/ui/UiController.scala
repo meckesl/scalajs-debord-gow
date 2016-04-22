@@ -8,13 +8,15 @@ import com.lms.gow.model.{Game, GameSquare, Point}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 
-case class Ui(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
+import scala.collection.mutable
 
-  val uiBackround = new UiTile(backgroundCanvas)
-  val uiCom = new UiTile(comCanvas)
-  val uiTerrain = new UiTile(terrainCanvas)
-  val uiUnits = new UiTile(unitCanvas)
-  val uiOverlay = new UiTile(overlayCanvas)
+case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
+
+  val uiBackround = new UiLayer(backgroundCanvas)
+  val uiCom = new UiLayer(comCanvas)
+  val uiTerrain = new UiLayer(terrainCanvas)
+  val uiUnits = new UiLayer(unitCanvas)
+  val uiOverlay = new UiLayer(overlayCanvas)
 
   val boardDimensions = new Point(RuleRepository.squareX, RuleRepository.squareY)
   def tileSize = uiSize / boardDimensions
@@ -25,37 +27,6 @@ case class Ui(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCa
 
   var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
   var interfaceSize = new Point(interfaceCanvas.width, interfaceCanvas.height)
-
-  def getGameSquare(p: Point): GameSquare = {
-    val corrected = (p - (p % tileSize)) / tileSize
-    val index = corrected.toLinear(RuleRepository.squareX)
-    game.gameSquares(index)
-  }
-
-  def drawBackground() {
-    0 until RuleRepository.squareCount foreach (uiBackround.drawBackground(_))
-  }
-
-  def drawTerrain() {
-    TileRepository.terrains.foreach(t => {
-      Loader.getTileAsync(t, image => {
-        game.gameSquares.filter(_.terrain.equals(t)).foreach (
-            uiTerrain.drawTerrain(_, image))
-      })
-    })
-  }
-
-  def drawUnits() {
-    uiUnits.clearAll
-    game.gameSquares.filterNot(_.unit.equals(VoidTile)).foreach (uiUnits.drawUnit(_))
-  }
-
-  def drawCom() {
-    game.gameSquares.foreach(sq => {
-      uiCom.clear(sq)
-      uiCom.drawCommunication(sq)
-    })
-  }
 
   def drawInterface() {
     val ctx = interfaceCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -124,6 +95,12 @@ case class Ui(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCa
     })
   }
 
+  def getGameSquare(p: Point): GameSquare = {
+    val corrected = (p - (p % tileSize)) / tileSize
+    val index = corrected.toLinear(RuleRepository.squareX)
+    game.gameSquares(index)
+  }
+
   def onResize(s: Point) {
     uiSize = s
     backgroundCanvas.width = uiSize.x.toInt
@@ -140,14 +117,35 @@ case class Ui(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCa
     interfaceCanvas.width = interfaceSize.x.toInt
     interfaceCanvas.height = interfaceSize.y.toInt
 
-    drawBackground()
-    drawCom()
-    drawTerrain()
-    drawUnits()
+    0 until RuleRepository.squareCount foreach (uiBackround.tileBackground(_))
+
+    uiTerrain.clearLayer()
+    TileRepository.terrains.foreach(t => {
+      Loader.getTileAsync(t, image => {
+        game.gameSquares.filter(_.terrain.equals(t)).foreach(sq => {
+          uiTerrain.tileTerrain(sq, image)
+        })
+      })
+    })
+
+    uiUnits.clearLayer()
+    TileRepository.units.foreach(u => {
+      Loader.getTileAsync(u, image => {
+        game.gameSquares.filter(_.unit.equals(u)).foreach(sq => {
+          uiUnits.tileUnit(sq, image)
+        })
+      })
+    })
+
+    uiCom.clearLayer()
+    game.gameSquares.foreach(sq => {
+      uiCom.tileCommunication(sq)
+    })
+
     drawInterface()
 
     if (null != squareClicked) {
-      uiOverlay.drawHighlight(squareClicked, 0.3)
+      uiOverlay.tileUnitHighlight(squareClicked)
       squareStatus(squareClicked)
     }
   }
@@ -155,48 +153,63 @@ case class Ui(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCa
   def onMousemove(e: dom.MouseEvent) {
 
     val curSq = getGameSquare(new Point(e.clientX, e.clientY))
-    val ctx = overlayCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
     if (null == squareMoved || squareMoved == curSq) {
       if (curSq != squareHover) {
-        uiOverlay.clearAll()
-        uiOverlay.drawHighlight(curSq, 0.1)
-        if (null != squareClicked)
-          uiOverlay.drawHighlight(squareClicked, 0.3)
+        // No mouse drag
+        uiOverlay.clearLayer()
+        uiOverlay.tileUnitHighlight(curSq)
+        curSq.alliesInRange().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Green))
+        curSq.targetsInAttackRange().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Red))
         squareHover = curSq
       }
     } else {
-      uiOverlay.clearAll()
-      uiOverlay.drawHighlight(squareMoved, 0.5)
-      val from = squareMoved.coords * tileSize + tileSize / 2
-      val to = curSq.coords * tileSize + tileSize / 2
+      // Mouse drag
+      uiOverlay.clearLayer()
+      uiOverlay.tileUnitHighlight(squareMoved)
+      uiOverlay.drawActionArrow(squareMoved, curSq)
+      curSq.canBeTargetOf().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Green))
+      curSq.alliesInRange().foreach(uiOverlay.tileHighlight(_, 0.1, Color.Red))
 
-      if (squareMoved.canMoveTo(curSq))
-        ctx.strokeStyle = Color.fromPlayer(game.turnPlayer)
-      else
-        ctx.strokeStyle = Color.Gray
-      ctx.lineWidth = 10
+      if (squareMoved.canAttack(curSq))
+        uiOverlay.tileHighlight(curSq, 0.3, Color.Red)
 
-      ctx.beginPath()
-      ctx.moveTo(from.x, from.y)
-      ctx.bezierCurveTo(from.x, to.y, to.x, to.y, to.x, to.y)
-      ctx.stroke()
       squareHover = curSq
     }
   }
 
+  def isCurrentTurn(sq: GameSquare) = game.turnPlayer.equals(sq.unit.player)
+
+
+
   def onClick(e: dom.MouseEvent) {
-    squareClicked = squareHover
-    uiOverlay.clearAll()
-    uiOverlay.drawHighlight(squareHover, 0.3)
-    squareStatus(squareHover)
+
+    uiOverlay.clearLayer()
+    if (isCurrentTurn(squareHover)) {
+      squareClicked = squareHover
+      uiOverlay.tileUnitHighlight(squareClicked)
+      squareStatus(squareClicked)
+    }
+
   }
 
   def onMouseup(e: dom.MouseEvent) {
     if (null != squareMoved && squareMoved.canMoveTo(squareHover)) {
       squareMoved.moveUnitTo(squareHover)
-      drawUnits()
-      drawCom()
+
+      uiUnits.clearLayer()
+      TileRepository.units.foreach(u => {
+        Loader.getTileAsync(u, image => {
+          game.gameSquares.filter(_.unit.equals(u)).foreach(sq => {
+            uiUnits.tileUnit(sq, image)
+          })
+        })
+      })
+
+      uiCom.clearLayer()
+      game.gameSquares.foreach(sq => {
+        uiCom.tileCommunication(sq)
+      })
     }
     squareMoved = null
   }

@@ -1,14 +1,15 @@
 package com.lms.gow.model
 
 import com.lms.gow.model.repo.CardinalityRepository._
-import com.lms.gow.model.repo.PlayerRepository.{Blue, Red}
+import com.lms.gow.model.repo.PlayerRepository.{Blue, Neutral, Red}
 import com.lms.gow.model.repo.TileRepository._
-import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
+import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository, TileRepository}
 
 import scala.collection.immutable.HashMap
 import scala.collection.{Seq, mutable}
 
 case class GameSquare(index: Int, terrain: Tile, g: Game) {
+
 
   val coords = Point.fromLinear(index, RuleRepository.squareX)
   var unit: Tile = VoidTile
@@ -23,6 +24,10 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       }).nonEmpty
 
   def isOnline = com(unit.player).nonEmpty || hasAdjacentOnlineAllies() || unit.isCom
+
+  def canAttack(dest: GameSquare): Boolean = {
+    targetsInAttackRange.contains(dest)
+  }
 
   def canMove =
     g.turnPlayer.equals(unit.player) &&
@@ -44,7 +49,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       dest.unit = unit
       unit = VoidTile
       g.refreshComLayer
-      g.turnMovedUnits add dest //fixme unit
+      g.turnMovedUnits add dest
       g.turnRemainingMoves -= 1
       if (g.turnRemainingMoves == 0)
         g.nextTurn()
@@ -52,6 +57,34 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     }
     else
       false
+  }
+
+  def targetsInAttackRange() = inRange(unit.range).filter(ir => {
+    !Set(unit.player, Neutral).contains(ir.unit.player)
+  })
+
+  def canBeTargetOf() : mutable.Set[GameSquare] = {
+    val enemies = mutable.Set[GameSquare]()
+    1 to TileRepository.units.maxBy(_.range).range foreach (range => {
+      enemies ++= inRange(range)
+        .filterNot(_.unit.player.equals(Neutral))
+        .filterNot(_.unit.player.equals(unit.player))
+        .filter(_.unit.range >= range)
+        .filter(_.isOnline)
+    })
+    enemies
+  }
+
+  def alliesInRange(): mutable.Set[GameSquare] = {
+    val allies = mutable.Set[GameSquare]()
+    1 to TileRepository.units.maxBy(_.range).range foreach (range => {
+      allies ++= inRange(range)
+        .filterNot(_.unit.player.equals(Neutral))
+        .filter(_.unit.player.equals(unit.player))
+        .filter(_.unit.range >= range)
+        .filter(_.isOnline)
+    })
+    allies
   }
 
   def getAdjacentSquare(c: Cardinality) = {
@@ -69,6 +102,8 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       CardinalityRepository.all map (getAdjacentSquare(_)) filterNot (_.terrain.equals(Mountain)) toSet
     else if (r.equals(2))
       inRange(1) flatMap (_.inRange(1))
+    else if (r.equals(3))
+      inRange(2) flatMap (_.inRange(1))
     else
       Set(this)
   }

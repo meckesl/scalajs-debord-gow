@@ -2,7 +2,7 @@ package com.lms.gow
 
 import com.lms.gow.io.Loader
 import com.lms.gow.model.{Game, Point}
-import com.lms.gow.ui.Ui
+import com.lms.gow.ui.UiController
 import org.scalajs.dom
 import org.scalajs.dom.document._
 import org.scalajs.dom.html
@@ -26,7 +26,7 @@ object App extends js.JSApp {
     Loader.loadStartingGamePosition() onSuccess {
       case _ =>
         val game = new Game
-        val ui = new Ui(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
+        val ui = new UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
         import scala.scalajs.js.timers._
         var handle: SetTimeoutHandle = null
         ui.onResize(new Point(dom.window.innerWidth, dom.window.innerHeight))

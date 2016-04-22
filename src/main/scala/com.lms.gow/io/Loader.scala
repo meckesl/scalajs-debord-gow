@@ -6,10 +6,13 @@ import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.raw.{HTMLImageElement, XMLHttpRequest}
 
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
 
 object Loader {
+
+  val imageCache: mutable.HashMap[Tile, HTMLImageElement] = new mutable.HashMap()
 
   def getResUrl(res: String): String = {
     s"target/scala-2.11/classes/$res"
@@ -25,10 +28,15 @@ object Loader {
   }
 
   def getTileAsync(t: Tile, callback: (HTMLImageElement) => Unit) {
-    val image = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
-    image.src = Loader.getTileUrl(t)
-    image.onload = (e: dom.Event) => {
-      callback(image)
+    if (imageCache.get(t).isDefined) {
+      callback(imageCache.get(t).get)
+    } else {
+      val image = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
+      image.src = Loader.getTileUrl(t)
+      image.onload = (e: dom.Event) => {
+        imageCache.put(t, image)
+        callback(image)
+      }
     }
   }
 
@@ -57,7 +65,7 @@ object Loader {
         RuleRepository.startingTerrain = tilesT.map(t => {
           if (TileRepository.terrains.contains(t)) t else VoidTile
         })
-        loadInitialBoardPosition("init.units", TileRepository.units) onSuccess {
+        loadInitialBoardPosition("fight.units", TileRepository.units) onSuccess {
           case tilesU: Seq[Tile] => {
             RuleRepository.startingUnits = tilesU.map(u => {
               if (TileRepository.units.contains(u)) u else VoidTile
