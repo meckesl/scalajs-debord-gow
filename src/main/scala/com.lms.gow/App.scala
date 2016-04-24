@@ -41,6 +41,8 @@ object App extends js.JSApp {
         overlayCanvas.onmouseup = (e: dom.MouseEvent) => { ui onMouseup e }
         overlayCanvas.onmousedown = (e: dom.MouseEvent) => { ui onMousedown e }
 
+        dom.window.onkeydown = (e: dom.KeyboardEvent) => { ui onKeydown e }
+
     }
   }
 

@@ -2,14 +2,15 @@ package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.CardinalityRepository._
+import com.lms.gow.model.repo.PlayerRepository.Neutral
 import com.lms.gow.model.repo.RuleRepository
+import com.lms.gow.model.repo.TileRepository.VoidTile
 import com.lms.gow.model.{GameSquare, Point}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLImageElement
 
 class UiLayer(canvas: Canvas) {
-
 
   val l = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
 
@@ -26,13 +27,13 @@ class UiLayer(canvas: Canvas) {
     l.clearRect(0, 0, size.x, size.y)
   }
 
-  def tileBackground(index: Int) = {
+  def tileBackground(index: Int) {
     val bg = Point.fromLinear(index, RuleRepository.squareX)
     if (index % 2 == 0) l.fillStyle = Color.Silver else l.fillStyle = Color.White
     l.fillRect(bg.x * tileSize.x, bg.y * tileSize.y, tileSize.x, tileSize.y)
   }
 
-  def tileTerrain(sq: GameSquare, image: HTMLImageElement) = {
+  def tileTerrain(sq: GameSquare, image: HTMLImageElement) {
     val te: Point = sq.coords * tileSize
     l.shadowBlur = 12
     l.shadowColor = Color.Gray
@@ -58,7 +59,7 @@ class UiLayer(canvas: Canvas) {
     l.restore()
   }
 
-  def tileUnitMovementBar(sq: GameSquare): Unit = {
+  def tileUnitMovementBar(sq: GameSquare) {
     val u: Point = sq.coords * tileSize
     l.fillStyle = Color.fromPlayer(sq.unit.player)
     if (sq.canMove) {
@@ -70,7 +71,7 @@ class UiLayer(canvas: Canvas) {
       l.fillRect(
         u.x + (tileSize.x / 20),
         u.y + (tileSize.y - tileSize.y / 12),
-        (tileSize.x / 20), tileSize.y / 12)
+        (tileSize.x / 15), tileSize.y / 12)
     }
   }
 
@@ -89,8 +90,9 @@ class UiLayer(canvas: Canvas) {
 
     val co = new sqCoords(sq)
 
-    def drawLine(a: Point, b: Point) = {
+    def drawLine(a: Point, b: Point) {
       l.globalAlpha = 0.5
+
       l.beginPath()
       l.moveTo(a.x, a.y)
       l.lineTo(b.x, b.y)
@@ -100,7 +102,7 @@ class UiLayer(canvas: Canvas) {
     }
 
     sq.com.foreach(com => {
-      l.strokeStyle = Color.fromPlayer(com._1)
+      l.strokeStyle = Color fromPlayer com._1
       com._2.foreach(c => {
         if (Seq(NW, SE, SOURCE).contains(c))
           drawLine(co.nw, co.se)
@@ -142,7 +144,7 @@ class UiLayer(canvas: Canvas) {
     val to = dest.coords * tileSize + tileSize / 2
     if (source.canMoveTo(dest))
       l.strokeStyle = Color.Green
-    else if(source.canAttack(dest))
+    else if (source.canAttack(dest))
       l.strokeStyle = Color.Red
     else
       l.strokeStyle = Color.Gray
@@ -151,6 +153,111 @@ class UiLayer(canvas: Canvas) {
     l.moveTo(from.x, from.y)
     l.bezierCurveTo(from.x, to.y, to.x, to.y, to.x, to.y)
     l.stroke()
+  }
+
+  def interfaceAttackPanel(sq: GameSquare) {
+
+    val tileSizeB = tileSize * 3
+
+    def drawUnit(sq: GameSquare, p: Point) = {
+      Loader.getTileAsync(sq.terrain, terrain => {
+        l.drawImage(terrain, p.x, p.y, tileSizeB.x, tileSizeB.y)
+        if (!sq.unit.equals(VoidTile)) {
+          Loader.getTileAsync(sq.unit, unit => {
+            l.drawImage(unit, p.x, p.y, tileSizeB.x, tileSizeB.y)
+            if (!sq.unit.player.equals(Neutral)) {
+              l.fillStyle = Color.fromPlayer(sq.unit.player)
+              l.fillRect(
+                p.x + (tileSizeB.x / 20),
+                p.y + (tileSizeB.y - tileSizeB.y / 12),
+                tileSizeB.x - (tileSizeB.x / 20), tileSizeB.y / 12)
+            }
+          })
+        }
+      })
+    }
+
+    clearLayer()
+    interfacePanel()
+
+    val attackers = sq.canBeTargetOf
+    attackers.zipWithIndex.foreach(a =>{
+      drawUnit(a._1, new Point(0, tileSizeB.y * a._2))
+    })
+
+    val defenders = sq.alliesInRange
+    defenders.zipWithIndex.foreach(a =>{
+      drawUnit(a._1, new Point((size - tileSizeB).x, tileSizeB.y * a._2))
+    })
+
+    val as = sq.canBeTargetOfStrength
+    val ds = sq.defenseStrength
+    val result = as - ds
+
+
+
+  }
+
+  private def interfacePanel() {
+    l.fillStyle = Color.Silver
+    l.strokeStyle = Color.Gray
+    l.lineWidth = 5
+    l.shadowBlur = 10
+    l.shadowColor = Color.Gray
+    l.shadowOffsetX = 10
+    l.shadowOffsetY = 10
+    l.beginPath
+    l.rect(0, 0, canvas.width, canvas.height)
+    l.fill
+    l.stroke
+    l.closePath
+  }
+
+  def interfaceTileStatus(sq: GameSquare) = {
+
+    clearLayer()
+    interfacePanel()
+
+    val tileSizeB = tileSize * 3 * 3
+    val p = tileSize
+
+    Loader.getTileAsync(sq.terrain, terrain => {
+      l.drawImage(terrain, p.x, p.y, tileSizeB.x, tileSizeB.y)
+      if (!sq.unit.equals(VoidTile)) {
+        Loader.getTileAsync(sq.unit, unit => {
+          l.drawImage(unit, p.x, p.y, tileSizeB.x, tileSizeB.y)
+          if (!sq.unit.player.equals(Neutral)) {
+            l.fillStyle = Color.fromPlayer(sq.unit.player)
+            l.fillRect(
+              p.x + (tileSizeB.x / 20),
+              p.y + (tileSizeB.y - tileSizeB.y / 12),
+              tileSizeB.x - (tileSizeB.x / 20), tileSizeB.y / 12)
+          }
+          val txtp = p + new Point(0, tileSizeB.y + p.y)
+          l.closePath
+          l.lineWidth = 1
+          l.strokeStyle = "rgb(0,0,0)"
+          l.strokeText(
+            s"""
+                 unit: ${
+              sq.unit.char
+            }
+                 terrain: ${
+              sq.terrain.char
+            }
+                 attack: ${
+              sq.unit.attack
+            }
+                 defense: ${
+              sq.unit.defense
+            }
+                 movement: ${
+              sq.unit.speed
+            }
+               """, txtp.x, txtp.y, canvas.width - p.x)
+        })
+      }
+    })
   }
 
 }
