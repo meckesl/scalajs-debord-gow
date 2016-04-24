@@ -24,11 +24,12 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
   var interfaceSize = new Point(interfaceCanvas.width, interfaceCanvas.height)
 
-
   val audioChannel1 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
   val audioChannel2 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
-  audioChannel2.src = Loader.getSoundUrl("start")
-  audioChannel2.play
+  val audioChannel3 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
+
+  audioChannel3.src = Loader.getSoundUrl("start")
+  audioChannel3.play
 
   def getGameSquare(p: Point): GameSquare = {
     val corrected = (p - (p % tileSize)) / tileSize
@@ -94,13 +95,14 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       uiOverlay.clearLayer()
       uiInterface.clearLayer()
       if (curSq.isCurrentTurn) {
-        audioChannel1.src = Loader.getSoundUrl(curSq ,"select")
-        audioChannel1.play
+        audioChannel2.src = Loader.getSoundUrl(curSq ,"select")
+        audioChannel2.play
         uiOverlay.tileUnitHighlight(curSq)
         curSq.alliesInRange.foreach(uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(game.turnPlayer)))
         curSq.targetsInAttackRange.foreach(t => uiOverlay.tileHighlight(t, 0.1, Color.fromPlayer(t.unit.player)))
         uiInterface.interfaceTileStatus(curSq)
-      }
+      } else
+        audioChannel2.pause()
       squareHover = curSq
     }
 

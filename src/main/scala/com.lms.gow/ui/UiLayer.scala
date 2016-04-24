@@ -185,7 +185,7 @@ class UiLayer(canvas: Canvas) {
       drawUnit(a._1, new Point(0, tileSizeB.y * a._2))
     })
 
-    val defenders = sq.alliesInRange
+    val defenders = sq.alliesInRange += sq
     defenders.zipWithIndex.foreach(a =>{
       drawUnit(a._1, new Point((size - tileSizeB).x, tileSizeB.y * a._2))
     })
