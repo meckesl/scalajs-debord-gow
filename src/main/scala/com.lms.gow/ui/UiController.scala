@@ -4,7 +4,8 @@ import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
 import com.lms.gow.model.{Game, GameSquare, Point}
 import org.scalajs.dom
-import org.scalajs.dom.html.Canvas
+import org.scalajs.dom.html.{Audio, Canvas}
+import org.scalajs.dom.raw.HTMLAudioElement
 
 case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
 
@@ -22,6 +23,12 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   def tileSize = uiSize / new Point(RuleRepository.squareX, RuleRepository.squareY)
   var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
   var interfaceSize = new Point(interfaceCanvas.width, interfaceCanvas.height)
+
+
+  val audioChannel1 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
+  val audioChannel2 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
+  audioChannel2.src = Loader.getSoundUrl("start")
+  audioChannel2.play
 
   def getGameSquare(p: Point): GameSquare = {
     val corrected = (p - (p % tileSize)) / tileSize
@@ -87,6 +94,8 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       uiOverlay.clearLayer()
       uiInterface.clearLayer()
       if (curSq.isCurrentTurn) {
+        audioChannel1.src = Loader.getSoundUrl(curSq ,"select")
+        audioChannel1.play
         uiOverlay.tileUnitHighlight(curSq)
         curSq.alliesInRange.foreach(uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(game.turnPlayer)))
         curSq.targetsInAttackRange.foreach(t => uiOverlay.tileHighlight(t, 0.1, Color.fromPlayer(t.unit.player)))
@@ -130,12 +139,19 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   def onMouseup(e: dom.MouseEvent) {
     if (null != squareSource) {
       if (squareSource.canMoveTo(squareHover)) {
+        audioChannel1.src = Loader.getSoundUrl(squareSource ,"move")
+        audioChannel1.play
         squareSource.moveUnitTo(squareHover)
         boardChangeRedraw
       } else if (squareSource.canAttack(squareHover)) {
         val attackResult = squareHover.launchAttackOn
-        if (attackResult == 2 || attackResult == 1)
+        if (attackResult == 2 || attackResult == 1) {
+          audioChannel1.src = Loader.getSoundUrl(squareSource ,"attack")
+          audioChannel1.play
           boardChangeRedraw
+          audioChannel2.src = Loader.getSoundUrl("nextTurn")
+          audioChannel2.play
+        }
       }
     }
     squareSource = null
@@ -157,6 +173,8 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     if (e.keyCode.equals(32)) {
       game.nextTurn()
       boardChangeRedraw
+      audioChannel2.src = Loader.getSoundUrl("nextTurn")
+      audioChannel2.play
     }
 
   }

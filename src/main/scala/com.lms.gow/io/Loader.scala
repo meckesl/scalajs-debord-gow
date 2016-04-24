@@ -1,5 +1,6 @@
 package com.lms.gow.io
 
+import com.lms.gow.model.GameSquare
 import com.lms.gow.model.repo.TileRepository.{Tile, VoidTile}
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
 import org.scalajs.dom
@@ -16,6 +17,14 @@ object Loader {
 
   def getResUrl(res: String): String = {
     s"target/scala-2.11/classes/$res"
+  }
+
+  def getSoundUrl(sq: GameSquare, sound: String) : String = {
+    s"target/scala-2.11/classes/sounds/${sq.unit.char}/$sound.mp3"
+  }
+
+  def getSoundUrl(sound: String) : String = {
+    s"target/scala-2.11/classes/sounds/$sound.mp3"
   }
 
   private def getTileUrl(tile: TileRepository.Tile): String = {

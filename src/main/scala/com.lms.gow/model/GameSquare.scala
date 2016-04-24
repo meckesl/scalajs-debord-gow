@@ -112,6 +112,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
   def alliesInRange: mutable.Set[GameSquare] = {
     val allies = mutable.Set[GameSquare]()
+    allies += this
     1 to TileRepository.units.maxBy(_.range).range foreach (attackRange => {
       allies ++= inCombatRange(attackRange)
         .filterNot(_.unit.player.equals(Neutral))
