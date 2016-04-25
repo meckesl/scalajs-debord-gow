@@ -23,7 +23,7 @@ object App extends js.JSApp {
     val overlayCanvas = getCanvas("overlayCanvas")
     val interfaceCanvas = getCanvas("interfaceCanvas")
 
-    Loader.loadStartingGamePosition() onSuccess {
+    Loader.getStartingGamePosition("init.board","init.units") onSuccess {
       case _ =>
         val game = new Game
         val ui = new UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)

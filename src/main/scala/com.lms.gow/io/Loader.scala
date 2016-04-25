@@ -15,33 +15,30 @@ object Loader {
 
   val imageCache: mutable.HashMap[Tile, HTMLImageElement] = new mutable.HashMap()
 
-  def getResUrl(res: String): String = {
-    s"target/scala-2.11/classes/$res"
-  }
-
-  def getSoundUrl(sq: GameSquare, sound: String) : String = {
+  def getSoundUrl(sq: GameSquare, sound: String): String = {
     s"target/scala-2.11/classes/sounds/${sq.unit.char}/$sound.mp3"
   }
 
-  def getSoundUrl(sound: String) : String = {
+  def getSoundUrl(sound: String): String = {
     s"target/scala-2.11/classes/sounds/$sound.mp3"
   }
 
-  private def getTileUrl(tile: TileRepository.Tile): String = {
-    var s = ""
-    if (tile.equals(VoidTile))
-      s = "dot"
-    else
-      s = tile.char.toString
-    s"target/scala-2.11/classes/tiles/$s/0.png"
-  }
-
   def getTileAsync(t: Tile, callback: (HTMLImageElement) => Unit) {
+
+    def getTileUrl(tile: TileRepository.Tile): String = {
+      var s = ""
+      if (tile.equals(VoidTile))
+        s = "dot"
+      else
+        s = tile.char.toString
+      s"target/scala-2.11/classes/tiles/$s/0.png"
+    }
+
     if (imageCache.get(t).isDefined) {
       callback(imageCache.get(t).get)
     } else {
       val image = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
-      image.src = Loader.getTileUrl(t)
+      image.src = getTileUrl(t)
       image.onload = (e: dom.Event) => {
         imageCache.put(t, image)
         callback(image)
@@ -49,12 +46,16 @@ object Loader {
     }
   }
 
-  def loadStartingGamePosition(): Future[Boolean] = {
+  def getStartingGamePosition(boardFile: String, unitFile: String): Future[Boolean] = {
+
+    def getResUrl(res: String): String = {
+      s"target/scala-2.11/classes/$res"
+    }
 
     def loadInitialBoardPosition(file: String, tiles: Set[Tile]): Future[Seq[Tile]] = {
       val promise: Promise[Seq[Tile]] = Promise()
       val xhr = new XMLHttpRequest()
-      xhr.open("GET", Loader.getResUrl(file))
+      xhr.open("GET", getResUrl(file))
       xhr.onload = {
         (e: Event) =>
           if (xhr.status == 200)
@@ -69,12 +70,12 @@ object Loader {
     }
 
     val loaded: Promise[Boolean] = Promise()
-    loadInitialBoardPosition("init.board", TileRepository.terrains) onSuccess {
+    loadInitialBoardPosition(boardFile, TileRepository.terrains) onSuccess {
       case tilesT: Seq[Tile] => {
         RuleRepository.startingTerrain = tilesT.map(t => {
           if (TileRepository.terrains.contains(t)) t else VoidTile
         })
-        loadInitialBoardPosition("fight.units", TileRepository.units) onSuccess {
+        loadInitialBoardPosition(unitFile, TileRepository.units) onSuccess {
           case tilesU: Seq[Tile] => {
             RuleRepository.startingUnits = tilesU.map(u => {
               if (TileRepository.units.contains(u)) u else VoidTile

@@ -32,7 +32,6 @@ object TileRepository {
   val terrains = all.filter(_.player.eq(Neutral))
   val units = all.filterNot(_.player.eq(Neutral))
 
-  def getByChar(c: Char) : Tile = {
-    all.filter(_.char.equals(c)).head
-  }
+  def getByChar(c: Char) = all.filter(_.char.equals(c)).head
+
 }

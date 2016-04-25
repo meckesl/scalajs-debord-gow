@@ -170,7 +170,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     acc
   }
 
-  private def inRange(r: Int): Set[GameSquare] = {
+  def inRange(r: Int): Set[GameSquare] = {
     if (r.equals(1))
       CardinalityRepository.all map (adjacentSquare(_)) filterNot (_.terrain.equals(Mountain)) toSet
     else if (r.equals(2))

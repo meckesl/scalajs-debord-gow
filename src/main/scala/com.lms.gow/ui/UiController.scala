@@ -4,7 +4,7 @@ import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
 import com.lms.gow.model.{Game, GameSquare, Point}
 import org.scalajs.dom
-import org.scalajs.dom.html.{Audio, Canvas}
+import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLAudioElement
 
 case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
@@ -108,7 +108,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       uiOverlay.tileUnitHighlight(squareSource)
       uiOverlay.drawActionArrow(squareSource, curSq)
       if (squareSource.canAttack(curSq)) {
-        audioChannel2.src = Loader.getSoundUrl(curSq ,"target")
+        audioChannel2.src = Loader.getSoundUrl(curSq, "target")
         audioChannel2.play
         curSq.canBeTargetOf.foreach(
           uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(game.turnPlayer)))
@@ -140,7 +140,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   def onMouseup(e: dom.MouseEvent) {
     if (null != squareSource) {
       if (squareSource.canMoveTo(squareHover)) {
-        audioChannel2.src = Loader.getSoundUrl(squareSource ,"move")
+        audioChannel2.src = Loader.getSoundUrl(squareSource, "move")
         audioChannel2.play
         squareSource.moveUnitTo(squareHover)
         boardChangeRedraw
@@ -150,7 +150,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         }
       } else if (squareSource.canTakeArsenal(squareHover)) {
         squareSource.takeArsenal(squareHover)
-        audioChannel2.src = Loader.getSoundUrl(squareHover ,"attack")
+        audioChannel2.src = Loader.getSoundUrl(squareHover, "attack")
         audioChannel2.play
         boardChangeRedraw
         audioChannel3.src = Loader.getSoundUrl("nextTurn")
@@ -158,7 +158,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       } else if (squareSource.canAttack(squareHover)) {
         val attackResult = squareHover.launchAttackOn
         if (attackResult == 2 || attackResult == 1) {
-          audioChannel2.src = Loader.getSoundUrl(squareSource ,"attack")
+          audioChannel2.src = Loader.getSoundUrl(squareSource, "attack")
           audioChannel2.play
           boardChangeRedraw
           audioChannel3.src = Loader.getSoundUrl("nextTurn")
@@ -173,7 +173,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     val mouse = new Point(e.clientX, e.clientY)
     val curSq = getGameSquare(mouse)
     if (curSq.canMove) {
-      audioChannel1.src = Loader.getSoundUrl(curSq ,"select")
+      audioChannel1.src = Loader.getSoundUrl(curSq, "select")
       audioChannel1.play
       squareSource = getGameSquare(mouse)
       uiInterface.interfaceTileStatus(squareSource)
