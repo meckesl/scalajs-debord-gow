@@ -6,6 +6,8 @@ version := "0.2-SNAPSHOT"
 scalaVersion := "2.11.8"
 scalaJSUseRhino in Global := false
 
+scalacOptions in ThisBuild ++= Seq("-feature")
+
 persistLauncher in Compile := true
 persistLauncher in Test := false
 

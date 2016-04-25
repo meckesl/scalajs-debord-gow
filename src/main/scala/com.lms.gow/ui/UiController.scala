@@ -150,7 +150,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         }
       } else if (squareSource.canTakeArsenal(squareHover)) {
         squareSource.takeArsenal(squareHover)
-        audioChannel2.src = Loader.getSoundUrl(squareSource ,"attack")
+        audioChannel2.src = Loader.getSoundUrl(squareHover ,"attack")
         audioChannel2.play
         boardChangeRedraw
         audioChannel3.src = Loader.getSoundUrl("nextTurn")

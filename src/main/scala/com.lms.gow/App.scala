@@ -28,8 +28,8 @@ object App extends js.JSApp {
         val game = new Game
         val ui = new UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
         import scala.scalajs.js.timers._
-        var handle: SetTimeoutHandle = null
         ui.onResize(new Point(dom.window.innerWidth, dom.window.innerHeight))
+        var handle: SetTimeoutHandle = null
         dom.window.onresize = (e: dom.Event) => {
           clearTimeout(handle)
           handle = setTimeout(200) {
