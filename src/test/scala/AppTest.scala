@@ -69,27 +69,72 @@ object AppTest extends TestSuite {
 
     }
 
-    'scenarii {
+    'unitObstruction {
 
-      val game = setupGame(boardTest1, unitsTest1)
+      setupGame(movementObstruction, movementObstruction, 10)
 
-      'unitObstruction {
+      val cavalry1 = getWithTurn(3, 7)
+      assert(cavalry1.unit.equals(BlueCavalry))
+      assert(!cavalry1.canMoveTo(get(3, 5)))
 
-        val cavalry1 = getWithTurn(3, 7)
-        assert(cavalry1.unit.equals(BlueCavalry))
-        assert(!cavalry1.canMoveTo(get(3, 5)))
+      val cavalry2 = getWithTurn(6, 7)
+      assert(cavalry2.canMoveTo(get(6, 5)))
 
-        val cavalry2 = getWithTurn(6, 3)
-        assert(cavalry2.unit.equals(BlueCavalry))
-        assert(cavalry2.canMoveTo(get(6, 1)))
+      val cavalry3 = getWithTurn(6, 3)
+      assert(cavalry3.canMoveTo(get(6, 1)))
 
-        val cavalry3 = getWithTurn(6, 7)
-        assert(cavalry3.unit.equals(BlueCavalry))
-        assert(cavalry3.canMoveTo(get(6, 5)))
+    }
 
+    'communicationLines {
+
+      val game = setupGame(communicationLines, communicationLines, 10)
+
+      'relaysDoRelay {
+        assert(!getWithTurn(10, 1).isOnline)
+        assert(getWithTurn(3, 4).isOnline)
+      }
+
+      'outOfComUnitsCannotMove {
+        val ooc = getWithTurn(10, 1)
+        assert(!ooc.isOnline)
+        assert(!ooc.canMove)
+        assert(ooc.inRange(ooc.unit.speed)
+          .filter(ooc.canMoveTo(_)).isEmpty)
+      }
+
+      'allInComRangeAreOnlineAndCanMove {
+        assert(game.gameSquares
+          .filter(_.unit.equals(BlueInfantry))
+          .filter(_.canMove)
+          .filter(_.isOnline).size == 4)
+      }
+
+      'enemyUnitBlocksCom {
+        getWithTurn(1, 7).moveUnitTo(get(2, 7))
+        game.nextTurn()
+        assert(game.gameSquares
+          .filter(_.unit.equals(BlueInfantry))
+          .filter(_.canMove)
+          .filter(_.isOnline).size == 2)
+        get(1, 7).unit = get(2, 7).unit
+        get(2, 6).unit = VoidTile
+        game.refreshComLayer()
+      }
+
+      'unitCanMoveOutOfComEvenIfItMakesItOffline {
+        assert(getWithTurn(4, 8).isOnline)
+        assert(get(5, 7).unit.equals(VoidTile))
+        getWithTurn(4, 8).moveUnitTo(get(5, 7))
+        assert(get(4, 8).unit.equals(VoidTile))
+        assert(!getWithTurn(5, 7).isOnline)
+        assert(game.gameSquares
+          .filter(_.unit.equals(BlueInfantry))
+          .filter(_.canMove)
+          .filter(_.isOnline).size == 3)
       }
 
     }
+
   }
 
 }

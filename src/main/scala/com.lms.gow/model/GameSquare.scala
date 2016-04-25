@@ -47,9 +47,6 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       dest.unit.equals(allowedDest) &&
       !dest.terrain.equals(Mountain) &&
       inRange(unit.speed).contains(dest)
-  /*&&
-      (unit.isCom || dest.com(unit.player).nonEmpty ||
-        hasAdjacentOnlineAlly(dest))*/
 
   def moveUnitTo(dest: GameSquare): Boolean = {
     if (canMoveTo(dest)) {
@@ -172,7 +169,8 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
   def inRange(r: Int): Set[GameSquare] = {
     if (r.equals(1))
-      CardinalityRepository.all map (adjacentSquare(_)) filterNot (_.terrain.equals(Mountain)) toSet
+      CardinalityRepository.all.map(adjacentSquare(_))
+        .filterNot(adj => null == adj || adj.terrain.equals(Mountain)).toSet
     else if (r.equals(2))
       inRange(1) flatMap (_.inRange(1))
     else if (r.equals(3))
@@ -180,7 +178,5 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     else
       Set(this)
   }
-
-  override def toString = s"(x=${coords.x} y=${coords.y}, unit=${unit.char})"
 
 }

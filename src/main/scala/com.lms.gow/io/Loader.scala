@@ -58,10 +58,12 @@ object Loader {
       xhr.open("GET", getResUrl(file))
       xhr.onload = {
         (e: Event) =>
-          if (xhr.status == 200)
+          if (xhr.status == 200) {
             promise.success(
-              xhr.responseText.filter(_ > ' ')
+              xhr.responseText
+                .filter(TileRepository.all.map(_.char).contains(_))
                 .map(TileRepository.getByChar(_)))
+          }
           else
             promise.failure(new RuntimeException("cannot read tiles"))
       }

@@ -7,18 +7,27 @@ object BoardPositions {
 
   private var game: Game = null
 
-  def setupGame(a: String, b: String): Game = {
-    val terrain = a.filter(_ > ' ').filter(TileRepository.all.map(_.char).contains(_))
-      .map(TileRepository.getByChar(_))
-    val units = b.filter(_ > ' ').filter(TileRepository.all.map(_.char).contains(_))
-      .map(TileRepository.getByChar(_))
+  def setupGame(t: String, u: String, xWidth: Int = 25): Game = {
+
+    assert(t.length.equals(u.length))
+    val terrain = t.filter(_ > ' ').filter(TileRepository.all.map(_.char).contains(_))
+    val units = u.filter(_ > ' ').filter(TileRepository.all.map(_.char).contains(_))
+    assert(units.length.equals(terrain.length))
+
     RuleRepository.startingTerrain = terrain.map(t => {
-      if (TileRepository.terrains.contains(t)) t else VoidTile
+      val tile = TileRepository.getByChar(t)
+      if (TileRepository.terrains.contains(tile)) tile else VoidTile
     })
     RuleRepository.startingUnits = units.map(u => {
-      if (TileRepository.units.contains(u)) u else VoidTile
+      val tile = TileRepository.getByChar(u)
+      if (TileRepository.units.contains(tile)) tile else VoidTile
     })
+
     assert(RuleRepository.startingTerrain.size.equals(RuleRepository.startingUnits.size))
+
+    RuleRepository.squareX = xWidth
+    RuleRepository.squareY = RuleRepository.startingTerrain.size / xWidth
+
     game = new Game()
     game
   }
@@ -36,31 +45,31 @@ object BoardPositions {
     u
   }
 
-  val boardTest1 =
+  val communicationLines =
     """
       |-- 01 02 03 04 05 06 07 08 09 10
-      |01 .  .  .  .  .  .  .  .  .  .
-      |02 .  .  .  .  M  M  .  .  .  .
+      |01 A  .  .  .  .  .  .  .  .  i
+      |02 .  .  .  .  .  .  .  .  .  .
       |03 .  .  .  .  .  .  .  .  .  .
-      |04 .  .  .  .  .  .  .  .  .  .
-      |05 .  .  .  .  .  .  .  .  .  .
-      |06 .  M  M  M  .  M  M  .  .  .
-      |07 .  .  .  .  .  .  .  .  .  .
-      |08 .  .  .  .  .  .  .  .  .  .
-      |09 .  .  .  .  .  .  .  .  .  .
+      |04 .  .  i  .  .  .  .  .  .  .
+      |05 .  r  .  i  .  .  .  .  .  .
+      |06 .  .  M  M  M  .  .  .  .  .
+      |07 I  .  .  .  .  .  .  .  .  .
+      |08 .  .  i  i  i  .  .  .  .  .
+      |09 .  a  .  .  .  .  .  .  .  .
       |10 .  .  .  .  .  .  .  .  .  .
     """
 
-  val unitsTest1 =
+  val movementObstruction =
     """
       |-- 01 02 03 04 05 06 07 08 09 10
       |01 .  .  .  .  .  .  .  .  .  .
       |02 .  .  .  .  M  M  .  .  .  .
       |03 .  .  .  .  .  v  .  .  .  .
-      |04 .  .  .  .  .  .  .  .  .  .
+      |04 .  .  .  .  r  .  .  .  .  .
       |05 .  .  .  .  .  .  .  .  .  .
       |06 .  M  M  M  .  M  M  .  .  .
-      |07 .  .  v  .  .  v  .  .  .  .
+      |07 .  .  v  .  a  v  .  .  .  .
       |08 .  .  .  .  .  .  .  .  .  .
       |09 .  .  .  .  .  .  .  .  .  .
       |10 .  .  .  .  .  .  .  .  .  .
