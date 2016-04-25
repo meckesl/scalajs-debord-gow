@@ -11,11 +11,11 @@ class Game {
 
   var turnRemainingMoves = RuleRepository.turnMoves
   val turnMovedUnits = mutable.Set[GameSquare]()
+  var turnPlayer: Player = if (scala.util.Random.nextBoolean) Blue else Red
+
+  var forcedRetreat: GameSquare = null
+
   val capturedUnits = mutable.Seq[Tile]()
-  var turnAttack = RuleRepository.turnAttacks
-  var turnPlayer: Player = {
-    if (scala.util.Random.nextBoolean) Blue else Red
-  }
 
   val gameSquares =
     0 until RuleRepository.squareCount map (i => {
@@ -27,7 +27,6 @@ class Game {
   def nextTurn() = {
     turnRemainingMoves = RuleRepository.turnMoves
     turnMovedUnits.clear()
-    turnAttack = RuleRepository.turnAttacks
     if (turnPlayer == Red)
       turnPlayer = Blue
     else

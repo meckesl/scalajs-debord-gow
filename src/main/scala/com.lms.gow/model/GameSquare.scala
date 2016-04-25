@@ -4,7 +4,6 @@ import com.lms.gow.model.repo.CardinalityRepository._
 import com.lms.gow.model.repo.PlayerRepository.{Blue, Neutral, Red}
 import com.lms.gow.model.repo.TileRepository._
 import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository, TileRepository}
-import org.scalajs.dom
 
 import scala.collection.immutable.HashMap
 import scala.collection.{Seq, mutable}
@@ -31,6 +30,11 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     targetsInAttackRange.contains(dest)
   }
 
+  def canTakeArsenal(dest: GameSquare): Boolean = {
+    canMoveTo(dest, Set(BlueArsenal, RedArsenal)
+      .filterNot(_.player.equals(unit.player)).head)
+  }
+
   def canMove =
     isCurrentTurn &&
       g.turnRemainingMoves > 0 &&
@@ -38,13 +42,14 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       unit.speed > 0 &&
       isOnline
 
-  def canMoveTo(dest: GameSquare) =
+  def canMoveTo(dest: GameSquare, allowedDest: Tile = VoidTile) =
     canMove &&
-      dest.unit.equals(VoidTile) &&
+      dest.unit.equals(allowedDest) &&
       !dest.terrain.equals(Mountain) &&
-      inRange(unit.speed).contains(dest) &&
+      inRange(unit.speed).contains(dest)
+  /*&&
       (unit.isCom || dest.com(unit.player).nonEmpty ||
-        hasAdjacentOnlineAlly(dest))
+        hasAdjacentOnlineAlly(dest))*/
 
   def moveUnitTo(dest: GameSquare): Boolean = {
     if (canMoveTo(dest)) {
@@ -61,21 +66,26 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       false
   }
 
+  def takeArsenal(arsenal: GameSquare) {
+    arsenal.unit = unit
+    unit = VoidTile
+    g.refreshComLayer
+    g.nextTurn()
+  }
+
   def launchAttackOn(): Int = {
     val as = canBeTargetOfStrength
     val ds = defenseStrength
     val result = as - ds
 
-    dom.console.log(s"attack=$as, defense=$ds")
-    dom.console.log(s"result=$result")
-
     if (result > 1) {
       g.capturedUnits :+ unit
       unit = VoidTile
-      g.refreshComLayer
+      g.refreshComLayer()
       g.nextTurn()
       2
     } else if (result == 1) {
+      g.forcedRetreat = this
       g.nextTurn()
       1
     }
@@ -83,11 +93,24 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       0
   }
 
-  def targetsInAttackRange = inCombatRange(unit.range).filter(ir => {
-    !Set(unit.player, Neutral).contains(ir.unit.player)
-  })
+  def targetsInAttackRange = inCombatRange(unit.range).filterNot(ir => {
+    Set(unit.player, Neutral).contains(ir.unit.player)
+  }).filterNot(ir => Set(RedArsenal, BlueArsenal).contains(ir.unit))
 
-  def canBeTargetOfStrength = canBeTargetOf.toSeq.map(_.unit.attack).sum
+  def canBeTargetOfStrength = {
+    val attackers = canBeTargetOf
+    val baseStrength = attackers.toSeq.map(_.unit.attack).sum
+    if (!Set(Fortress, MountainPass).contains(terrain)) {
+      val cavalryBonus = inRange(1)
+        .filter(attackers.contains(_))
+        .filterNot(_.terrain.equals(Fortress))
+        .toSeq
+        .map(_.unit)
+        .filter(Seq(BlueCavalry, RedCavalry).contains(_))
+        .size * TileRepository.cavalryChargeBonus
+      baseStrength + cavalryBonus
+    } else baseStrength
+  }
 
   def defenseStrength = alliesInRange.toSeq.map(sq => {
     var d = sq.unit.defense
@@ -98,7 +121,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     d
   }).sum
 
-  def canBeTargetOf: mutable.Set[GameSquare] = {
+  def canBeTargetOf: Set[GameSquare] = {
     val enemies = mutable.Set[GameSquare]()
     1 to TileRepository.units.maxBy(_.range).range foreach (range => {
       enemies ++= inCombatRange(range)
@@ -107,10 +130,10 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
         .filter(_.unit.range >= range)
         .filter(_.isOnline)
     })
-    enemies
+    enemies.toSet
   }
 
-  def alliesInRange: mutable.Set[GameSquare] = {
+  def alliesInRange: Set[GameSquare] = {
     val allies = mutable.Set[GameSquare]()
     1 to TileRepository.units.maxBy(_.range).range foreach (attackRange => {
       allies ++= inCombatRange(attackRange)
@@ -118,7 +141,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
         .filter(_.unit.range >= attackRange)
         .filter(_.isOnline)
     })
-    allies
+    allies.toSet
   }
 
   def adjacentSquare(c: Cardinality) = {

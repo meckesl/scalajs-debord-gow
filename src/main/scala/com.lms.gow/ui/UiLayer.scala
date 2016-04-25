@@ -144,6 +144,8 @@ class UiLayer(canvas: Canvas) {
     val to = dest.coords * tileSize + tileSize / 2
     if (source.canMoveTo(dest))
       l.strokeStyle = Color.Green
+    else if (source.canTakeArsenal(dest))
+      l.strokeStyle = Color.Orange
     else if (source.canAttack(dest))
       l.strokeStyle = Color.Red
     else
@@ -157,7 +159,7 @@ class UiLayer(canvas: Canvas) {
 
   def interfaceAttackPanel(sq: GameSquare) {
 
-    val tileSizeB = tileSize * 3
+    val tileSizeB = tileSize * 2
 
     def drawUnit(sq: GameSquare, p: Point) = {
       Loader.getTileAsync(sq.terrain, terrain => {
@@ -180,21 +182,29 @@ class UiLayer(canvas: Canvas) {
     clearLayer()
     interfacePanel()
 
+    l.strokeStyle = "rgb(0,0,0)"
+    l.lineWidth = 1
+    l.shadowBlur = 0
+    l.shadowOffsetX = 0
+    l.shadowOffsetY = 0
+
     val attackers = sq.canBeTargetOf
-    attackers.zipWithIndex.foreach(a =>{
+    attackers.zipWithIndex.foreach(a => {
       drawUnit(a._1, new Point(0, tileSizeB.y * a._2))
+      //l.strokeText(s"+${a._1.unit.attack}", tileSizeB.x + 10, tileSizeB.y * a._2)
     })
 
-    val defenders = sq.alliesInRange += sq
-    defenders.zipWithIndex.foreach(a =>{
+    val defenders = sq.alliesInRange.toSeq
+    defenders.zipWithIndex.foreach(a => {
       drawUnit(a._1, new Point((size - tileSizeB).x, tileSizeB.y * a._2))
     })
+
+    l.strokeText(s"Attaque: ${sq.canBeTargetOfStrength}", tileSizeB.x + 10, tileSizeB.y, canvas.width)
+    l.strokeText(s"Défense: ${sq.defenseStrength}", canvas.width - (tileSizeB.x * 4), tileSizeB.y, canvas.width)
 
     val as = sq.canBeTargetOfStrength
     val ds = sq.defenseStrength
     val result = as - ds
-
-
 
   }
 

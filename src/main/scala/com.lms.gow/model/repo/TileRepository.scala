@@ -24,6 +24,8 @@ object TileRepository {
   object BlueInfantry extends Tile('i', 1, 2, 4, 6, false, Blue)
   object BlueCavalry extends Tile('v', 2, 2, 4, 5, false, Blue)
 
+  val cavalryChargeBonus = 3
+
   val all = Set(VoidTile, Fortress, Mountain, MountainPass,
     RedArsenal, RedRelay, RedSwiftRelay, RedCannon, RedSwiftCannon, RedInfantry, RedCavalry,
     BlueArsenal, BlueRelay, BlueSwiftRelay, BlueCannon, BlueSwiftCannon, BlueInfantry, BlueCavalry)

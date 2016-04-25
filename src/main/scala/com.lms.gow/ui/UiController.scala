@@ -95,14 +95,11 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       uiOverlay.clearLayer()
       uiInterface.clearLayer()
       if (curSq.isCurrentTurn) {
-        audioChannel2.src = Loader.getSoundUrl(curSq ,"select")
-        audioChannel2.play
         uiOverlay.tileUnitHighlight(curSq)
         curSq.alliesInRange.foreach(uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(game.turnPlayer)))
         curSq.targetsInAttackRange.foreach(t => uiOverlay.tileHighlight(t, 0.1, Color.fromPlayer(t.unit.player)))
         uiInterface.interfaceTileStatus(curSq)
-      } else
-        audioChannel2.pause()
+      }
       squareHover = curSq
     }
 
@@ -111,6 +108,8 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       uiOverlay.tileUnitHighlight(squareSource)
       uiOverlay.drawActionArrow(squareSource, curSq)
       if (squareSource.canAttack(curSq)) {
+        audioChannel2.src = Loader.getSoundUrl(curSq ,"target")
+        audioChannel2.play
         curSq.canBeTargetOf.foreach(
           uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(game.turnPlayer)))
         curSq.alliesInRange.foreach(
@@ -141,18 +140,29 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   def onMouseup(e: dom.MouseEvent) {
     if (null != squareSource) {
       if (squareSource.canMoveTo(squareHover)) {
-        audioChannel1.src = Loader.getSoundUrl(squareSource ,"move")
-        audioChannel1.play
+        audioChannel2.src = Loader.getSoundUrl(squareSource ,"move")
+        audioChannel2.play
         squareSource.moveUnitTo(squareHover)
         boardChangeRedraw
+        if (game.turnMovedUnits.isEmpty) {
+          audioChannel3.src = Loader.getSoundUrl("nextTurn")
+          audioChannel3.play
+        }
+      } else if (squareSource.canTakeArsenal(squareHover)) {
+        squareSource.takeArsenal(squareHover)
+        audioChannel2.src = Loader.getSoundUrl(squareSource ,"attack")
+        audioChannel2.play
+        boardChangeRedraw
+        audioChannel3.src = Loader.getSoundUrl("nextTurn")
+        audioChannel3.play
       } else if (squareSource.canAttack(squareHover)) {
         val attackResult = squareHover.launchAttackOn
         if (attackResult == 2 || attackResult == 1) {
-          audioChannel1.src = Loader.getSoundUrl(squareSource ,"attack")
-          audioChannel1.play
-          boardChangeRedraw
-          audioChannel2.src = Loader.getSoundUrl("nextTurn")
+          audioChannel2.src = Loader.getSoundUrl(squareSource ,"attack")
           audioChannel2.play
+          boardChangeRedraw
+          audioChannel3.src = Loader.getSoundUrl("nextTurn")
+          audioChannel3.play
         }
       }
     }
@@ -161,7 +171,10 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
   def onMousedown(e: dom.MouseEvent) {
     val mouse = new Point(e.clientX, e.clientY)
-    if (getGameSquare(mouse).canMove) {
+    val curSq = getGameSquare(mouse)
+    if (curSq.canMove) {
+      audioChannel1.src = Loader.getSoundUrl(curSq ,"select")
+      audioChannel1.play
       squareSource = getGameSquare(mouse)
       uiInterface.interfaceTileStatus(squareSource)
     }
@@ -171,14 +184,12 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
   def onKeydown(e: dom.KeyboardEvent) {
     dom.console.log(s"key=${e.keyCode}")
-
     if (e.keyCode.equals(32)) {
       game.nextTurn()
       boardChangeRedraw
-      audioChannel2.src = Loader.getSoundUrl("nextTurn")
-      audioChannel2.play
+      audioChannel3.src = Loader.getSoundUrl("nextTurn")
+      audioChannel3.play
     }
-
   }
 
 }
