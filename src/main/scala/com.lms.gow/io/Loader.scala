@@ -46,7 +46,7 @@ object Loader {
     }
   }
 
-  def getStartingGamePosition(boardFile: String, unitFile: String): Future[Boolean] = {
+  def getStartingGamePosition(boardFile: String, unitFile: String, xWidth: Int): Future[Boolean] = {
 
     def getResUrl(res: String): String = {
       s"target/scala-2.11/classes/$res"
@@ -82,6 +82,10 @@ object Loader {
             RuleRepository.startingUnits = tilesU.map(u => {
               if (TileRepository.units.contains(u)) u else VoidTile
             })
+
+            RuleRepository.squareX = xWidth
+            RuleRepository.squareY = RuleRepository.startingTerrain.size / xWidth
+
             loaded.success(true)
           }
         }

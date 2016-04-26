@@ -28,6 +28,8 @@ object BoardPositions {
     RuleRepository.squareX = xWidth
     RuleRepository.squareY = RuleRepository.startingTerrain.size / xWidth
 
+    assert((RuleRepository.squareX * RuleRepository.squareY).equals(RuleRepository.startingTerrain.size))
+
     game = new Game()
     game
   }
@@ -44,6 +46,34 @@ object BoardPositions {
     assert(u.isCurrentTurn)
     u
   }
+
+  val cavalryCharge = (
+    """
+      |-- 01 02 03 04 05
+      |01 M  .  .  .  .
+      |02 =  .  .  .  .
+      |03 M  .  .  .  .
+      |04 .  .  .  .  .
+      |05 .  .  .  .  F
+    """,
+    """
+      |-- 01 02 03 04 05
+      |01 M  .  .  I  v
+      |02 v  .  .  .  a
+      |03 M  V  .  R  .
+      |04 .  .  .  .  .
+      |05 .  A  .  V  v
+    """)
+
+  val combatFromPDF =
+    """
+      |-- 01 02 03 04 05
+      |01 .  .  A  C  .
+      |02 .  V  .  I  .
+      |03 .  .  V  .  .
+      |04 c  .  i  v  .
+      |05 .  i  a  .  .
+    """
 
   val communicationLines =
     """
@@ -75,7 +105,7 @@ object BoardPositions {
       |10 .  .  .  .  .  .  .  .  .  .
     """
 
-  val vanillaBoard =
+  val vanilla = (
     """
       |-- 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 34 25
       |01 .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
@@ -99,8 +129,7 @@ object BoardPositions {
       |19 .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
       |20 .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
     """
-
-  val vanillaUnits =
+    ,
     """
       |-- 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 34 25
       |01 .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
@@ -124,5 +153,6 @@ object BoardPositions {
       |19 .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
       |20 .  .  a  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  a  .  .
     """
+    )
 
 }

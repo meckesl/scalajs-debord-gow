@@ -9,7 +9,7 @@ object AppTest extends TestSuite {
 
     'vanilla {
 
-      val game = setupGame(vanillaBoard, vanillaUnits)
+      val game = setupGame(vanilla._1, vanilla._2)
 
       'boardDimensions {
         assert(RuleRepository.startingTerrain.size == 25 * 20)
@@ -21,18 +21,23 @@ object AppTest extends TestSuite {
         assert(get(10, 6).terrain.equals(MountainPass))
         assert(get(10, 7).terrain.equals(Mountain))
         assert(get(11, 9).terrain.equals(VoidTile))
+
       }
 
       'unitPlacement {
         assert(get(3, 4).unit.equals(RedRelay))
         assert(get(8, 4).unit.equals(RedArsenal))
         assert(get(10, 6).unit.equals(RedInfantry))
+
       }
 
-      'unitDistribution {
+      'tileDistribution {
         val totalRed = game.gameSquares.filter(_.unit.player equals PlayerRepository.Red).size
         val totalBlue = game.gameSquares.filter(_.unit.player equals PlayerRepository.Blue).size
         assert(totalRed equals totalBlue)
+        assert(game.gameSquares.count(_.terrain.equals(Mountain)) == 9 * 2)
+        assert(game.gameSquares.count(sq => Seq(RedArsenal, BlueArsenal)
+          .contains(sq.unit)) == 2 * 2)
       }
 
       'unitGameTurn {
@@ -85,6 +90,61 @@ object AppTest extends TestSuite {
 
     }
 
+    'combatFromRulesPDF {
+
+      setupGame(combatFromPDF, combatFromPDF, 5) // as described in liamgillick PDF
+
+      'defensePtsOn44 {
+        assert(getWithTurn(4, 4).defenseStrength.equals(19))
+      }
+
+      'attackPtsOn44 {
+        assert(getWithTurn(4, 4).canBeTargetOfStrength.equals(23 - cavalryChargeBonus)) //FIXME
+      }
+
+      'doesNotContributeDefense {
+        assert(getWithTurn(4, 4).alliesInRange.contains(get(1, 4)))
+        assert(!getWithTurn(4, 4).alliesInRange.contains(get(2, 5)))
+      }
+
+      /*'attackResultOn44 {
+        getWithTurn(3,3)
+        assert(get(4,4).launchAttackOn().equals(2))
+      }*/
+
+    }
+
+    'cavalryCharge {
+
+      setupGame(cavalryCharge._1, cavalryCharge._2, 5)
+
+      'normalTerrainCavalryChargeHasBonus {
+        getWithTurn(5, 1)
+        assert(get(4, 1).canBeTargetOfStrength.equals(4 + cavalryChargeBonus))
+      }
+
+      'noCavalryChargeFromFortress {
+        getWithTurn(5, 5)
+        assert(get(4, 5).canBeTargetOfStrength.equals(4))
+      }
+
+      'noCavalryChargeToFortress {
+        getWithTurn(4, 5)
+        assert(get(5, 5).canBeTargetOfStrength.equals(4))
+      }
+
+      'noCavalryChargeToMountainPass {
+        getWithTurn(2, 3)
+        assert(get(1, 2).canBeTargetOfStrength.equals(4))
+      }
+
+      'cavalryChargeOKFromMountainPass {
+        getWithTurn(1, 2)
+        assert(get(2, 3).canBeTargetOfStrength.equals(4 + cavalryChargeBonus))
+      }
+
+    }
+
     'communicationLines {
 
       val game = setupGame(communicationLines, communicationLines, 10)
@@ -103,6 +163,7 @@ object AppTest extends TestSuite {
       }
 
       'allInComRangeAreOnlineAndCanMove {
+        getWithTurn(3, 8)
         assert(game.gameSquares
           .filter(_.unit.equals(BlueInfantry))
           .filter(_.canMove)
@@ -116,12 +177,12 @@ object AppTest extends TestSuite {
           .filter(_.unit.equals(BlueInfantry))
           .filter(_.canMove)
           .filter(_.isOnline).size == 2)
+        // Clear enemy unit
         get(1, 7).unit = get(2, 7).unit
         get(2, 6).unit = VoidTile
-        game.refreshComLayer()
       }
 
-      'unitCanMoveOutOfComEvenIfItMakesItOffline {
+      'unitCanMoveOutOfCom {
         assert(getWithTurn(4, 8).isOnline)
         assert(get(5, 7).unit.equals(VoidTile))
         getWithTurn(4, 8).moveUnitTo(get(5, 7))
