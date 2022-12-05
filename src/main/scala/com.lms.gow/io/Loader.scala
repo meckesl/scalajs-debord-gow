@@ -16,11 +16,11 @@ object Loader {
   val imageCache: mutable.HashMap[Tile, HTMLImageElement] = new mutable.HashMap()
 
   def getSoundUrl(sq: GameSquare, sound: String): String = {
-    s"target/scala-2.11/classes/sounds/${sq.unit.char}/$sound.mp3"
+    s"target/scala-2.13/classes/sounds/${sq.unit.char}/$sound.mp3"
   }
 
   def getSoundUrl(sound: String): String = {
-    s"target/scala-2.11/classes/sounds/$sound.mp3"
+    s"target/scala-2.13/classes/sounds/$sound.mp3"
   }
 
   def getTileAsync(t: Tile, callback: (HTMLImageElement) => Unit) {
@@ -31,7 +31,7 @@ object Loader {
         s = "dot"
       else
         s = tile.char.toString
-      s"target/scala-2.11/classes/tiles/$s/0.png"
+      s"target/scala-2.13/classes/tiles/$s/0.png"
     }
 
     if (imageCache.get(t).isDefined) {
@@ -49,7 +49,7 @@ object Loader {
   def getStartingGamePosition(boardFile: String, unitFile: String, xWidth: Int): Future[Boolean] = {
 
     def getResUrl(res: String): String = {
-      s"target/scala-2.11/classes/$res"
+      s"target/scala-2.13/classes/$res"
     }
 
     def loadInitialBoardPosition(file: String, tiles: Set[Tile]): Future[Seq[Tile]] = {
@@ -72,12 +72,12 @@ object Loader {
     }
 
     val loaded: Promise[Boolean] = Promise()
-    loadInitialBoardPosition(boardFile, TileRepository.terrains) onSuccess {
+    loadInitialBoardPosition(boardFile, TileRepository.terrains) foreach  {
       case tilesT: Seq[Tile] => {
         RuleRepository.startingTerrain = tilesT.map(t => {
           if (TileRepository.terrains.contains(t)) t else VoidTile
         })
-        loadInitialBoardPosition(unitFile, TileRepository.units) onSuccess {
+        loadInitialBoardPosition(unitFile, TileRepository.units) foreach {
           case tilesU: Seq[Tile] => {
             RuleRepository.startingUnits = tilesU.map(u => {
               if (TileRepository.units.contains(u)) u else VoidTile

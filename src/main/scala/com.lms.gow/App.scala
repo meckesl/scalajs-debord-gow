@@ -8,11 +8,10 @@ import org.scalajs.dom.document._
 import org.scalajs.dom.html
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.scalajs.js
 
-object App extends js.JSApp {
+object App {
 
-  def main(): Unit = {
+  def main(args: Array[String]): Unit = {
 
     def getCanvas(c: String) = getElementById(c)
       .asInstanceOf[html.Canvas]
@@ -23,10 +22,10 @@ object App extends js.JSApp {
     val overlayCanvas = getCanvas("overlayCanvas")
     val interfaceCanvas = getCanvas("interfaceCanvas")
 
-    Loader.getStartingGamePosition("init.board","init.units", 25) onSuccess {
+    Loader.getStartingGamePosition("init.board","init.units", 25).foreach {
       case _ =>
         val game = new Game
-        val ui = new UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
+        val ui = UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
         import scala.scalajs.js.timers._
         ui.onResize(new Point(dom.window.innerWidth, dom.window.innerHeight))
         var handle: SetTimeoutHandle = null

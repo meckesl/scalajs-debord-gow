@@ -1,18 +1,17 @@
 package com.lms.gow.model
 
 import com.lms.gow.model.repo.CardinalityRepository._
-import com.lms.gow.model.repo.PlayerRepository.{Blue, Neutral, Red}
+import com.lms.gow.model.repo.PlayerRepository.{Blue, Neutral, Player, Red}
 import com.lms.gow.model.repo.TileRepository._
 import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository, TileRepository}
 
-import scala.collection.immutable.HashMap
-import scala.collection.{Seq, mutable}
+import scala.collection.{Seq, immutable, mutable}
 
 case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
   var unit: Tile = VoidTile
   val coords = Point.fromLinear(index, RuleRepository.squareX)
-  val com = HashMap(Seq(Blue, Red).map(p => p -> mutable.Set[Cardinality]()): _*)
+  val com = immutable.HashMap(Blue -> mutable.Set[Cardinality](), Red -> mutable.Set[Cardinality]())
 
   private def hasAdjacentOnlineAlly(sq: GameSquare = this): Boolean =
     sq.inRange(1)

@@ -11,20 +11,21 @@ lazy val root = project.in(file(".")).enablePlugins(ScalaJSPlugin)
 
 name := "scalajs-debord-gow"
 version := "0.5-SNAPSHOT"
-
-scalaVersion := "2.11.8"
+//javacOptions ++= Seq("-source", "11", "-target", "11")
+scalaVersion := "2.13.9"
 scalacOptions in ThisBuild ++= Seq("-feature")
-scalaJSUseRhino in Global := false
-persistLauncher in Compile := true
+scalaJSUseMainModuleInitializer := true
+//scalaJSUseRhino in Global := false
+//persistLauncher in Compile := true
 
 testFrameworks += new TestFramework("utest.runner.Framework")
-persistLauncher in Test := false
+//persistLauncher in Test := false
 //jsDependencies in Test += RuntimeDOM
 
-resolvers += "Typesafe" at "http://repo.typesafe.com/typesafe/releases/"
-resolvers += "Sonatype OSS" at "https://oss.sonatype.org/"
+resolvers += ("Typesafe" at "http://repo.typesafe.com/typesafe/releases/").withAllowInsecureProtocol(true)
+resolvers += ("Sonatype OSS" at "https://oss.sonatype.org/").withAllowInsecureProtocol(true)
 libraryDependencies ++= Seq(
-  "org.scala-js" %%% "scalajs-dom" % "0.9.0",
-  "be.doeraene" %%% "scalajs-jquery" % "0.9.0",
-  "com.lihaoyi" %%% "utest" % "0.4.3" % "test"
+  "org.scala-js" %%% "scalajs-dom" % "1.0.0",
+  "be.doeraene" %%% "scalajs-jquery" % "1.0.0"//,
+  //"com.lihaoyi" %%% "utest" % "0.4.3" % "test"
 )
