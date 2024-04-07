@@ -9,22 +9,22 @@ import scala.collection.mutable
 
 class Game {
 
-  var turnRemainingMoves = RuleRepository.turnMoves
-  val turnMovedUnits = mutable.Set[GameSquare]()
+  var turnRemainingMoves: Int = RuleRepository.turnMoves
+  val turnMovedUnits: mutable.Set[GameSquare] = mutable.Set[GameSquare]()
   var turnPlayer: Player = if (scala.util.Random.nextBoolean) Blue else Red
 
-  var forcedRetreat: GameSquare = null
+  var forcedRetreat: Option[GameSquare] = None
 
-  val capturedUnits = mutable.Seq[Tile]()
+  val capturedUnits: mutable.Seq[Tile] = mutable.Seq[Tile]()
 
-  val gameSquares =
+  val gameSquares: Seq[GameSquare] =
     0 until RuleRepository.squareCount map (i => {
       val sq = new GameSquare(i, RuleRepository.startingTerrain(i), this)
       sq.unit = RuleRepository.startingUnits(i)
       sq
     })
 
-  def nextTurn() = {
+  def nextTurn(): Unit = {
     turnRemainingMoves = RuleRepository.turnMoves
     turnMovedUnits.clear()
     if (turnPlayer == Red)
@@ -33,7 +33,7 @@ class Game {
       turnPlayer = Red
   }
 
-  def refreshComLayer() = {
+  def refreshComLayer(): Unit = {
     def propagate(source: GameSquare, cursor: GameSquare, dir: Set[Cardinality]): Unit = {
       val pl = source.unit.player
       dir.foreach(d => {

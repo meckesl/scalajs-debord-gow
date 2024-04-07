@@ -26,6 +26,6 @@ resolvers += ("Typesafe" at "http://repo.typesafe.com/typesafe/releases/").withA
 resolvers += ("Sonatype OSS" at "https://oss.sonatype.org/").withAllowInsecureProtocol(true)
 libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "1.0.0",
-  "be.doeraene" %%% "scalajs-jquery" % "1.0.0"//,
+  "be.doeraene" %%% "scalajs-jquery" % "1.0.0",
   //"com.lihaoyi" %%% "utest" % "0.4.3" % "test"
 )

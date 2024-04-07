@@ -26,12 +26,12 @@ object TileRepository {
 
   val cavalryChargeBonus = 3
 
-  val all = Set(VoidTile, Fortress, Mountain, MountainPass,
+  val all: Set[Tile] = Set(VoidTile, Fortress, Mountain, MountainPass,
     RedArsenal, RedRelay, RedSwiftRelay, RedCannon, RedSwiftCannon, RedInfantry, RedCavalry,
     BlueArsenal, BlueRelay, BlueSwiftRelay, BlueCannon, BlueSwiftCannon, BlueInfantry, BlueCavalry)
-  val terrains = all.filter(_.player.eq(Neutral))
-  val units = all.filterNot(_.player.eq(Neutral))
+  val terrains: Set[Tile] = all.filter(_.player.eq(Neutral))
+  val units: Set[Tile] = all.filterNot(_.player.eq(Neutral))
 
-  def getByChar(c: Char) = all.filter(_.char.equals(c)).head
+  def getByChar(c: Char): Tile = all.filter(_.char.equals(c)).head
 
 }

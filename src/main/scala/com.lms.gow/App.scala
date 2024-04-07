@@ -23,13 +23,13 @@ object App {
     val interfaceCanvas = getCanvas("interfaceCanvas")
 
     Loader.getStartingGamePosition("init.board","init.units", 25).foreach {
-      case _ =>
+      _ =>
         val game = new Game
         val ui = UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
         import scala.scalajs.js.timers._
         ui.onResize(new Point(dom.window.innerWidth, dom.window.innerHeight))
         var handle: SetTimeoutHandle = null
-        dom.window.onresize = (e: dom.Event) => {
+        dom.window.onresize = (_: dom.Event) => {
           clearTimeout(handle)
           handle = setTimeout(200) {
             ui.onResize(new Point(dom.window.innerWidth, dom.window.innerHeight))

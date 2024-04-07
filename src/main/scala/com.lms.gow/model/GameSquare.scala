@@ -10,20 +10,20 @@ import scala.collection.{Seq, immutable, mutable}
 case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
   var unit: Tile = VoidTile
-  val coords = Point.fromLinear(index, RuleRepository.squareX)
-  val com = immutable.HashMap(Blue -> mutable.Set[Cardinality](), Red -> mutable.Set[Cardinality]())
+  val coords: Point = Point.fromLinear(index, RuleRepository.squareX)
+  val com: Map[Player, mutable.Set[Cardinality]] = immutable.HashMap(Blue -> mutable.Set[Cardinality](), Red -> mutable.Set[Cardinality]())
 
   private def hasAdjacentOnlineAlly(sq: GameSquare = this): Boolean =
     sq.inRange(1)
       .filterNot(_.equals(this))
-      .filter(s => {
+      .exists(s => {
         s.unit.player.equals(unit.player) &&
           s.com(unit.player).nonEmpty
-      }).nonEmpty
+      })
 
-  def isOnline = com(unit.player).nonEmpty || hasAdjacentOnlineAlly() || unit.isCom
+  def isOnline: Boolean = com(unit.player).nonEmpty || hasAdjacentOnlineAlly() || unit.isCom
 
-  def isCurrentTurn = g.turnPlayer.equals(unit.player)
+  def isCurrentTurn: Boolean = g.turnPlayer.equals(unit.player)
 
   def canAttack(dest: GameSquare): Boolean = {
     targetsInAttackRange.contains(dest)
@@ -34,14 +34,14 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       .filterNot(_.player.equals(unit.player)).head)
   }
 
-  def canMove =
+  def canMove: Boolean =
     isCurrentTurn &&
       g.turnRemainingMoves > 0 &&
-      g.turnMovedUnits.filter(_.equals(this)).isEmpty &&
+      !g.turnMovedUnits.exists(_.equals(this)) &&
       unit.speed > 0 &&
       isOnline
 
-  def canMoveTo(dest: GameSquare, allowedDest: Tile = VoidTile) =
+  def canMoveTo(dest: GameSquare, allowedDest: Tile = VoidTile): Boolean =
     canMove &&
       dest.unit.equals(allowedDest) &&
       !dest.terrain.equals(Mountain) &&
@@ -51,7 +51,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     if (canMoveTo(dest)) {
       dest.unit = unit
       unit = VoidTile
-      g.refreshComLayer
+      g.refreshComLayer()
       g.turnMovedUnits add dest
       g.turnRemainingMoves -= 1
       if (g.turnRemainingMoves == 0)
@@ -62,10 +62,10 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       false
   }
 
-  def takeArsenal(arsenal: GameSquare) {
+  def takeArsenal(arsenal: GameSquare): Unit = {
     arsenal.unit = unit
     unit = VoidTile
-    g.refreshComLayer
+    g.refreshComLayer()
     g.nextTurn()
   }
 
@@ -89,26 +89,25 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       0
   }
 
-  def targetsInAttackRange = inCombatRange(unit.range).filterNot(ir => {
+  def targetsInAttackRange: mutable.Set[GameSquare] = inCombatRange(unit.range).filterNot(ir => {
     Set(unit.player, Neutral).contains(ir.unit.player)
   }).filterNot(ir => Set(RedArsenal, BlueArsenal).contains(ir.unit))
 
-  def canBeTargetOfStrength = {
+  def canBeTargetOfStrength: Int = {
     val attackers = canBeTargetOf
     val baseStrength = attackers.toSeq.map(_.unit.attack).sum
     if (!Set(Fortress, MountainPass).contains(terrain)) {
       val cavalryBonus = inRange(1)
-        .filter(attackers.contains(_))
+        .intersect(attackers)
         .filterNot(_.terrain.equals(Fortress))
         .toSeq
         .map(_.unit)
-        .filter(Seq(BlueCavalry, RedCavalry).contains(_))
-        .size * TileRepository.cavalryChargeBonus
+        .count(Seq(BlueCavalry, RedCavalry).contains(_)) * TileRepository.cavalryChargeBonus
       baseStrength + cavalryBonus
     } else baseStrength
   }
 
-  def defenseStrength = alliesInRange.toSeq.map(sq => {
+  def defenseStrength: Int = alliesInRange.toSeq.map(sq => {
     var d = sq.unit.defense
     if (Set(Fortress, MountainPass).contains(sq.terrain))
       if (Set(BlueInfantry, RedInfantry, BlueCannon,
@@ -140,7 +139,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     allies.toSet
   }
 
-  def adjacentSquare(c: Cardinality) = {
+  def adjacentSquare(c: Cardinality): GameSquare = {
     val i = (new Point(c.x, c.y) + coords).toLinear(RuleRepository.squareX)
     if ((i < g.gameSquares.size && i >= 0) &&
       (!(coords.x == 0 && Set(NW, SW, W).contains(c))) &&
@@ -168,7 +167,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
   def inRange(r: Int): Set[GameSquare] = {
     if (r.equals(1))
-      CardinalityRepository.all.map(adjacentSquare(_))
+      CardinalityRepository.all.map(adjacentSquare)
         .filterNot(adj => null == adj || adj.terrain.equals(Mountain)).toSet
     else if (r.equals(2))
       inRange(1) flatMap (_.inRange(1))
