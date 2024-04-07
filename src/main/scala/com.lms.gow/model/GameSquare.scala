@@ -81,7 +81,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       g.nextTurn()
       2
     } else if (result == 1) {
-      g.forcedRetreat = this
+      g.forcedRetreat = Some(this)
       g.nextTurn()
       1
     }

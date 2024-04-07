@@ -19,7 +19,7 @@ class Game {
 
   val gameSquares: Seq[GameSquare] =
     0 until RuleRepository.squareCount map (i => {
-      val sq = new GameSquare(i, RuleRepository.startingTerrain(i), this)
+      val sq = new GameSquare(i, RuleRepository.startingTerrain.get(i), this)
       sq.unit = RuleRepository.startingUnits(i)
       sq
     })
