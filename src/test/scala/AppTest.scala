@@ -5,18 +5,18 @@ import utest._
 
 object AppTest extends TestSuite {
 
-  val tests = TestSuite {
+  val tests: Tests = utest.Tests {
 
-    'vanilla {
+    Symbol("vanilla") {
 
       val game = setupGame(vanilla._1, vanilla._2)
 
-      'boardDimensions {
+      Symbol("boardDimensions") {
         assert(RuleRepository.startingTerrain.size == 25 * 20)
         assert(RuleRepository.startingUnits.size == 25 * 20)
       }
 
-      'terrainPlacement {
+      Symbol("terrainPlacement") {
         assert(get(8, 2).terrain.equals(Fortress))
         assert(get(10, 6).terrain.equals(MountainPass))
         assert(get(10, 7).terrain.equals(Mountain))
@@ -24,14 +24,14 @@ object AppTest extends TestSuite {
 
       }
 
-      'unitPlacement {
+      Symbol("unitPlacement") {
         assert(get(3, 4).unit.equals(RedRelay))
         assert(get(8, 4).unit.equals(RedArsenal))
         assert(get(10, 6).unit.equals(RedInfantry))
 
       }
 
-      'tileDistribution {
+      Symbol("tileDistribution") {
         val totalRed = game.gameSquares.filter(_.unit.player equals PlayerRepository.Red).size
         val totalBlue = game.gameSquares.filter(_.unit.player equals PlayerRepository.Blue).size
         assert(totalRed equals totalBlue)
@@ -40,7 +40,7 @@ object AppTest extends TestSuite {
           .contains(sq.unit)) == 2 * 2)
       }
 
-      'unitGameTurn {
+      Symbol("unitGameTurn") {
         val infantry = get(15, 11)
         assert(infantry.unit.equals(BlueInfantry))
         if (!infantry.isCurrentTurn)
@@ -50,7 +50,7 @@ object AppTest extends TestSuite {
         assert(!infantry.isCurrentTurn)
       }
 
-      'unitBasicMovementRange {
+      Symbol("unitBasicMovementRange") {
         val infantry = getWithTurn(15, 11)
         val free = infantry.inRange(infantry.unit.speed)
           .filter(infantry.canMoveTo(_))
@@ -74,7 +74,7 @@ object AppTest extends TestSuite {
 
     }
 
-    'unitObstruction {
+    Symbol("unitObstruction") {
 
       setupGame(movementObstruction, movementObstruction, 10)
 
@@ -90,19 +90,19 @@ object AppTest extends TestSuite {
 
     }
 
-    'combatFromRulesPDF {
+    Symbol("combatFromRulesPDF") {
 
       setupGame(combatFromPDF, combatFromPDF, 5) // as described in liamgillick PDF
 
-      'defensePtsOn44 {
+      Symbol("defensePtsOn44") {
         assert(getWithTurn(4, 4).defenseStrength.equals(19))
       }
 
-      'attackPtsOn44 {
+      Symbol("attackPtsOn44") {
         assert(getWithTurn(4, 4).canBeTargetOfStrength.equals(23 - cavalryChargeBonus)) //FIXME
       }
 
-      'doesNotContributeDefense {
+      Symbol("doesNotContributeDefense") {
         assert(getWithTurn(4, 4).alliesInRange.contains(get(1, 4)))
         assert(!getWithTurn(4, 4).alliesInRange.contains(get(2, 5)))
       }
@@ -114,47 +114,47 @@ object AppTest extends TestSuite {
 
     }
 
-    'cavalryCharge {
+    Symbol("cavalryCharge") {
 
       setupGame(cavalryCharge._1, cavalryCharge._2, 5)
 
-      'normalTerrainCavalryChargeHasBonus {
+      Symbol("normalTerrainCavalryChargeHasBonus") {
         getWithTurn(5, 1)
         assert(get(4, 1).canBeTargetOfStrength.equals(4 + cavalryChargeBonus))
       }
 
-      'noCavalryChargeFromFortress {
+      Symbol("noCavalryChargeFromFortress") {
         getWithTurn(5, 5)
         assert(get(4, 5).canBeTargetOfStrength.equals(4))
       }
 
-      'noCavalryChargeToFortress {
+      Symbol("noCavalryChargeToFortress") {
         getWithTurn(4, 5)
         assert(get(5, 5).canBeTargetOfStrength.equals(4))
       }
 
-      'noCavalryChargeToMountainPass {
+      Symbol("noCavalryChargeToMountainPass") {
         getWithTurn(2, 3)
         assert(get(1, 2).canBeTargetOfStrength.equals(4))
       }
 
-      'cavalryChargeOKFromMountainPass {
+      Symbol("cavalryChargeOKFromMountainPass") {
         getWithTurn(1, 2)
         assert(get(2, 3).canBeTargetOfStrength.equals(4 + cavalryChargeBonus))
       }
 
     }
 
-    'communicationLines {
+    Symbol("communicationLines") {
 
       val game = setupGame(communicationLines, communicationLines, 10)
 
-      'relaysDoRelay {
+      Symbol("relaysDoRelay") {
         assert(!getWithTurn(10, 1).isOnline)
         assert(getWithTurn(3, 4).isOnline)
       }
 
-      'outOfComUnitsCannotMove {
+      Symbol("outOfComUnitsCannotMove") {
         val ooc = getWithTurn(10, 1)
         assert(!ooc.isOnline)
         assert(!ooc.canMove)
@@ -162,7 +162,7 @@ object AppTest extends TestSuite {
           .filter(ooc.canMoveTo(_)).isEmpty)
       }
 
-      'allInComRangeAreOnlineAndCanMove {
+      Symbol("allInComRangeAreOnlineAndCanMove") {
         getWithTurn(3, 8)
         assert(game.gameSquares
           .filter(_.unit.equals(BlueInfantry))
@@ -170,7 +170,7 @@ object AppTest extends TestSuite {
           .filter(_.isOnline).size == 4)
       }
 
-      'enemyUnitBlocksCom {
+      Symbol("enemyUnitBlocksCom") {
         getWithTurn(1, 7).moveUnitTo(get(2, 7))
         game.nextTurn()
         assert(game.gameSquares
@@ -182,7 +182,7 @@ object AppTest extends TestSuite {
         get(2, 6).unit = VoidTile
       }
 
-      'unitCanMoveOutOfCom {
+      Symbol("unitCanMoveOutOfCom") {
         assert(getWithTurn(4, 8).isOnline)
         assert(get(5, 7).unit.equals(VoidTile))
         getWithTurn(4, 8).moveUnitTo(get(5, 7))

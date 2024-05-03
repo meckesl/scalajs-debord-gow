@@ -14,10 +14,10 @@ object BoardPositions {
     val units = u.filter(_ > ' ').filter(TileRepository.all.map(_.char).contains(_))
     assert(units.length.equals(terrain.length))
 
-    RuleRepository.startingTerrain = terrain.map(t => {
+    RuleRepository.startingTerrain = Some(terrain.map(t => {
       val tile = TileRepository.getByChar(t)
       if (TileRepository.terrains.contains(tile)) tile else VoidTile
-    })
+    }))
     RuleRepository.startingUnits = units.map(u => {
       val tile = TileRepository.getByChar(u)
       if (TileRepository.units.contains(tile)) tile else VoidTile
