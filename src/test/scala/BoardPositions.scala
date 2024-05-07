@@ -1,4 +1,3 @@
-import AppTest._
 import com.lms.gow.model.repo.TileRepository.VoidTile
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
 import com.lms.gow.model.{Game, GameSquare, Point}
