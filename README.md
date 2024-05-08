@@ -1,6 +1,15 @@
 [![Scala CI](https://github.com/meckesl/scalajs-debord-gow/actions/workflows/scala.yml/badge.svg)](https://github.com/meckesl/scalajs-debord-gow/actions/workflows/scala.yml)
 
+# Usage
+
+Run game tests
+> sbt test
+
+Fast Optimisation compile
 > sbt fastOptJS
+
+Full Optimisation compile
+> sbt fullOptJS
 
 ![Optional Screenshot](./screenshot.png)
 
