@@ -5,12 +5,10 @@
 Run game tests 
 > sbt test
 
-Fast Optimisation compile
-* Generates Javascript files ready to be run in the browser
+Generates Javascript files ready to be run in the browser (faster build times for development)
 > sbt fastOptJS
 
-Full Optimisation compile
-* Generates Javascript files ready to be run in the browser
+Generates Javascript files ready to be run in the browser (optimized)
 > sbt fullOptJS
 
 # Screenshot
