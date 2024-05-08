@@ -1,6 +1,11 @@
+import sbt.Keys.version
 
-
-lazy val root = project.in(file(".")).enablePlugins(ScalaJSPlugin)
+lazy val root = project.in(file("."))
+  .enablePlugins(ScalaJSPlugin)
+  .settings(
+    name := "scalajs-debord-gow",
+    version := "0.6"
+  )
 
 /*lazy val jvm = project.in(file(".")).settings(
   libraryDependencies --= Seq(
@@ -9,20 +14,19 @@ lazy val root = project.in(file(".")).enablePlugins(ScalaJSPlugin)
   )
 )*/
 
-name := "scalajs-debord-gow"
-version := "0.6"
+
 //javacOptions ++= Seq("-source", "11", "-target", "11")
 scalaVersion := "2.13.14"
 scalacOptions in ThisBuild ++= Seq("-feature")
 scalaJSUseMainModuleInitializer := true
-//scalaJSUseRhino in Global := false
+//scalaJS in Global := false
 //persistLauncher in Compile := true
 
 testFrameworks += new TestFramework("utest.runner.Framework")
 //persistLauncher in Test := false
 
 resolvers += ("Typesafe" at "http://repo.typesafe.com/typesafe/releases/").withAllowInsecureProtocol(true)
-resolvers += ("Sonatype OSS" at "https://oss.sonatype.org/content/repositories/releases/").withAllowInsecureProtocol(true)
+resolvers += ("Sonatype OSS" at "https://oss.sonatype.org/content/repositories/releases/")
 libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "1.2.0",
   "be.doeraene" %%% "scalajs-jquery" % "1.0.0",

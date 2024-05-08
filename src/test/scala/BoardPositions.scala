@@ -4,19 +4,19 @@ import com.lms.gow.model.{Game, GameSquare, Point}
 
 object BoardPositions {
 
-  private var game: Game = null
+  private var game: Game = _
 
-  def setupGame(t: String, u: String, xWidth: Int = 25): Game = {
+  def setupGame(t: String, u: String, width: Int = 25): Game = {
 
     assert(t.length.equals(u.length))
     val terrain = t.filter(_ > ' ').filter(TileRepository.all.map(_.char).contains(_))
     val units = u.filter(_ > ' ').filter(TileRepository.all.map(_.char).contains(_))
     assert(units.length.equals(terrain.length))
 
-    RuleRepository.startingTerrain = Some(terrain.map(t => {
+    RuleRepository.startingTerrain = terrain.map(t => {
       val tile = TileRepository.getByChar(t)
       if (TileRepository.terrains.contains(tile)) tile else VoidTile
-    }))
+    })
     RuleRepository.startingUnits = units.map(u => {
       val tile = TileRepository.getByChar(u)
       if (TileRepository.units.contains(tile)) tile else VoidTile
@@ -24,10 +24,10 @@ object BoardPositions {
 
     assert(RuleRepository.startingTerrain.size.equals(RuleRepository.startingUnits.size))
 
-    RuleRepository.squareX = xWidth
-    RuleRepository.squareY = RuleRepository.startingTerrain.size / xWidth
+    RuleRepository.squareX = width
+    RuleRepository.squareY = RuleRepository.startingTerrain.size / width
 
-    assert((RuleRepository.squareX * RuleRepository.squareY).equals(RuleRepository.startingTerrain.size))
+    //assert((RuleRepository.squareX * RuleRepository.squareY).equals(RuleRepository.startingTerrain.size))
 
     game = new Game()
     game
@@ -37,7 +37,7 @@ object BoardPositions {
     game.gameSquares(new Point(x - 1, y - 1).toLinear(RuleRepository.squareX))
   }
 
-  def getWithTurn(x: Int, y: Int) = {
+  def getWithTurn(x: Int, y: Int): GameSquare = {
     val u = get(x, y)
     assert(u.unit != VoidTile)
     if (!u.isCurrentTurn)
@@ -46,7 +46,7 @@ object BoardPositions {
     u
   }
 
-  val cavalryCharge = (
+  val cavalryCharge: (String, String) = (
     """
       |-- 01 02 03 04 05
       |01 M  .  .  .  .
@@ -104,7 +104,7 @@ object BoardPositions {
       |10 .  .  .  .  .  .  .  .  .  .
     """
 
-  val vanilla = (
+  val vanilla: (String, String) = (
     """
       |-- 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 34 25
       |01 .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .

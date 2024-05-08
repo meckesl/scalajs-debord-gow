@@ -72,13 +72,13 @@ object Loader {
     }
 
     val loaded: Promise[Boolean] = Promise()
-    loadInitialBoardPosition(boardFile, TileRepository.terrains) foreach  {
-      case tilesT: Seq[Tile] => {
-        RuleRepository.startingTerrain = Some(tilesT.map(t => {
+    loadInitialBoardPosition(boardFile, TileRepository.terrains) foreach {
+      tilesT: Seq[Tile] => {
+        RuleRepository.startingTerrain = tilesT.map(t => {
           if (TileRepository.terrains.contains(t)) t else VoidTile
-        }))
+        })
         loadInitialBoardPosition(unitFile, TileRepository.units) foreach {
-          case tilesU: Seq[Tile] => {
+          tilesU: Seq[Tile] => {
             RuleRepository.startingUnits = tilesU.map(u => {
               if (TileRepository.units.contains(u)) u else VoidTile
             })

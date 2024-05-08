@@ -21,14 +21,12 @@ object AppTest extends TestSuite {
         assert(get(10, 6).terrain.equals(MountainPass))
         assert(get(10, 7).terrain.equals(Mountain))
         assert(get(11, 9).terrain.equals(VoidTile))
-
       }
 
       test("unitPlacement") {
         assert(get(3, 4).unit.equals(RedRelay))
         assert(get(8, 4).unit.equals(RedArsenal))
         assert(get(10, 6).unit.equals(RedInfantry))
-
       }
 
       test("tileDistribution") {
