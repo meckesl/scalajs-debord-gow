@@ -11,7 +11,11 @@ Fast Optimisation compile
 Full Optimisation compile
 > sbt fullOptJS
 
+# Screenshot
+
 ![Optional Screenshot](./screenshot.png)
+
+# What is Game of War
 
 A Game of War is a book by Guy Debord and Alice Becker-Ho that illustrates a game devised by Debord by giving a detailed account of one of their table-top conflicts1. Originally published in French as Le Jeu de la Guerre in 1987, the book provides insights into Debord’s strategic thinking and approach to war.
 
