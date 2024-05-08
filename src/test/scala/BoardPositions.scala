@@ -27,7 +27,7 @@ object BoardPositions {
     RuleRepository.squareX = width
     RuleRepository.squareY = RuleRepository.startingTerrain.size / width
 
-    //assert((RuleRepository.squareX * RuleRepository.squareY).equals(RuleRepository.startingTerrain.size))
+    assert((RuleRepository.squareX * RuleRepository.squareY).equals(RuleRepository.startingTerrain.size))
 
     game = new Game()
     game
