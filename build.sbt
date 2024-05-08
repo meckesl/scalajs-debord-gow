@@ -10,7 +10,7 @@ lazy val root = project.in(file(".")).enablePlugins(ScalaJSPlugin)
 )*/
 
 name := "scalajs-debord-gow"
-version := "0.5-SNAPSHOT"
+version := "0.6"
 //javacOptions ++= Seq("-source", "11", "-target", "11")
 scalaVersion := "2.13.14"
 scalacOptions in ThisBuild ++= Seq("-feature")
