@@ -116,7 +116,7 @@ class UiLayer(canvas: Canvas) {
     })
   }
 
-  def tileUnitHighlight(sq: GameSquare) {
+  def tileUnitHighlight(sq: GameSquare): Unit = {
     l.save()
     val u: Point = sq.coords * tileSize
     l.shadowBlur = 0

@@ -23,7 +23,7 @@ object Loader {
     s"target/scala-2.13/classes/sounds/$sound.mp3"
   }
 
-  def getTileAsync(t: Tile, callback: (HTMLImageElement) => Unit) {
+  def getTileAsync(t: Tile, callback: (HTMLImageElement) => Unit): Unit = {
 
     def getTileUrl(tile: TileRepository.Tile): String = {
       var s = ""
@@ -34,12 +34,12 @@ object Loader {
       s"target/scala-2.13/classes/tiles/$s/0.png"
     }
 
-    if (imageCache.get(t).isDefined) {
-      callback(imageCache.get(t).get)
+    if (imageCache.contains(t)) {
+      callback(imageCache(t))
     } else {
       val image = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
       image.src = getTileUrl(t)
-      image.onload = (e: dom.Event) => {
+      image.onload = (_: dom.Event) => {
         imageCache.put(t, image)
         callback(image)
       }
@@ -62,7 +62,7 @@ object Loader {
             promise.success(
               xhr.responseText
                 .filter(TileRepository.all.map(_.char).contains(_))
-                .map(TileRepository.getByChar(_)))
+                .map(TileRepository.getByChar))
           }
           else
             promise.failure(new RuntimeException("cannot read tiles"))
