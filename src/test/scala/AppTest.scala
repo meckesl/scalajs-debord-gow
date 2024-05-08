@@ -32,8 +32,8 @@ object AppTest extends TestSuite {
       }
 
       test("tileDistribution") {
-        val totalRed = game.gameSquares.filter(_.unit.player equals PlayerRepository.Red).size
-        val totalBlue = game.gameSquares.filter(_.unit.player equals PlayerRepository.Blue).size
+        val totalRed = game.gameSquares.count(_.unit.player equals PlayerRepository.Red)
+        val totalBlue = game.gameSquares.count(_.unit.player equals PlayerRepository.Blue)
         assert(totalRed equals totalBlue)
         assert(game.gameSquares.count(_.terrain.equals(Mountain)) == 9 * 2)
         assert(game.gameSquares.count(sq => Seq(RedArsenal, BlueArsenal)
@@ -64,7 +64,7 @@ object AppTest extends TestSuite {
         val infantry3 = getWithTurn(16, 12)
         val free3 = infantry3.inRange(infantry.unit.speed)
           .filter(infantry3.canMoveTo(_))
-        assert(free3.size.equals(0))
+        assert(free3.isEmpty)
 
         val infantry4 = getWithTurn(17, 13)
         val free4 = infantry4.inRange(infantry.unit.speed)
@@ -158,16 +158,14 @@ object AppTest extends TestSuite {
         val ooc = getWithTurn(10, 1)
         assert(!ooc.isOnline)
         assert(!ooc.canMove)
-        assert(ooc.inRange(ooc.unit.speed)
-          .filter(ooc.canMoveTo(_)).isEmpty)
+        assert(!ooc.inRange(ooc.unit.speed).exists(ooc.canMoveTo(_)))
       }
 
       test("allInComRangeAreOnlineAndCanMove") {
         getWithTurn(3, 8)
         assert(game.gameSquares
           .filter(_.unit.equals(BlueInfantry))
-          .filter(_.canMove)
-          .filter(_.isOnline).size == 4)
+          .filter(_.canMove).count(_.isOnline) == 4)
       }
 
       test("enemyUnitBlocksCom") {
@@ -175,8 +173,7 @@ object AppTest extends TestSuite {
         game.nextTurn()
         assert(game.gameSquares
           .filter(_.unit.equals(BlueInfantry))
-          .filter(_.canMove)
-          .filter(_.isOnline).size == 2)
+          .filter(_.canMove).count(_.isOnline) == 2)
         // Clear enemy unit
         get(1, 7).unit = get(2, 7).unit
         get(2, 6).unit = VoidTile
@@ -190,8 +187,7 @@ object AppTest extends TestSuite {
         assert(!getWithTurn(5, 7).isOnline)
         assert(game.gameSquares
           .filter(_.unit.equals(BlueInfantry))
-          .filter(_.canMove)
-          .filter(_.isOnline).size == 3)
+          .filter(_.canMove).count(_.isOnline) == 3)
       }
 
     }
