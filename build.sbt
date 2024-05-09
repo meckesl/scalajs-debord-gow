@@ -1,10 +1,15 @@
 import sbt.Keys.version
 
+import scala.collection.immutable.Seq
+
 lazy val root = project.in(file("."))
   .enablePlugins(ScalaJSPlugin)
   .settings(
     name := "scalajs-debord-gow",
-    version := "0.6"
+    version := "0.6",
+      inConfig(Test)(Seq(
+      scalacOptions += "scalajs:nowarnGlobalExecutionContext"
+    ))
   )
 
 /*lazy val jvm = project.in(file(".")).settings(
