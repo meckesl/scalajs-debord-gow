@@ -2,11 +2,8 @@
 
 ## Usage
 
-Run game tests 
+Run tests 
 > sbt test
-
-Generates Javascript files ready to be run in the browser (faster build times for development)
-> sbt fastOptJS
 
 Generates Javascript files ready to be run in the browser (optimized)
 > sbt fullOptJS
