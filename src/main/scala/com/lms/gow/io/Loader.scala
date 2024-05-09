@@ -7,6 +7,7 @@ import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.raw.{HTMLImageElement, XMLHttpRequest}
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
@@ -91,6 +92,7 @@ object Loader {
         }
       }
     }
+
     loaded.future
   }
 

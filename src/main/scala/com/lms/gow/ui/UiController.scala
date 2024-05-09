@@ -9,35 +9,35 @@ import org.scalajs.dom.raw.HTMLAudioElement
 
 case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
 
-  val uiBackround = new UiLayer(backgroundCanvas)
-  val uiCom = new UiLayer(comCanvas)
-  val uiTerrain = new UiLayer(terrainCanvas)
-  val uiUnits = new UiLayer(unitCanvas)
-  val uiOverlay = new UiLayer(overlayCanvas)
-  val uiInterface = new UiLayer(interfaceCanvas)
+  private val uiBackround = new UiLayer(backgroundCanvas)
+  private val uiCom = new UiLayer(comCanvas)
+  private val uiTerrain = new UiLayer(terrainCanvas)
+  private val uiUnits = new UiLayer(unitCanvas)
+  private val uiOverlay = new UiLayer(overlayCanvas)
+  private val uiInterface = new UiLayer(interfaceCanvas)
 
-  var squareHover: GameSquare = null
-  var squareClicked: GameSquare = null
-  var squareSource: GameSquare = null
+  private var squareHover: GameSquare = null
+  private var squareClicked: GameSquare = null
+  private var squareSource: GameSquare = null
 
-  def tileSize = uiSize / new Point(RuleRepository.squareX, RuleRepository.squareY)
-  var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
-  var interfaceSize = new Point(interfaceCanvas.width, interfaceCanvas.height)
+  def tileSize: Point = uiSize / new Point(RuleRepository.squareX, RuleRepository.squareY)
+  private var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
+  private var interfaceSize = new Point(interfaceCanvas.width, interfaceCanvas.height)
 
-  val audioChannel1 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
-  val audioChannel2 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
-  val audioChannel3 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
+  private val audioChannel1 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
+  private val audioChannel2 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
+  private val audioChannel3 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
 
   audioChannel3.src = Loader.getSoundUrl("start")
   audioChannel3.play
 
-  def getGameSquare(p: Point): GameSquare = {
+  private def getGameSquare(p: Point): GameSquare = {
     val corrected = (p - (p % tileSize)) / tileSize
     val index = corrected.toLinear(RuleRepository.squareX)
     game.gameSquares(index)
   }
 
-  def boardChangeRedraw = {
+  private def boardChangeRedraw(): Unit = {
     uiUnits.clearLayer()
     TileRepository.units.foreach(u => {
       Loader.getTileAsync(u, image => {
@@ -52,7 +52,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     })
   }
 
-  def onResize(s: Point) {
+  def onResize(s: Point): Unit = {
     uiSize = s
     backgroundCanvas.width = uiSize.x.toInt
     backgroundCanvas.height = uiSize.y.toInt
@@ -79,7 +79,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       })
     })
 
-    boardChangeRedraw
+    boardChangeRedraw()
 
     if (null != squareClicked) {
       uiOverlay.tileUnitHighlight(squareClicked)
@@ -87,11 +87,11 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     }
   }
 
-  def onMousemove(e: dom.MouseEvent) {
+  def onMousemove(e: dom.MouseEvent): Unit = {
 
     val curSq = getGameSquare(new Point(e.clientX, e.clientY))
 
-    def onMousemoveHover = {
+    def onMousemoveHover(): Unit = {
       uiOverlay.clearLayer()
       uiInterface.clearLayer()
       if (curSq.isCurrentTurn) {
@@ -103,7 +103,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       squareHover = curSq
     }
 
-    def onMousemoveDrag = {
+    def onMousemoveDrag(): Unit = {
       uiOverlay.clearLayer()
       uiOverlay.tileUnitHighlight(squareSource)
       uiOverlay.drawActionArrow(squareSource, curSq)
@@ -122,13 +122,13 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
     if (null == squareSource || squareSource == curSq) {
       if (curSq != squareHover)
-        onMousemoveHover
+        onMousemoveHover()
     } else
-      onMousemoveDrag
+      onMousemoveDrag()
 
   }
 
-  def onClick(e: dom.MouseEvent) {
+  def onClick(e: dom.MouseEvent): Unit = {
     if (squareHover.isCurrentTurn) {
       squareClicked = squareHover
       uiOverlay.clearLayer()
@@ -137,13 +137,13 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     }
   }
 
-  def onMouseup(e: dom.MouseEvent) {
+  def onMouseup(e: dom.MouseEvent): Unit = {
     if (null != squareSource) {
       if (squareSource.canMoveTo(squareHover)) {
         audioChannel2.src = Loader.getSoundUrl(squareSource, "move")
         audioChannel2.play
         squareSource.moveUnitTo(squareHover)
-        boardChangeRedraw
+        boardChangeRedraw()
         if (game.turnMovedUnits.isEmpty) {
           audioChannel3.src = Loader.getSoundUrl("nextTurn")
           audioChannel3.play
@@ -152,15 +152,15 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         squareSource.takeArsenal(squareHover)
         audioChannel2.src = Loader.getSoundUrl(squareHover, "attack")
         audioChannel2.play
-        boardChangeRedraw
+        boardChangeRedraw()
         audioChannel3.src = Loader.getSoundUrl("nextTurn")
         audioChannel3.play
       } else if (squareSource.canAttack(squareHover)) {
-        val attackResult = squareHover.launchAttackOn
+        val attackResult = squareHover.launchAttackOn()
         if (attackResult == 2 || attackResult == 1) {
           audioChannel2.src = Loader.getSoundUrl(squareSource, "attack")
           audioChannel2.play
-          boardChangeRedraw
+          boardChangeRedraw()
           audioChannel3.src = Loader.getSoundUrl("nextTurn")
           audioChannel3.play
         }
@@ -169,7 +169,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     squareSource = null
   }
 
-  def onMousedown(e: dom.MouseEvent) {
+  def onMousedown(e: dom.MouseEvent): Unit = {
     val mouse = new Point(e.clientX, e.clientY)
     val curSq = getGameSquare(mouse)
     if (curSq.canMove) {
@@ -182,11 +182,11 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       squareSource = null
   }
 
-  def onKeydown(e: dom.KeyboardEvent) {
+  def onKeydown(e: dom.KeyboardEvent): Unit = {
     dom.console.log(s"key=${e.keyCode}")
     if (e.keyCode.equals(32)) {
       game.nextTurn()
-      boardChangeRedraw
+      boardChangeRedraw()
       audioChannel3.src = Loader.getSoundUrl("nextTurn")
       audioChannel3.play
     }

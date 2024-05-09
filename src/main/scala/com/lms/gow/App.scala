@@ -7,6 +7,7 @@ import org.scalajs.dom
 import org.scalajs.dom.document._
 import org.scalajs.dom.html
 
+import scala.annotation.nowarn
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object App {
