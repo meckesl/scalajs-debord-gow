@@ -1,5 +1,3 @@
-import sbt.Keys.version
-
 lazy val root = project.in(file("."))
   .enablePlugins(ScalaJSPlugin)
   .settings(
@@ -11,7 +9,7 @@ lazy val root = project.in(file("."))
   )
 
 scalaVersion := "2.13.14"
-scalacOptions in ThisBuild ++= Seq("-feature")
+ThisBuild / scalacOptions ++= Seq("-feature")
 scalaJSUseMainModuleInitializer := true
 
 testFrameworks += new TestFramework("utest.runner.Framework")
