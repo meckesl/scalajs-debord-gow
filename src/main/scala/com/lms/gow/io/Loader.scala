@@ -24,7 +24,7 @@ object Loader {
     s"target/scala-2.13/classes/sounds/$sound.mp3"
   }
 
-  def getTileAsync(t: Tile, callback: (HTMLImageElement) => Unit): Unit = {
+  def getTileAsync(t: Tile, callback: HTMLImageElement => Unit): Unit = {
 
     def getTileUrl(tile: TileRepository.Tile): String = {
       var s = ""
@@ -53,12 +53,12 @@ object Loader {
       s"target/scala-2.13/classes/$res"
     }
 
-    def loadInitialBoardPosition(file: String, tiles: Set[Tile]): Future[Seq[Tile]] = {
+    def loadInitialBoardPosition(file: String): Future[Seq[Tile]] = {
       val promise: Promise[Seq[Tile]] = Promise()
       val xhr = new XMLHttpRequest()
       xhr.open("GET", getResUrl(file))
       xhr.onload = {
-        (e: Event) =>
+        (_: Event) =>
           if (xhr.status == 200) {
             promise.success(
               xhr.responseText
@@ -73,12 +73,12 @@ object Loader {
     }
 
     val loaded: Promise[Boolean] = Promise()
-    loadInitialBoardPosition(boardFile, TileRepository.terrains) foreach {
+    loadInitialBoardPosition(boardFile) foreach {
       tilesT: Seq[Tile] => {
         RuleRepository.startingTerrain = tilesT.map(t => {
           if (TileRepository.terrains.contains(t)) t else VoidTile
         })
-        loadInitialBoardPosition(unitFile, TileRepository.units) foreach {
+        loadInitialBoardPosition(unitFile) foreach {
           tilesU: Seq[Tile] => {
             RuleRepository.startingUnits = tilesU.map(u => {
               if (TileRepository.units.contains(u)) u else VoidTile
