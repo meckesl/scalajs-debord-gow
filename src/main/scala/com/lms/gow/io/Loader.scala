@@ -7,7 +7,6 @@ import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.raw.{HTMLImageElement, XMLHttpRequest}
 
-import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
@@ -24,7 +23,7 @@ object Loader {
     s"target/scala-2.13/classes/sounds/$sound.mp3"
   }
 
-  def getTileAsync(t: Tile, callback: HTMLImageElement => Unit): Unit = {
+  def loadTileAsync(t: Tile, callback: HTMLImageElement => Unit): Unit = {
 
     def getTileUrl(tile: TileRepository.Tile): String = {
       var s = ""

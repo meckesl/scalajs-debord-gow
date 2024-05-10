@@ -9,16 +9,16 @@ import org.scalajs.dom.raw.HTMLAudioElement
 
 case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
 
-  private val uiBackround = new UiLayer(backgroundCanvas)
+  private val uiBackground = new UiLayer(backgroundCanvas)
   private val uiCom = new UiLayer(comCanvas)
   private val uiTerrain = new UiLayer(terrainCanvas)
   private val uiUnits = new UiLayer(unitCanvas)
   private val uiOverlay = new UiLayer(overlayCanvas)
   private val uiInterface = new UiLayer(interfaceCanvas)
 
-  private var squareHover: GameSquare = null
-  private var squareClicked: GameSquare = null
-  private var squareSource: GameSquare = null
+  private var squareHover: GameSquare = _
+  private var squareClicked: GameSquare = _
+  private var squareSource: GameSquare = _
 
   def tileSize: Point = uiSize / new Point(RuleRepository.squareX, RuleRepository.squareY)
   private var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
@@ -40,7 +40,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   private def boardChangeRedraw(): Unit = {
     uiUnits.clearLayer()
     TileRepository.units.foreach(u => {
-      Loader.getTileAsync(u, image => {
+      Loader.loadTileAsync(u, image => {
         game.gameSquares.filter(_.unit.equals(u)).foreach(sq => {
           uiUnits.tileUnit(sq, image)
         })
@@ -68,11 +68,11 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     interfaceCanvas.width = interfaceSize.x.toInt
     interfaceCanvas.height = interfaceSize.y.toInt
 
-    0 until RuleRepository.squareCount foreach uiBackround.tileBackground
+    0 until RuleRepository.squareCount foreach uiBackground.tileBackground
 
     uiTerrain.clearLayer()
     TileRepository.terrains.foreach(t => {
-      Loader.getTileAsync(t, image => {
+      Loader.loadTileAsync(t, image => {
         game.gameSquares.filter(_.terrain.equals(t)).foreach(sq => {
           uiTerrain.tileTerrain(sq, image)
         })
