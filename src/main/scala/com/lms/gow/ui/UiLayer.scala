@@ -71,7 +71,7 @@ class UiLayer(canvas: Canvas) {
       l.fillRect(
         u.x + (tileSize.x / 20),
         u.y + (tileSize.y - tileSize.y / 12),
-        (tileSize.x / 15), tileSize.y / 12)
+        tileSize.x / 15, tileSize.y / 12)
     }
   }
 
@@ -162,10 +162,10 @@ class UiLayer(canvas: Canvas) {
     val tileSizeB = tileSize * 2
 
     def drawUnit(sq: GameSquare, p: Point): Unit = {
-      Loader.getTileAsync(sq.terrain, terrain => {
+      Loader.loadTileAsync(sq.terrain, terrain => {
         l.drawImage(terrain, p.x, p.y, tileSizeB.x, tileSizeB.y)
         if (!sq.unit.equals(VoidTile)) {
-          Loader.getTileAsync(sq.unit, unit => {
+          Loader.loadTileAsync(sq.unit, unit => {
             l.drawImage(unit, p.x, p.y, tileSizeB.x, tileSizeB.y)
             if (!sq.unit.player.equals(Neutral)) {
               l.fillStyle = Color.fromPlayer(sq.unit.player)
@@ -231,10 +231,10 @@ class UiLayer(canvas: Canvas) {
     val tileSizeB = tileSize * 3 * 3
     val p = tileSize
 
-    Loader.getTileAsync(sq.terrain, terrain => {
+    Loader.loadTileAsync(sq.terrain, terrain => {
       l.drawImage(terrain, p.x, p.y, tileSizeB.x, tileSizeB.y)
       if (!sq.unit.equals(VoidTile)) {
-        Loader.getTileAsync(sq.unit, unit => {
+        Loader.loadTileAsync(sq.unit, unit => {
           l.drawImage(unit, p.x, p.y, tileSizeB.x, tileSizeB.y)
           if (!sq.unit.player.equals(Neutral)) {
             l.fillStyle = Color.fromPlayer(sq.unit.player)

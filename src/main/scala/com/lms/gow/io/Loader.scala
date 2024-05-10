@@ -14,24 +14,23 @@ import scala.concurrent.{Future, Promise}
 object Loader {
 
   val imageCache: mutable.HashMap[Tile, HTMLImageElement] = new mutable.HashMap()
+  private val resourcePath = "target/scala-2.13/classes"
 
   def getSoundUrl(sq: GameSquare, sound: String): String = {
-    s"target/scala-2.13/classes/sounds/${sq.unit.char}/$sound.mp3"
+    s"$resourcePath/sounds/${sq.unit.char}/$sound.mp3"
   }
 
   def getSoundUrl(sound: String): String = {
-    s"target/scala-2.13/classes/sounds/$sound.mp3"
+    s"$resourcePath/sounds/$sound.mp3"
   }
 
   def loadTileAsync(t: Tile, callback: HTMLImageElement => Unit): Unit = {
 
     def getTileUrl(tile: TileRepository.Tile): String = {
-      var s = ""
       if (tile.equals(VoidTile))
-        s = "dot"
+        s"$resourcePath/tiles/dot/0.png"
       else
-        s = tile.char.toString
-      s"target/scala-2.13/classes/tiles/$s/0.png"
+        s"$resourcePath/tiles/${tile.char.toString}/0.png"
     }
 
     if (imageCache.contains(t)) {
@@ -49,7 +48,7 @@ object Loader {
   def getStartingGamePosition(boardFile: String, unitFile: String, xWidth: Int): Future[Boolean] = {
 
     def getResUrl(res: String): String = {
-      s"target/scala-2.13/classes/$res"
+      s"$resourcePath/$res"
     }
 
     def loadInitialBoardPosition(file: String): Future[Seq[Tile]] = {
