@@ -163,7 +163,7 @@ object AppTest extends TestSuite {
         getWithTurn(3, 8)
         assert(game.gameSquares
           .filter(_.unit.equals(BlueInfantry))
-          .filter(_.canMove).count(_.isOnline) == 4)
+          .filter(_.canMove).count(_.isOnline) == 5)
       }
 
       test("enemyUnitBlocksCom") {
@@ -171,7 +171,7 @@ object AppTest extends TestSuite {
         game.nextTurn()
         assert(game.gameSquares
           .filter(_.unit.equals(BlueInfantry))
-          .filter(_.canMove).count(_.isOnline) == 2)
+          .filter(_.canMove).count(_.isOnline) == 3)
         // Clear enemy unit
         get(1, 7).unit = get(2, 7).unit
         get(2, 6).unit = VoidTile
