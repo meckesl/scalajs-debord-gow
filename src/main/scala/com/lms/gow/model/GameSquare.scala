@@ -13,15 +13,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
   val coords: Point = Point.fromLinear(index, RuleRepository.squareX)
   val com: Map[Player, mutable.Set[Cardinality]] = immutable.HashMap(Blue -> mutable.Set[Cardinality](), Red -> mutable.Set[Cardinality]())
 
-  private def hasAdjacentOnlineAlly(sq: GameSquare = this): Boolean =
-    sq.inRange(1)
-      .filterNot(_.equals(this))
-      .exists(s => {
-        s.unit.player.equals(unit.player) &&
-          s.com(unit.player).nonEmpty
-      })
-
-  def isOnline: Boolean = com(unit.player).nonEmpty || hasAdjacentOnlineAlly() || unit.isCom
+  def isOnline: Boolean = com(unit.player).nonEmpty || unit.isCom
 
   def isCurrentTurn: Boolean = g.turnPlayer.equals(unit.player)
 
@@ -168,7 +160,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
   def inRange(r: Int): Set[GameSquare] = {
     if (r.equals(1))
       CardinalityRepository.all.map(adjacentSquare)
-        .filterNot(adj => null == adj || adj.terrain.equals(Mountain)).toSet
+        .filterNot(adj => null == adj || adj.terrain.equals(Mountain))
     else if (r.equals(2))
       inRange(1) flatMap (_.inRange(1))
     else if (r.equals(3))

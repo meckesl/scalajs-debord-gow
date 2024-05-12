@@ -89,39 +89,39 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
   def onMousemove(e: dom.MouseEvent): Unit = {
 
-    val curSq = getGameSquare(new Point(e.clientX, e.clientY))
+    val hoverSq = getGameSquare(new Point(e.clientX, e.clientY))
 
     def onMousemoveHover(): Unit = {
       uiOverlay.clearLayer()
       uiInterface.clearLayer()
-      if (curSq.isCurrentTurn) {
-        uiOverlay.tileUnitHighlight(curSq)
-        curSq.alliesInRange.foreach(uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(game.turnPlayer)))
-        curSq.targetsInAttackRange.foreach(t => uiOverlay.tileHighlight(t, 0.1, Color.fromPlayer(t.unit.player)))
-        uiInterface.interfaceTileStatus(curSq)
+      if (hoverSq.isCurrentTurn) {
+        uiOverlay.tileUnitHighlight(hoverSq)
+        hoverSq.alliesInRange.foreach(uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(game.turnPlayer)))
+        hoverSq.targetsInAttackRange.foreach(t => uiOverlay.tileHighlight(t, 0.1, Color.fromPlayer(t.unit.player)))
+        uiInterface.interfaceTileStatus(hoverSq)
       }
-      squareHover = curSq
+      squareHover = hoverSq
     }
 
     def onMousemoveDrag(): Unit = {
       uiOverlay.clearLayer()
       uiOverlay.tileUnitHighlight(squareSource)
-      uiOverlay.drawActionArrow(squareSource, curSq)
-      if (squareSource.canAttack(curSq)) {
-        audioChannel2.src = Loader.getSoundUrl(curSq, "target")
+      uiOverlay.drawActionArrow(squareSource, hoverSq)
+      if (squareSource.canAttack(hoverSq)) {
+        audioChannel2.src = Loader.getSoundUrl(hoverSq, "target")
         audioChannel2.play
-        curSq.canBeTargetOf.foreach(
+        hoverSq.canBeTargetOf.foreach(
           uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(game.turnPlayer)))
-        curSq.alliesInRange.foreach(
-          uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(curSq.unit.player)))
-        uiOverlay.tileHighlight(curSq, 0.3, Color.fromPlayer(curSq.unit.player))
-        uiInterface.interfaceAttackPanel(curSq)
+        hoverSq.alliesInRange.foreach(
+          uiOverlay.tileHighlight(_, 0.1, Color.fromPlayer(hoverSq.unit.player)))
+        uiOverlay.tileHighlight(hoverSq, 0.3, Color.fromPlayer(hoverSq.unit.player))
+        uiInterface.interfaceAttackPanel(hoverSq)
       }
-      squareHover = curSq
+      squareHover = hoverSq
     }
 
-    if (null == squareSource || squareSource == curSq) {
-      if (curSq != squareHover)
+    if (null == squareSource || squareSource == hoverSq) {
+      if (hoverSq != squareHover)
         onMousemoveHover()
     } else
       onMousemoveDrag()

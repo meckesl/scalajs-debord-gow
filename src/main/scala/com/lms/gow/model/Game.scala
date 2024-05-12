@@ -2,7 +2,7 @@ package com.lms.gow.model
 
 import com.lms.gow.model.repo.CardinalityRepository.Cardinality
 import com.lms.gow.model.repo.PlayerRepository.{Blue, Neutral, Player, Red}
-import com.lms.gow.model.repo.TileRepository.{BlueArsenal, Mountain, RedArsenal, Tile}
+import com.lms.gow.model.repo.TileRepository.{BlueArsenal, Mountain, RedArsenal, Tile, VoidTile}
 import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
 
 import scala.collection.mutable
@@ -50,9 +50,23 @@ class Game {
         }
       })
     }
+    def subpropagate(source: GameSquare, cursor: GameSquare, dir: Set[Cardinality]): Unit = {
+      val pl = source.unit.player
+      if (source.com(pl).nonEmpty)
+        dir.foreach(d => {
+          val sq = cursor.adjacentSquare(d)
+          if (null != sq && sq.unit.player.equals(pl) && sq.com(pl).isEmpty) {
+            cursor.com(pl) += d
+            sq.com(pl) += d
+            subpropagate(source, sq, CardinalityRepository.all)
+          }
+        })
+    }
     gameSquares.foreach(_.com.foreach(_._2.clear()))
     gameSquares.filter(sq => Seq(RedArsenal, BlueArsenal).contains(sq.unit))
       .foreach(sq => propagate(sq, sq, CardinalityRepository.all))
+    gameSquares.filter(sq => !sq.unit.isCom && sq.com.values.nonEmpty && !sq.unit.player.equals(Neutral))
+      .foreach(sq => subpropagate(sq, sq, CardinalityRepository.all))
   }
 
   refreshComLayer()
