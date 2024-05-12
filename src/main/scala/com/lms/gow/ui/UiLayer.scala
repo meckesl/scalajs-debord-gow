@@ -84,6 +84,7 @@ class UiLayer(canvas: Canvas) {
     val sw: Point = se - new Point(tileSize.x, 0)
     val e: Point = nw + new Point(0, tileSize.y / 2)
     val w: Point = se - new Point(0, tileSize.y / 2)
+    val source: Point = n - new Point(0, tileSize.y / 2)
   }
 
   def tileCommunication(sq: GameSquare): Unit = {
@@ -92,7 +93,6 @@ class UiLayer(canvas: Canvas) {
 
     def drawLine(a: Point, b: Point): Unit = {
       l.globalAlpha = 0.5
-
       l.beginPath()
       l.moveTo(a.x, a.y)
       l.lineTo(b.x, b.y)
@@ -150,7 +150,7 @@ class UiLayer(canvas: Canvas) {
       l.strokeStyle = Color.Red
     else
       l.strokeStyle = Color.Gray
-    l.lineWidth = 10
+    l.lineWidth = 8
     l.beginPath()
     l.moveTo(from.x, from.y)
     l.bezierCurveTo(from.x, to.y, to.x, to.y, to.x, to.y)
@@ -182,7 +182,7 @@ class UiLayer(canvas: Canvas) {
     clearLayer()
     interfacePanel()
 
-    l.strokeStyle = "rgb(0,0,0)"
+    l.strokeStyle = Color.Black
     l.lineWidth = 1
     l.shadowBlur = 0
     l.shadowOffsetX = 0
