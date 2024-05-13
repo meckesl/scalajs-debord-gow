@@ -180,6 +180,10 @@ object AppTest extends TestSuite {
         assert(getWithTurn(5, 4).isOnline)
       }
 
+      test("relayCanBeConnectedByTroopsRecursively") {
+        assert(getWithTurn(8, 6).isOnline)
+      }
+
       test("unitCanMoveOutOfCom") {
         assert(getWithTurn(4, 8).isOnline)
         assert(get(5, 7).unit.equals(VoidTile))

@@ -207,8 +207,8 @@ class UiLayer(canvas: Canvas) {
       drawUnit(a._1, new Point((size - tileSizeB).x, tileSizeB.y * a._2))
     })
 
-    l.strokeText(s"Attaque: ${sq.canBeTargetOfStrength}", tileSizeB.x + 10, tileSizeB.y, canvas.width)
-    l.strokeText(s"Défense: ${sq.defenseStrength}", canvas.width - (tileSizeB.x * 4), tileSizeB.y, canvas.width)
+    l.strokeText(s"Attack: ${sq.canBeTargetOfStrength}", tileSizeB.x + 10, tileSizeB.y, canvas.width)
+    l.strokeText(s"Defence: ${sq.defenseStrength}", canvas.width - (tileSizeB.x * 4), tileSizeB.y, canvas.width)
 
     val as = sq.canBeTargetOfStrength
     val ds = sq.defenseStrength
