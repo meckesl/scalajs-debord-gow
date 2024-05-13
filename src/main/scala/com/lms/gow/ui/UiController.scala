@@ -27,6 +27,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   private val audioChannel1 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
   private val audioChannel2 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
   private val audioChannel3 = dom.document.createElement("audio").asInstanceOf[HTMLAudioElement]
+  Set(audioChannel1, audioChannel2, audioChannel3).foreach(_.volume=0.4)
 
   audioChannel3.src = Loader.getSoundUrl("start")
   audioChannel3.play

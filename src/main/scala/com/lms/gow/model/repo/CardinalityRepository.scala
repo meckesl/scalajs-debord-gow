@@ -12,4 +12,17 @@ object CardinalityRepository {
   object NW extends Cardinality(-1, -1)
   object SOURCE extends Cardinality(0, 0)
   def all: Set[Cardinality] = Set(N, NE, E, SE, S, SW, W, NW, SOURCE)
+  def opposite(c: Cardinality): Cardinality = {
+    c match {
+      case N => S
+      case NE => SW
+      case E => W
+      case SE => NW
+      case S => N
+      case SW => NE
+      case W => E
+      case NW => SE
+      case SOURCE => SOURCE
+    }
+  }
 }

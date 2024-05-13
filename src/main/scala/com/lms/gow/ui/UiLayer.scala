@@ -82,9 +82,9 @@ class UiLayer(canvas: Canvas) {
     val s: Point = se - new Point(tileSize.x / 2, 0)
     val ne: Point = nw + new Point(tileSize.x, 0)
     val sw: Point = se - new Point(tileSize.x, 0)
-    val e: Point = nw + new Point(0, tileSize.y / 2)
-    val w: Point = se - new Point(0, tileSize.y / 2)
-    val source: Point = n - new Point(0, tileSize.y / 2)
+    val e: Point = ne + new Point(0, tileSize.y / 2)
+    val w: Point = sw - new Point(0, tileSize.y / 2)
+    val source: Point = n + new Point(0, tileSize.y / 2)
   }
 
   def tileCommunication(sq: GameSquare): Unit = {
@@ -103,16 +103,17 @@ class UiLayer(canvas: Canvas) {
 
     sq.com.foreach(com => {
       l.strokeStyle = Color fromPlayer com._1
-      com._2.foreach(c => {
-        if (Seq(NW, SE, SOURCE).contains(c))
-          drawLine(co.nw, co.se)
-        if (Seq(N, S, SOURCE).contains(c))
-          drawLine(co.n, co.s)
-        if (Seq(NE, SW, SOURCE).contains(c))
-          drawLine(co.ne, co.sw)
-        if (Seq(W, E, SOURCE).contains(c))
-          drawLine(co.e, co.w)
-      })
+      com._2 foreach {
+        case N => drawLine(co.source, co.n)
+        case NE => drawLine(co.source, co.ne)
+        case E => drawLine(co.source, co.e)
+        case SE => drawLine(co.source, co.se)
+        case S => drawLine(co.source, co.s)
+        case SW => drawLine(co.source, co.sw)
+        case W => drawLine(co.source, co.w)
+        case NW => drawLine(co.source, co.nw)
+        case SOURCE =>
+      }
     })
   }
 

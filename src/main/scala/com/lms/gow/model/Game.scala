@@ -40,6 +40,7 @@ class Game {
         val sq = cursor.adjacentSquare(d)
         if (null != sq && !sq.com(pl).contains(d)) {
           sq.com(pl) += d
+          sq.com(pl) += CardinalityRepository.opposite(d)
           if (!sq.terrain.equals(Mountain) &&
             (Seq(Neutral, pl).contains(sq.unit.player) || sq.unit.isCom)) {
             if (sq.unit.isCom && sq.unit.player.equals(pl))
@@ -57,7 +58,7 @@ class Game {
           val sq = cursor.adjacentSquare(d)
           if (null != sq && sq.unit.player.equals(pl) && sq.com(pl).isEmpty) {
             cursor.com(pl) += d
-            sq.com(pl) += d
+            sq.com(pl) += CardinalityRepository.opposite(d)
             subpropagate(source, sq, CardinalityRepository.all)
           }
         })
