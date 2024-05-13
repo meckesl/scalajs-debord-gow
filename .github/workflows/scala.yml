@@ -29,5 +29,9 @@ jobs:
         cache: 'sbt'
     - name: Run tests
       run: sbt test
-    - name: Generate artefact
+    - name: Generate artifact
       run: sbt fullOptJS
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Gow-latest
+        path: target/scala-2.13/scalajs-debord-gow-opt
