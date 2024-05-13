@@ -172,9 +172,12 @@ object AppTest extends TestSuite {
         assert(game.gameSquares
           .filter(_.unit.equals(BlueInfantry))
           .filter(_.canMove).count(_.isOnline) == 3)
-        // Clear enemy unit
         get(1, 7).unit = get(2, 7).unit
         get(2, 6).unit = VoidTile
+      }
+
+      test("relayCanBeConnectedByTroops") {
+        assert(getWithTurn(5, 4).isOnline)
       }
 
       test("unitCanMoveOutOfCom") {

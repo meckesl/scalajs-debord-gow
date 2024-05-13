@@ -60,6 +60,8 @@ class Game {
             cursor.com(pl) += d
             sq.com(pl) += CardinalityRepository.opposite(d)
             subpropagate(source, sq, CardinalityRepository.all)
+            if(sq.unit.isCom)
+              propagate(sq, sq, CardinalityRepository.all)
           }
         })
     }
