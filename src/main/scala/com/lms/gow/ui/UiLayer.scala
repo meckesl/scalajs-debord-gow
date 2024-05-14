@@ -116,6 +116,7 @@ class UiLayer(canvas: Canvas) {
                         drawLine(co.e, co.w)
                         drawLine(co.ne, co.sw)
                         drawLine(co.se, co.nw)
+        case _ =>
       }
     })
   }
@@ -136,10 +137,10 @@ class UiLayer(canvas: Canvas) {
     l.globalAlpha = alpha
     l.fillStyle = color
     val a = sq.coords * tileSize
-    l.beginPath
+    l.beginPath()
     l.rect(a.x, a.y, tileSize.x, tileSize.y)
-    l.fill
-    l.closePath
+    l.fill()
+    l.closePath()
     l.restore()
   }
 
@@ -220,11 +221,11 @@ class UiLayer(canvas: Canvas) {
     l.shadowColor = Color.Gray
     l.shadowOffsetX = 10
     l.shadowOffsetY = 10
-    l.beginPath
+    l.beginPath()
     l.rect(0, 0, canvas.width, canvas.height)
-    l.fill
-    l.stroke
-    l.closePath
+    l.fill()
+    l.stroke()
+    l.closePath()
   }
 
   def interfaceTileStatus(sq: GameSquare): Unit = {
@@ -248,7 +249,7 @@ class UiLayer(canvas: Canvas) {
               tileSizeB.x - (tileSizeB.x / 20), tileSizeB.y / 12)
           }
           val txtp = p + new Point(0, tileSizeB.y + p.y)
-          l.closePath
+          l.closePath()
           l.lineWidth = 1
           l.strokeStyle = "rgb(0,0,0)"
           l.strokeText(

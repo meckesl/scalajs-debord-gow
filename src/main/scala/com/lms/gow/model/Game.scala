@@ -11,7 +11,7 @@ class Game {
 
   var turnRemainingMoves: Int = RuleRepository.turnMoves
   val turnMovedUnits: mutable.Set[GameSquare] = mutable.Set[GameSquare]()
-  var turnPlayer: Player = if (scala.util.Random.nextBoolean) Blue else Red
+  var turnPlayer: Player = if (scala.util.Random.nextBoolean()) Blue else Red
 
   var forcedRetreat: Option[GameSquare] = None
 

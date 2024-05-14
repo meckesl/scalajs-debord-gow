@@ -23,6 +23,7 @@ object CardinalityRepository {
       case W => E
       case NW => SE
       case SOURCE => SOURCE
+      case _ => SOURCE
     }
   }
 }

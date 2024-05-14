@@ -9,7 +9,7 @@ lazy val root = project.in(file("."))
   )
 
 scalaVersion := "2.13.14"
-ThisBuild / scalacOptions ++= Seq("-feature")
+ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation", "-P:scalajs:nowarnGlobalExecutionContext")
 scalaJSUseMainModuleInitializer := true
 
 testFrameworks += new TestFramework("utest.runner.Framework")
