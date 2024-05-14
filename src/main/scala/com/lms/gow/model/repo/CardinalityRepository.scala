@@ -1,7 +1,13 @@
 package com.lms.gow.model.repo
 
 object CardinalityRepository {
-  abstract case class Cardinality(y: Int, x: Int)
+  abstract case class Cardinality(y: Int, x: Int) {
+    var tag: Int = 0
+    def withTag(i: Int): Cardinality = {
+      tag = i
+      this
+    }
+  }
   object N extends Cardinality(-1, 0)
   object NE extends Cardinality(-1, 1)
   object E extends Cardinality(0, 1)
@@ -22,7 +28,6 @@ object CardinalityRepository {
       case SW => NE
       case W => E
       case NW => SE
-      case SOURCE => SOURCE
       case _ => SOURCE
     }
   }
