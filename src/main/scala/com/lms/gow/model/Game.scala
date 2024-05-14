@@ -1,6 +1,6 @@
 package com.lms.gow.model
 
-import com.lms.gow.model.repo.CardinalityRepository.Cardinality
+import com.lms.gow.model.repo.CardinalityRepository.{Cardinality, SOURCE}
 import com.lms.gow.model.repo.PlayerRepository.{Blue, Neutral, Player, Red}
 import com.lms.gow.model.repo.TileRepository.{BlueArsenal, Mountain, RedArsenal, Tile, VoidTile}
 import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
@@ -54,9 +54,9 @@ class Game {
     def subpropagate(source: GameSquare, cursor: GameSquare, dir: Set[Cardinality]): Unit = {
       val pl = source.unit.player
       if (source.com(pl).nonEmpty)
-        dir.foreach(d => {
+        dir.filterNot(_.equals(SOURCE)).foreach(d => {
           val sq = cursor.adjacentSquare(d)
-          if (null != sq && sq.unit.player.equals(pl) && sq.com(pl).isEmpty) {
+          if (null != sq && sq.unit.player.equals(pl) && !sq.com(pl).contains(CardinalityRepository.opposite(d))) {
             cursor.com(pl) += d
             sq.com(pl) += CardinalityRepository.opposite(d)
             subpropagate(source, sq, CardinalityRepository.all)
