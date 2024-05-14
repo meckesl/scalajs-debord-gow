@@ -112,14 +112,10 @@ class UiLayer(canvas: Canvas) {
         case SW => drawLine(co.source, co.sw)
         case W => drawLine(co.source, co.w)
         case NW => drawLine(co.source, co.nw)
-        case SOURCE =>  drawLine(co.source, co.n)
-                        drawLine(co.source, co.ne)
-                        drawLine(co.source, co.e)
-                        drawLine(co.source, co.se)
-                        drawLine(co.source, co.s)
-                        drawLine(co.source, co.sw)
-                        drawLine(co.source, co.w)
-                        drawLine(co.source, co.nw)
+        case SOURCE =>  drawLine(co.n, co.s)
+                        drawLine(co.e, co.w)
+                        drawLine(co.ne, co.sw)
+                        drawLine(co.se, co.nw)
       }
     })
   }
