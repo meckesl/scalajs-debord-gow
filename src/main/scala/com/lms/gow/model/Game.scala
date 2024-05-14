@@ -10,16 +10,16 @@ import scala.collection.mutable
 class Game {
 
   var turnRemainingMoves: Int = RuleRepository.turnMoves
-  val turnMovedUnits: mutable.Set[GameSquare] = mutable.Set[GameSquare]()
+  val turnMovedUnits: mutable.Set[Square] = mutable.Set[Square]()
   var turnPlayer: Player = if (scala.util.Random.nextBoolean()) Blue else Red
 
-  var forcedRetreat: Option[GameSquare] = None
+  var forcedRetreat: Option[Square] = None
 
   val capturedUnits: mutable.Seq[Tile] = mutable.Seq[Tile]()
 
-  val gameSquares: Seq[GameSquare] =
+  val gameSquares: Seq[Square] =
     0 until RuleRepository.squareCount map (i => {
-      val sq = GameSquare(i, RuleRepository.startingTerrain(i), this)
+      val sq = Square(i, RuleRepository.startingTerrain(i), this)
       sq.unit = RuleRepository.startingUnits(i)
       sq
     })
@@ -34,7 +34,7 @@ class Game {
   }
 
   def refreshComLayer(): Unit = {
-    def propagate(source: GameSquare, cursor: GameSquare, dir: Set[Cardinality]): Unit = {
+    def propagate(source: Square, cursor: Square, dir: Set[Cardinality]): Unit = {
       val pl = source.unit.player
       dir.foreach(d => {
         val sq = cursor.adjacentSquare(d)
@@ -51,7 +51,7 @@ class Game {
         }
       })
     }
-    def subpropagate(source: GameSquare, cursor: GameSquare, dir: Set[Cardinality]): Unit = {
+    def subpropagate(source: Square, cursor: Square, dir: Set[Cardinality]): Unit = {
       val pl = source.unit.player
       if (source.com(pl).nonEmpty)
         dir.filterNot(_.equals(SOURCE)).foreach(d => {

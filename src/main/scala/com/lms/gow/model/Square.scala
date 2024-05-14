@@ -7,7 +7,7 @@ import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository, TileReposi
 
 import scala.collection.{Seq, immutable, mutable}
 
-case class GameSquare(index: Int, terrain: Tile, g: Game) {
+case class Square(index: Int, terrain: Tile, g: Game) {
 
   var unit: Tile = VoidTile
   val coords: Point = Point.fromLinear(index, RuleRepository.squareX)
@@ -17,11 +17,11 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
 
   def isCurrentTurn: Boolean = g.turnPlayer.equals(unit.player)
 
-  def canAttack(dest: GameSquare): Boolean = {
+  def canAttack(dest: Square): Boolean = {
     targetsInAttackRange.contains(dest)
   }
 
-  def canTakeArsenal(dest: GameSquare): Boolean = {
+  def canTakeArsenal(dest: Square): Boolean = {
     canMoveTo(dest, Set(BlueArsenal, RedArsenal)
       .filterNot(_.player.equals(unit.player)).head)
   }
@@ -33,13 +33,13 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       unit.speed > 0 &&
       isOnline
 
-  def canMoveTo(dest: GameSquare, allowedDest: Tile = VoidTile): Boolean =
+  def canMoveTo(dest: Square, allowedDest: Tile = VoidTile): Boolean =
     canMove &&
       dest.unit.equals(allowedDest) &&
       !dest.terrain.equals(Mountain) &&
       inRange(unit.speed).contains(dest)
 
-  def moveUnitTo(dest: GameSquare): Boolean = {
+  def moveUnitTo(dest: Square): Boolean = {
     if (canMoveTo(dest)) {
       dest.unit = unit
       unit = VoidTile
@@ -54,7 +54,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       false
   }
 
-  def takeArsenal(arsenal: GameSquare): Unit = {
+  def takeArsenal(arsenal: Square): Unit = {
     arsenal.unit = unit
     unit = VoidTile
     g.refreshComLayer()
@@ -81,7 +81,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
       0
   }
 
-  def targetsInAttackRange: mutable.Set[GameSquare] = inCombatRange(unit.range).filterNot(ir => {
+  def targetsInAttackRange: mutable.Set[Square] = inCombatRange(unit.range).filterNot(ir => {
     Set(unit.player, Neutral).contains(ir.unit.player)
   }).filterNot(ir => Set(RedArsenal, BlueArsenal).contains(ir.unit))
 
@@ -108,8 +108,8 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     d
   }).sum
 
-  def canBeTargetOf: Set[GameSquare] = {
-    val enemies = mutable.Set[GameSquare]()
+  def canBeTargetOf: Set[Square] = {
+    val enemies = mutable.Set[Square]()
     1 to TileRepository.units.maxBy(_.range).range foreach (range => {
       enemies ++= inCombatRange(range)
         .filterNot(_.unit.player.equals(Neutral))
@@ -120,8 +120,8 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     enemies.toSet
   }
 
-  def alliesInRange: Set[GameSquare] = {
-    val allies = mutable.Set[GameSquare]()
+  def alliesInRange: Set[Square] = {
+    val allies = mutable.Set[Square]()
     1 to TileRepository.units.maxBy(_.range).range foreach (attackRange => {
       allies ++= inCombatRange(attackRange)
         .filter(_.unit.player.equals(unit.player))
@@ -131,7 +131,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     allies.toSet
   }
 
-  def adjacentSquare(c: Cardinality): GameSquare = {
+  def adjacentSquare(c: Cardinality): Square = {
     val i = (new Point(c.x, c.y) + coords).toLinear(RuleRepository.squareX)
     if ((i < g.gameSquares.size && i >= 0) &&
       (!(coords.x == 0 && Set(NW, SW, W).contains(c))) &&
@@ -144,8 +144,8 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
   private def inCombatRange(
                              range: Int,
                              dir: Set[Cardinality] = CardinalityRepository.all,
-                             cursor: GameSquare = this,
-                             acc: mutable.Set[GameSquare] = mutable.Set[GameSquare]()): mutable.Set[GameSquare] = {
+                             cursor: Square = this,
+                             acc: mutable.Set[Square] = mutable.Set[Square]()): mutable.Set[Square] = {
     dir.foreach(d => {
       val cur = cursor.adjacentSquare(d)
       if (null != cur && !cur.terrain.equals(Mountain)) {
@@ -157,7 +157,7 @@ case class GameSquare(index: Int, terrain: Tile, g: Game) {
     acc
   }
 
-  def inRange(r: Int): Set[GameSquare] = {
+  def inRange(r: Int): Set[Square] = {
     if (r.equals(1))
       CardinalityRepository.all.map(adjacentSquare)
         .filterNot(adj => null == adj || adj.terrain.equals(Mountain))

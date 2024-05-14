@@ -5,7 +5,7 @@ import com.lms.gow.model.repo.CardinalityRepository._
 import com.lms.gow.model.repo.PlayerRepository.Neutral
 import com.lms.gow.model.repo.RuleRepository
 import com.lms.gow.model.repo.TileRepository.VoidTile
-import com.lms.gow.model.{GameSquare, Point}
+import com.lms.gow.model.{Square, Point}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLImageElement
@@ -18,7 +18,7 @@ class UiLayer(canvas: Canvas) {
   def size = new Point(canvas.width, canvas.height)
   def tileSize: Point = size / boardSize
 
-  def clearTile(sq: GameSquare): Unit = {
+  def clearTile(sq: Square): Unit = {
     val p: Point = sq.coords * tileSize
     l.clearRect(p.x, p.y, tileSize.x, tileSize.y)
   }
@@ -33,7 +33,7 @@ class UiLayer(canvas: Canvas) {
     l.fillRect(bg.x * tileSize.x, bg.y * tileSize.y, tileSize.x, tileSize.y)
   }
 
-  def tileTerrain(sq: GameSquare, image: HTMLImageElement): Unit = {
+  def tileTerrain(sq: Square, image: HTMLImageElement): Unit = {
     val te: Point = sq.coords * tileSize
     l.shadowBlur = 12
     l.shadowColor = Color.Gray
@@ -42,7 +42,7 @@ class UiLayer(canvas: Canvas) {
     l.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
   }
 
-  def tileUnit(sq: GameSquare, image: HTMLImageElement = null): Unit = {
+  def tileUnit(sq: Square, image: HTMLImageElement = null): Unit = {
     val u: Point = sq.coords * tileSize
     l.save()
     l.shadowBlur = 5
@@ -59,7 +59,7 @@ class UiLayer(canvas: Canvas) {
     l.restore()
   }
 
-  private def tileUnitMovementBar(sq: GameSquare): Unit = {
+  private def tileUnitMovementBar(sq: Square): Unit = {
     val u: Point = sq.coords * tileSize
     l.fillStyle = Color.fromPlayer(sq.unit.player)
     if (sq.canMove) {
@@ -75,7 +75,7 @@ class UiLayer(canvas: Canvas) {
     }
   }
 
-  private class sqCoords(sq: GameSquare) {
+  private class sqCoords(sq: Square) {
     val nw: Point = sq.coords * tileSize
     val se: Point = nw + tileSize
     val n: Point = nw + new Point(tileSize.x / 2, 0)
@@ -87,7 +87,7 @@ class UiLayer(canvas: Canvas) {
     val source: Point = n + new Point(0, tileSize.y / 2)
   }
 
-  def tileCommunication(sq: GameSquare): Unit = {
+  def tileCommunication(sq: Square): Unit = {
 
     val co = new sqCoords(sq)
 
@@ -121,7 +121,7 @@ class UiLayer(canvas: Canvas) {
     })
   }
 
-  def tileUnitHighlight(sq: GameSquare): Unit = {
+  def tileUnitHighlight(sq: Square): Unit = {
     l.save()
     val u: Point = sq.coords * tileSize
     l.shadowBlur = 0
@@ -132,7 +132,7 @@ class UiLayer(canvas: Canvas) {
     l.restore()
   }
 
-  def tileHighlight(sq: GameSquare, alpha: Double, color: String): Unit = {
+  def tileHighlight(sq: Square, alpha: Double, color: String): Unit = {
     l.save()
     l.globalAlpha = alpha
     l.fillStyle = color
@@ -144,7 +144,7 @@ class UiLayer(canvas: Canvas) {
     l.restore()
   }
 
-  def drawActionArrow(source: GameSquare, dest: GameSquare): Unit = {
+  def drawActionArrow(source: Square, dest: Square): Unit = {
     val from = source.coords * tileSize + tileSize / 2
     val to = dest.coords * tileSize + tileSize / 2
     if (source.canMoveTo(dest))
@@ -162,11 +162,11 @@ class UiLayer(canvas: Canvas) {
     l.stroke()
   }
 
-  def interfaceAttackPanel(sq: GameSquare): Unit = {
+  def interfaceAttackPanel(sq: Square): Unit = {
 
     val tileSizeB = tileSize * 2
 
-    def drawUnit(sq: GameSquare, p: Point): Unit = {
+    def drawUnit(sq: Square, p: Point): Unit = {
       Loader.loadTileAsync(sq.terrain, terrain => {
         l.drawImage(terrain, p.x, p.y, tileSizeB.x, tileSizeB.y)
         if (!sq.unit.equals(VoidTile)) {
@@ -228,7 +228,7 @@ class UiLayer(canvas: Canvas) {
     l.closePath()
   }
 
-  def interfaceTileStatus(sq: GameSquare): Unit = {
+  def interfaceTileStatus(sq: Square): Unit = {
 
     clearLayer()
     interfacePanel()

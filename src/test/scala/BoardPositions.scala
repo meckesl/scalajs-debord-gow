@@ -1,6 +1,6 @@
 import com.lms.gow.model.repo.TileRepository.VoidTile
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
-import com.lms.gow.model.{Game, GameSquare, Point}
+import com.lms.gow.model.{Game, Square, Point}
 
 object BoardPositions {
 
@@ -33,11 +33,11 @@ object BoardPositions {
     game
   }
 
-  def get(x: Int, y: Int): GameSquare = {
+  def get(x: Int, y: Int): Square = {
     game.gameSquares(new Point(x - 1, y - 1).toLinear(RuleRepository.squareX))
   }
 
-  def getWithTurn(x: Int, y: Int): GameSquare = {
+  def getWithTurn(x: Int, y: Int): Square = {
     val u = get(x, y)
     assert(u.unit != VoidTile)
     if (!u.isCurrentTurn)

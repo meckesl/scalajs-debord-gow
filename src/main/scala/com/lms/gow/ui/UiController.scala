@@ -2,7 +2,7 @@ package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
-import com.lms.gow.model.{Game, GameSquare, Point}
+import com.lms.gow.model.{Game, Square, Point}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLAudioElement
@@ -16,9 +16,9 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   private val uiOverlay = new UiLayer(overlayCanvas)
   private val uiInterface = new UiLayer(interfaceCanvas)
 
-  private var squareHover: GameSquare = _
-  private var squareClicked: GameSquare = _
-  private var squareSource: GameSquare = _
+  private var squareHover: Square = _
+  private var squareClicked: Square = _
+  private var squareSource: Square = _
 
   def tileSize: Point = uiSize / new Point(RuleRepository.squareX, RuleRepository.squareY)
   private var uiSize = new Point(terrainCanvas.width, terrainCanvas.height)
@@ -32,7 +32,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
   audioChannel3.src = Loader.getSoundUrl("start")
   audioChannel3.play()
 
-  private def getGameSquare(p: Point): GameSquare = {
+  private def getGameSquare(p: Point): Square = {
     val corrected = (p - (p % tileSize)) / tileSize
     val index = corrected.toLinear(RuleRepository.squareX)
     game.gameSquares(index)

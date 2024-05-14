@@ -1,6 +1,6 @@
 package com.lms.gow.io
 
-import com.lms.gow.model.GameSquare
+import com.lms.gow.model.Square
 import com.lms.gow.model.repo.TileRepository.{Tile, VoidTile}
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
 import org.scalajs.dom
@@ -16,7 +16,7 @@ object Loader {
   val imageCache: mutable.HashMap[Tile, HTMLImageElement] = new mutable.HashMap()
   private val resourcePath = "target/scala-2.13/classes"
 
-  def getSoundUrl(sq: GameSquare, sound: String): String = {
+  def getSoundUrl(sq: Square, sound: String): String = {
     s"$resourcePath/sounds/${sq.unit.char}/$sound.mp3"
   }
 
