@@ -2,10 +2,7 @@ lazy val root = project.in(file("."))
   .enablePlugins(ScalaJSPlugin)
   .settings(
     name := "scalajs-debord-gow",
-    version := "0.6",
-      inConfig(Test)(Seq(
-      scalacOptions += "scalajs:nowarnGlobalExecutionContext" // disables warning The global execution context in Scala.js is based on JS Promises (microtasks).
-    ))
+    version := "0.6"
   )
 
 scalaVersion := "2.13.14"
