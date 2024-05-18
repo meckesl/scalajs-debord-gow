@@ -3,9 +3,9 @@ package com.lms.gow.ui
 import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.CardinalityRepository._
 import com.lms.gow.model.repo.PlayerRepository.Neutral
-import com.lms.gow.model.repo.RuleRepository
+import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
 import com.lms.gow.model.repo.TileRepository.VoidTile
-import com.lms.gow.model.{Square, Point}
+import com.lms.gow.model.{Point, Square}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLImageElement
@@ -17,6 +17,9 @@ class UiLayer(canvas: Canvas) {
   private val boardSize = new Point(RuleRepository.squareX, RuleRepository.squareY)
   def size = new Point(canvas.width, canvas.height)
   def tileSize: Point = size / boardSize
+
+  private def hasUnitMovedEastwards(sq: Square) = (sq.lastMoveDir.equals(CardinalityRepository.SOURCE) && sq.coords.x < boardSize.x/2) ||
+    sq.lastMoveDir.equals(CardinalityRepository.E)
 
   def clearTile(sq: Square): Unit = {
     val p: Point = sq.coords * tileSize
@@ -52,7 +55,7 @@ class UiLayer(canvas: Canvas) {
     if (!sq.isOnline)
       l.globalAlpha = 0.3
     var computedX = u.x
-    if (sq.coords.x < boardSize.x/2) {
+    if (hasUnitMovedEastwards(sq)){
       l.translate(tileSize.x, 0)
       l.scale(-1, 1)
       computedX = -u.x
@@ -94,6 +97,8 @@ class UiLayer(canvas: Canvas) {
     val w: Point = sw - new Point(0, tileSize.y / 2)
     val source: Point = n + new Point(0, tileSize.y / 2)
   }
+
+
 
   def tileCommunication(sq: Square): Unit = {
 
@@ -138,7 +143,7 @@ class UiLayer(canvas: Canvas) {
     l.shadowOffsetX = 2
     l.shadowOffsetY = 0
     var computedX = u.x
-    if (sq.coords.x < boardSize.x/2) {
+    if (hasUnitMovedEastwards(sq)) {
       l.translate(tileSize.x, 0)
       l.scale(-1, 1)
       computedX = -u.x

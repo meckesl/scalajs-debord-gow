@@ -10,6 +10,7 @@ import scala.collection.{Seq, immutable, mutable}
 case class Square(index: Int, terrain: Tile, g: Game) {
 
   var unit: Tile = VoidTile
+  var lastMoveDir: Cardinality = CardinalityRepository.SOURCE
   val coords: Point = Point.fromLinear(index, RuleRepository.squareX)
   val com: Map[Player, mutable.Set[Cardinality]] = immutable.HashMap(Blue -> mutable.Set[Cardinality](), Red -> mutable.Set[Cardinality]())
 
@@ -42,6 +43,10 @@ case class Square(index: Int, terrain: Tile, g: Game) {
   def moveUnitTo(dest: Square): Boolean = {
     if (canMoveTo(dest)) {
       dest.unit = unit
+      if (dest.coords.x > coords.x)
+        dest.lastMoveDir = CardinalityRepository.E
+      else if (dest.coords.x < coords.x)
+        dest.lastMoveDir = CardinalityRepository.W
       unit = VoidTile
       g.refreshComLayer()
       g.turnMovedUnits add dest
@@ -168,5 +173,6 @@ case class Square(index: Int, terrain: Tile, g: Game) {
     else
       Set(this)
   }
+
 
 }
