@@ -38,7 +38,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
     game.gameSquares(index)
   }
 
-  private def boardChangeRedraw(): Unit = {
+  private def redraw(): Unit = {
     uiUnits.clearLayer()
     TileRepository.units.foreach(u => {
       Loader.loadTileAsync(u, image => {
@@ -80,7 +80,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
       })
     })
 
-    boardChangeRedraw()
+    redraw()
 
     if (null != squareClicked) {
       uiOverlay.tileUnitHighlight(squareClicked)
@@ -144,7 +144,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         audioChannel2.src = Loader.getSoundUrl(squareSource, "move")
         audioChannel2.play()
         squareSource.moveUnitTo(squareHover)
-        boardChangeRedraw()
+        redraw()
         if (game.turnMovedUnits.isEmpty) {
           audioChannel3.src = Loader.getSoundUrl("nextTurn")
           audioChannel3.play()
@@ -153,7 +153,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         squareSource.takeArsenal(squareHover)
         audioChannel2.src = Loader.getSoundUrl(squareHover, "attack")
         audioChannel2.play()
-        boardChangeRedraw()
+        redraw()
         audioChannel3.src = Loader.getSoundUrl("nextTurn")
         audioChannel3.play()
       } else if (squareSource.canAttack(squareHover)) {
@@ -161,7 +161,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         if (attackResult == 2 || attackResult == 1) {
           audioChannel2.src = Loader.getSoundUrl(squareSource, "attack")
           audioChannel2.play()
-          boardChangeRedraw()
+          redraw()
           audioChannel3.src = Loader.getSoundUrl("nextTurn")
           audioChannel3.play()
         }
@@ -185,9 +185,10 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
   def onKeydown(e: dom.KeyboardEvent): Unit = {
     dom.console.log(s"key=${e.keyCode}")
-    if (e.keyCode.equals(32)) {
+    def spaceBar = e.keyCode.equals(32)
+    if (spaceBar) {
       game.nextTurn()
-      boardChangeRedraw()
+      redraw()
       audioChannel3.src = Loader.getSoundUrl("nextTurn")
       audioChannel3.play()
     }
