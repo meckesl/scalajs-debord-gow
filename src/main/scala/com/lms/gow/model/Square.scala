@@ -47,6 +47,9 @@ case class Square(index: Int, terrain: Tile, g: Game) {
         dest.lastMoveDir = CardinalityRepository.E
       else if (dest.coords.x < coords.x)
         dest.lastMoveDir = CardinalityRepository.W
+      else
+        dest.lastMoveDir = lastMoveDir
+      lastMoveDir = CardinalityRepository.SOURCE
       unit = VoidTile
       g.refreshComLayer()
       g.turnMovedUnits add dest
