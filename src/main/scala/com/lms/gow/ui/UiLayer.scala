@@ -118,18 +118,18 @@ class UiLayer(canvas: Canvas) {
     sq.com.foreach(com => {
       l.strokeStyle = Color fromPlayer com._1
       com._2.foreach {
-        case dir@N => drawLine(co.source, co.n, dir.tag)
-        case dir@NE => drawLine(co.source, co.ne, dir.tag)
-        case dir@E => drawLine(co.source, co.e, dir.tag)
-        case dir@SE => drawLine(co.source, co.se, dir.tag)
-        case dir@S => drawLine(co.source, co.s, dir.tag)
-        case dir@SW => drawLine(co.source, co.sw, dir.tag)
-        case dir@W => drawLine(co.source, co.w, dir.tag)
-        case dir@NW => drawLine(co.source, co.nw, dir.tag)
-        case dir@SOURCE => drawLine(co.n, co.s, dir.tag)
-                           drawLine(co.e, co.w, dir.tag)
-                           drawLine(co.ne, co.sw, dir.tag)
-                           drawLine(co.se, co.nw, dir.tag)
+        case N => drawLine(co.source, co.n)
+        case NE => drawLine(co.source, co.ne)
+        case E => drawLine(co.source, co.e)
+        case SE => drawLine(co.source, co.se)
+        case S => drawLine(co.source, co.s)
+        case SW => drawLine(co.source, co.sw)
+        case W => drawLine(co.source, co.w)
+        case NW => drawLine(co.source, co.nw)
+        case SOURCE => drawLine(co.n, co.s)
+                           drawLine(co.e, co.w)
+                           drawLine(co.ne, co.sw)
+                           drawLine(co.se, co.nw)
         case _ =>
       }
     })

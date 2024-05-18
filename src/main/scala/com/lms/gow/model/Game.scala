@@ -39,10 +39,10 @@ class Game {
       dir.foreach(d => {
         val sq = cursor.adjacentSquare(d)
         if (null != sq && !sq.com(pl).contains(d)) {
-          sq.com(pl) += CardinalityRepository.opposite(d).withTag(1)
+          sq.com(pl) += CardinalityRepository.opposite(d)
           if (!sq.terrain.equals(Mountain) &&
             (Seq(Neutral, pl).contains(sq.unit.player) || sq.unit.isCom)) {
-            sq.com(pl) += d.withTag(1)
+            sq.com(pl) += d
             if (sq.unit.isCom && sq.unit.player.equals(pl))
               propagate(sq, sq, CardinalityRepository.all)
             else
@@ -56,7 +56,8 @@ class Game {
       if (source.com(pl).nonEmpty)
         dir.filterNot(_.equals(SOURCE)).foreach(d => {
           val sq = cursor.adjacentSquare(d)
-          if (null != sq && sq.unit.player.equals(pl) && !sq.com(pl).contains(CardinalityRepository.opposite(d))) {
+          if (null != sq && sq.unit.player.equals(pl)
+            && !sq.com(pl).contains(CardinalityRepository.opposite(d))) {
             cursor.com(pl) += d
             sq.com(pl) += CardinalityRepository.opposite(d)
             subpropagate(source, sq, CardinalityRepository.all)
