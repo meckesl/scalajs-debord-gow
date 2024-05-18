@@ -51,16 +51,16 @@ class UiLayer(canvas: Canvas) {
     l.shadowOffsetY = 5
     if (!sq.isOnline)
       l.globalAlpha = 0.3
-    var relx = u.x
-    if (sq.coords.x < 13) {
+    var computedX = u.x
+    if (sq.coords.x < boardSize.x/2) {
       l.translate(tileSize.x, 0)
       l.scale(-1, 1)
-      relx = -u.x
+      computedX = -u.x
     }
     if (null == image) {
-      l.drawImage(Loader.imageCache(sq.unit), -u.x, u.y, tileSize.x, tileSize.y)
+      l.drawImage(Loader.imageCache(sq.unit), computedX, u.y, tileSize.x, tileSize.y)
     } else {
-      l.drawImage(image, relx, u.y, tileSize.x, tileSize.y)
+      l.drawImage(image, computedX, u.y, tileSize.x, tileSize.y)
     }
     l.setTransform(1, 0, 0, 1, 0, 0) // Reset the transform to the identity matrix
     tileUnitMovementBar(sq)
@@ -137,7 +137,13 @@ class UiLayer(canvas: Canvas) {
     l.shadowColor = Color.Highlight
     l.shadowOffsetX = 2
     l.shadowOffsetY = 0
-    l.drawImage(Loader.imageCache(sq.unit), u.x, u.y, tileSize.x, tileSize.y)
+    var computedX = u.x
+    if (sq.coords.x < boardSize.x/2) {
+      l.translate(tileSize.x, 0)
+      l.scale(-1, 1)
+      computedX = -u.x
+    }
+    l.drawImage(Loader.imageCache(sq.unit), computedX, u.y, tileSize.x, tileSize.y)
     l.restore()
   }
 
