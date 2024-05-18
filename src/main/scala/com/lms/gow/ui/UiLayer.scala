@@ -51,10 +51,18 @@ class UiLayer(canvas: Canvas) {
     l.shadowOffsetY = 5
     if (!sq.isOnline)
       l.globalAlpha = 0.3
-    if (null == image)
-      l.drawImage(Loader.imageCache(sq.unit), u.x, u.y, tileSize.x, tileSize.y)
-    else
-      l.drawImage(image, u.x, u.y, tileSize.x, tileSize.y)
+    var relx = u.x
+    if (sq.coords.x < 13) {
+      l.translate(tileSize.x, 0)
+      l.scale(-1, 1)
+      relx = -u.x
+    }
+    if (null == image) {
+      l.drawImage(Loader.imageCache(sq.unit), -u.x, u.y, tileSize.x, tileSize.y)
+    } else {
+      l.drawImage(image, relx, u.y, tileSize.x, tileSize.y)
+    }
+    l.setTransform(1, 0, 0, 1, 0, 0) // Reset the transform to the identity matrix
     tileUnitMovementBar(sq)
     l.restore()
   }
