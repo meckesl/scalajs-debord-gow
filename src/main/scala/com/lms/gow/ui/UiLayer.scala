@@ -47,6 +47,7 @@ class UiLayer(canvas: Canvas) {
 
   def tileUnit(sq: Square, image: HTMLImageElement = null): Unit = {
     val u: Point = sq.coords * tileSize
+    tileUnitMovementBar(sq)
     l.save()
     l.shadowBlur = 5
     l.shadowColor = Color.Gray
@@ -66,7 +67,6 @@ class UiLayer(canvas: Canvas) {
       l.drawImage(image, computedX, u.y, tileSize.x, tileSize.y)
     }
     l.setTransform(1, 0, 0, 1, 0, 0) // Reset the transform to the identity matrix
-    tileUnitMovementBar(sq)
     l.restore()
   }
 
