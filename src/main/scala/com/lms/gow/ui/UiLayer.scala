@@ -33,6 +33,7 @@ class UiLayer(canvas: Canvas) {
   def tileBackground(index: Int): Unit = {
     val bg = Point.fromLinear(index, RuleRepository.squareX)
     if (index % 2 == 0) l.fillStyle = Color.Silver else l.fillStyle = Color.White
+    l.globalAlpha = 0.5
     l.fillRect(bg.x * tileSize.x, bg.y * tileSize.y, tileSize.x, tileSize.y)
   }
 

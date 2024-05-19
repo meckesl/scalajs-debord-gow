@@ -7,10 +7,20 @@
         .c { position: absolute; left: 0; }
         .top { top: 0; }
         .bottom { bottom: 0; }
+        .bg {
+            background-image: url('./target/scala-2.13/classes/background.png');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+        }
     </style>
 </head>
 <body>
-<canvas id="backgroundCanvas" class="c top"></canvas>
+<canvas id="backgroundCanvas" class="c top bg"></canvas>
 <canvas id="comCanvas" class="c top"></canvas>
 <canvas id="terrainCanvas" class="c top"></canvas>
 <canvas id="unitCanvas" class="c top"></canvas>
