@@ -167,6 +167,7 @@ class UiLayer(canvas: Canvas) {
   }
 
   def drawActionArrow(source: Square, dest: Square): Unit = {
+
     val from = source.coords * tileSize + tileSize / 2
     val to = dest.coords * tileSize + tileSize / 2
     if (source.canMoveTo(dest))
@@ -182,6 +183,25 @@ class UiLayer(canvas: Canvas) {
     l.moveTo(from.x, from.y)
     l.bezierCurveTo(from.x, to.y, to.x, to.y, to.x, to.y)
     l.stroke()
+
+    val headlen = 10 // length of head in pixels
+    val angle = Math.atan2(to.y - from.y, to.x - from.x)
+    l.lineJoin = "miter" // set the lineJoint to miter
+    l.lineTo(to.x, to.y)
+    l.stroke()
+    l.save()
+    // to draw the triangle at the end of line we move to end of line and rotate the context
+    l.translate(to.x, to.y)
+    l.rotate(angle + Math.PI / 2) // rotate angle modified
+    l.beginPath()
+    l.moveTo(0, -headlen)
+    l.lineTo(headlen, headlen)
+    l.lineTo(-headlen, headlen)
+    l.closePath()
+    l.fillStyle = l.strokeStyle // coloring the triangle same as stroke color
+    l.fill()
+
+    l.restore()
   }
 
   def interfaceAttackPanel(sq: Square): Unit = {
