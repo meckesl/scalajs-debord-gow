@@ -71,21 +71,30 @@ class UiLayer(canvas: Canvas) {
     l.restore()
   }
 
-  private def tileUnitMovementBar(sq: Square): Unit = {
-    val u: Point = sq.coords * tileSize
-    l.fillStyle = Color.fromPlayer(sq.unit.player)
-    if (sq.canMove) {
-      l.fillRect(
-        u.x + (tileSize.x / 20),
-        u.y + (tileSize.y - tileSize.y / 12),
-        tileSize.x - (tileSize.x / 20), tileSize.y / 12)
-    } else {
-      l.fillRect(
-        u.x + (tileSize.x / 20),
-        u.y + (tileSize.y - tileSize.y / 12),
-        tileSize.x / 15, tileSize.y / 12)
+    private def tileUnitMovementBar(sq: Square): Unit = {
+      val u: Point = sq.coords * tileSize
+      l.fillStyle = Color.fromPlayer(sq.unit.player)
+      if (sq.canMove) {
+        l.beginPath()
+        l.ellipse(
+          u.x + tileSize.x / 2,
+          u.y + (tileSize.y - tileSize.y / 20),
+          tileSize.x / 2,
+          tileSize.y / 20,
+          0, 0, Math.PI * 2)
+        l.fill()
+      } else {
+        l.beginPath()
+        l.ellipse(
+          u.x + tileSize.x / 2,
+          u.y + (tileSize.y - tileSize.y / 20),
+          tileSize.x / 10,
+          tileSize.y / 20,
+          0, 0, Math.PI * 2)
+        l.fill()
+      }
     }
-  }
+
 
   private class sqCoords(sq: Square) {
     val nw: Point = sq.coords * tileSize
