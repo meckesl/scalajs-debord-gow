@@ -1,6 +1,7 @@
 package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
+import com.lms.gow.model.repo.TileRepository.VoidTile
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
 import com.lms.gow.model.{Game, Point, Square}
 import org.scalajs.dom
@@ -198,7 +199,8 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         audioChannel3.play()
       case `downloadGame` =>
         def doc =
-          game.gameSquares.map(_.terrain.char)
+          game.gameSquares
+            .map(sq => if (!sq.unit.equals(VoidTile)) sq.unit.char else sq.terrain.char)
             .grouped(RuleRepository.squareX)
             .map(_.mkString(" "))
             .mkString("\n")
@@ -206,7 +208,7 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         val blob = new Blob(js.Array(doc), BlobPropertyBag("text/plain"))
         val url = URL.createObjectURL(blob)
         a.href = url
-        a.setAttribute("download", "document.txt")
+        a.setAttribute("download", "game.gow")
         a.style.display = "none"
         dom.document.body.appendChild(a)
         a.click()

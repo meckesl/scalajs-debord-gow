@@ -197,6 +197,17 @@ object AppTest extends TestSuite {
 
     }
 
+    test("communicationLinesAdvanced") {
+
+      val game = setupGame(secondndLevelCom, secondndLevelCom)
+
+      test("relaysDoRelayFullyWhenConnectedByUnits") {
+        assert(getWithTurn(5, 12).unit.equals(RedCavalry))
+        assert(getWithTurn(5, 12).isOnline)
+      }
+
+    }
+
   }
 
 }
