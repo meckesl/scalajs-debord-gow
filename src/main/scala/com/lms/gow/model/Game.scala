@@ -34,14 +34,17 @@ class Game {
   }
 
   def refreshComLayer(): Unit = {
+
+    def terrainBlocks(sq: Square) = sq.terrain.equals(Mountain)
+    def opponentBlocks(sq: Square, pl: Player) = !Seq(Neutral, pl).contains(sq.unit.player)
+
     def propagate(source: Square, cursor: Square, dir: Set[Cardinality]): Unit = {
       val pl = source.unit.player
       dir.foreach(d => {
         val sq = cursor.adjacentSquare(d)
         if (null != sq && !sq.com(pl).contains(d)) {
           sq.com(pl) += CardinalityRepository.opposite(d)
-          if (!sq.terrain.equals(Mountain) &&
-            (Seq(Neutral, pl).contains(sq.unit.player) || sq.unit.isCom)) {
+          if (!terrainBlocks(sq) && (!opponentBlocks(sq, pl) || sq.unit.isCom)) {
             sq.com(pl) += d
             if (sq.unit.isCom && sq.unit.player.equals(pl))
               propagate(sq, sq, CardinalityRepository.all)

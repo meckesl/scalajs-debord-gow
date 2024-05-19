@@ -2,10 +2,13 @@ package com.lms.gow.ui
 
 import com.lms.gow.io.Loader
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
-import com.lms.gow.model.{Game, Square, Point}
+import com.lms.gow.model.{Game, Point, Square}
 import org.scalajs.dom
+import org.scalajs.dom.{Blob, BlobPropertyBag, URL}
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLAudioElement
+
+import scala.scalajs.js
 
 case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas, terrainCanvas: Canvas, unitCanvas: Canvas, overlayCanvas: Canvas, interfaceCanvas: Canvas) {
 
@@ -185,13 +188,33 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
   def onKeydown(e: dom.KeyboardEvent): Unit = {
     dom.console.log(s"key=${e.keyCode}")
-    def spaceBar = e.keyCode.equals(32)
-    if (spaceBar) {
-      game.nextTurn()
-      redraw()
-      audioChannel3.src = Loader.getSoundUrl("nextTurn")
-      audioChannel3.play()
+    val nextTurn = 32
+    val downloadGame = 68
+    e.keyCode match {
+      case `nextTurn` =>
+        game.nextTurn()
+        redraw()
+        audioChannel3.src = Loader.getSoundUrl("nextTurn")
+        audioChannel3.play()
+      case `downloadGame` =>
+        def doc =
+          game.gameSquares.map(_.terrain.char)
+            .grouped(RuleRepository.squareX)
+            .map(_.mkString(" "))
+            .mkString("\n")
+        val a = dom.document.createElement("a").asInstanceOf[dom.raw.HTMLAnchorElement]
+        val blob = new Blob(js.Array(doc), BlobPropertyBag("text/plain"))
+        val url = URL.createObjectURL(blob)
+        a.href = url
+        a.setAttribute("download", "document.txt")
+        a.style.display = "none"
+        dom.document.body.appendChild(a)
+        a.click()
+        dom.document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      case _ =>
     }
+
   }
 
 }
