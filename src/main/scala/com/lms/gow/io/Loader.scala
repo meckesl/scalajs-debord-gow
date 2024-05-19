@@ -2,7 +2,7 @@ package com.lms.gow.io
 
 import com.lms.gow.model.Square
 import com.lms.gow.model.repo.TileRepository.{Tile, VoidTile}
-import com.lms.gow.model.repo.{RuleRepository, TileRepository}
+import com.lms.gow.model.repo.{PlayerRepository, RuleRepository, TileRepository}
 import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.raw.{HTMLImageElement, XMLHttpRequest}
@@ -29,7 +29,10 @@ object Loader {
     def getTileUrl(tile: TileRepository.Tile): String = {
       if (tile.equals(VoidTile))
         s"$resourcePath/tiles/dot/0.png"
-      else
+      else if (TileRepository.units.contains(tile)) {
+        val playerTag = if (tile.player.equals(PlayerRepository.Red)) "r" else ""
+        s"$resourcePath/tiles/${tile.char.toString}/0$playerTag.png"
+      } else
         s"$resourcePath/tiles/${tile.char.toString}/0.png"
     }
 
