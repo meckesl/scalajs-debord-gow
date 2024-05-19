@@ -72,23 +72,14 @@ class UiLayer(canvas: Canvas) {
   }
 
     private def tileUnitMovementBar(sq: Square): Unit = {
-      val u: Point = sq.coords * tileSize
-      l.fillStyle = Color.fromPlayer(sq.unit.player)
       if (sq.canMove) {
+        val u: Point = sq.coords * tileSize
+        l.fillStyle = Color.fromPlayer(sq.unit.player)
         l.beginPath()
         l.ellipse(
           u.x + tileSize.x / 2,
           u.y + (tileSize.y - tileSize.y / 20),
           tileSize.x / 2,
-          tileSize.y / 20,
-          0, 0, Math.PI * 2)
-        l.fill()
-      } else {
-        l.beginPath()
-        l.ellipse(
-          u.x + tileSize.x / 2,
-          u.y + (tileSize.y - tileSize.y / 20),
-          tileSize.x / 10,
           tileSize.y / 20,
           0, 0, Math.PI * 2)
         l.fill()
