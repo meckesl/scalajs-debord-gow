@@ -104,7 +104,7 @@ class UiLayer(canvas: Canvas) {
 
     val co = new sqCoords(sq)
 
-    def drawLine(a: Point, b: Point, lineWidth: Int = 2): Unit = {
+    def drawLine(a: Point, b: Point, lineWidth: Int = 1): Unit = {
       l.globalAlpha = 0.5
       l.lineWidth=lineWidth
       l.beginPath()
@@ -158,7 +158,7 @@ class UiLayer(canvas: Canvas) {
     l.fillStyle = color
     val a = sq.coords * tileSize
     l.beginPath()
-    l.rect(a.x, a.y, tileSize.x, tileSize.y)
+    l.ellipse(a.x + tileSize.x / 2, a.y + tileSize.y / 2, tileSize.x / 2, tileSize.y / 2, 0, 0, Math.PI * 2)
     l.fill()
     l.closePath()
     l.restore()
