@@ -96,6 +96,11 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
     val hoverSq = getGameSquare(new Point(e.clientX, e.clientY))
 
+    if (hoverSq.canMove)
+      dom.document.body.style.cursor = "pointer"
+    else
+      dom.document.body.style.cursor = "default"
+
     def onMousemoveHover(): Unit = {
       uiOverlay.clearLayer()
       uiInterface.clearLayer()
