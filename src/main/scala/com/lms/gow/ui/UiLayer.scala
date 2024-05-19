@@ -105,7 +105,8 @@ class UiLayer(canvas: Canvas) {
     val co = new sqCoords(sq)
 
     def drawLine(a: Point, b: Point, lineWidth: Int = 1): Unit = {
-      l.globalAlpha = 0.5
+      l.setLineDash(scala.scalajs.js.Array(5.0, 15.0))
+      l.globalAlpha = 0.6
       l.lineWidth=lineWidth
       l.beginPath()
       l.moveTo(a.x, a.y)
