@@ -10,8 +10,6 @@ import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLImageElement
 
-import scala.scalajs.js
-
 class UiLayer(canvas: Canvas) {
 
   private val l = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -19,10 +17,6 @@ class UiLayer(canvas: Canvas) {
   private val boardSize = new Point(RuleRepository.squareX, RuleRepository.squareY)
   def size = new Point(canvas.width, canvas.height)
   def tileSize: Point = size / boardSize
-
-  private def hasUnitMovedEastwards(sq: Square) =
-    (sq.lastMoveDir.equals(CardinalityRepository.SOURCE) && sq.coords.x < boardSize.x/2) ||
-    sq.lastMoveDir.equals(CardinalityRepository.E)
 
   def clearTile(sq: Square): Unit = {
     val p: Point = sq.coords * tileSize
@@ -49,6 +43,10 @@ class UiLayer(canvas: Canvas) {
     l.drawImage(image, te.x, te.y, tileSize.x, tileSize.y)
   }
 
+  private def hasUnitMovedEastwards(sq: Square) =
+    (sq.lastMoveDir.equals(CardinalityRepository.SOURCE) && sq.coords.x < boardSize.x/2) ||
+      sq.lastMoveDir.equals(CardinalityRepository.E)
+
   def tileUnit(sq: Square, image: HTMLImageElement = null): Unit = {
     val u: Point = sq.coords * tileSize
     tileUnitMovementBar(sq)
@@ -74,37 +72,51 @@ class UiLayer(canvas: Canvas) {
     l.restore()
   }
 
-    private def tileUnitMovementBar(sq: Square): Unit = {
-      if (sq.canMove) {
-        val u: Point = sq.coords * tileSize
-        l.fillStyle = Color.fromPlayer(sq.unit.player)
-        l.beginPath()
-        l.ellipse(
-          u.x + tileSize.x / 2,
-          u.y + (tileSize.y - tileSize.y / 20),
-          tileSize.x / 2,
-          tileSize.y / 20,
-          0, 0, Math.PI * 2)
-        l.fill()
-      }
+  def tileUnitHighlight(sq: Square): Unit = {
+    l.save()
+    val u: Point = sq.coords * tileSize
+    l.shadowBlur = 0
+    l.shadowColor = Color.Highlight
+    l.shadowOffsetX = 2
+    l.shadowOffsetY = 0
+    var computedX = u.x
+    if (hasUnitMovedEastwards(sq)) {
+      l.translate(tileSize.x, 0)
+      l.scale(-1, 1)
+      computedX = -u.x
     }
-
-
-  private class sqCoords(sq: Square) {
-    val nw: Point = sq.coords * tileSize
-    val se: Point = nw + tileSize
-    val n: Point = nw + new Point(tileSize.x / 2, 0)
-    val s: Point = se - new Point(tileSize.x / 2, 0)
-    val ne: Point = nw + new Point(tileSize.x, 0)
-    val sw: Point = se - new Point(tileSize.x, 0)
-    val e: Point = ne + new Point(0, tileSize.y / 2)
-    val w: Point = sw - new Point(0, tileSize.y / 2)
-    val source: Point = n + new Point(0, tileSize.y / 2)
+    l.drawImage(Loader.imageCache(sq.unit), computedX, u.y, tileSize.x, tileSize.y)
+    l.restore()
   }
 
-
+  private def tileUnitMovementBar(sq: Square): Unit = {
+    if (sq.canMove) {
+      val u: Point = sq.coords * tileSize
+      l.fillStyle = Color.fromPlayer(sq.unit.player)
+      l.beginPath()
+      l.ellipse(
+        u.x + tileSize.x / 2,
+        u.y + (tileSize.y - tileSize.y / 20),
+        tileSize.x / 2,
+        tileSize.y / 20,
+        0, 0, Math.PI * 2)
+      l.fill()
+    }
+  }
 
   def tileCommunication(sq: Square): Unit = {
+
+    class sqCoords(sq: Square) {
+      val nw: Point = sq.coords * tileSize
+      val se: Point = nw + tileSize
+      val n: Point = nw + new Point(tileSize.x / 2, 0)
+      val s: Point = se - new Point(tileSize.x / 2, 0)
+      val ne: Point = nw + new Point(tileSize.x, 0)
+      val sw: Point = se - new Point(tileSize.x, 0)
+      val e: Point = ne + new Point(0, tileSize.y / 2)
+      val w: Point = sw - new Point(0, tileSize.y / 2)
+      val source: Point = n + new Point(0, tileSize.y / 2)
+    }
 
     val co = new sqCoords(sq)
 
@@ -138,23 +150,6 @@ class UiLayer(canvas: Canvas) {
         case _ =>
       }
     })
-  }
-
-  def tileUnitHighlight(sq: Square): Unit = {
-    l.save()
-    val u: Point = sq.coords * tileSize
-    l.shadowBlur = 0
-    l.shadowColor = Color.Highlight
-    l.shadowOffsetX = 2
-    l.shadowOffsetY = 0
-    var computedX = u.x
-    if (hasUnitMovedEastwards(sq)) {
-      l.translate(tileSize.x, 0)
-      l.scale(-1, 1)
-      computedX = -u.x
-    }
-    l.drawImage(Loader.imageCache(sq.unit), computedX, u.y, tileSize.x, tileSize.y)
-    l.restore()
   }
 
   def tileHighlight(sq: Square, alpha: Double, color: String): Unit = {
