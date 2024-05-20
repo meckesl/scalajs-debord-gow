@@ -59,16 +59,10 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
   def onResize(s: Point): Unit = {
     uiSize = s
-    backgroundCanvas.width = uiSize.x.toInt
-    backgroundCanvas.height = uiSize.y.toInt
-    comCanvas.width = uiSize.x.toInt
-    comCanvas.height = uiSize.y.toInt
-    terrainCanvas.width = uiSize.x.toInt
-    terrainCanvas.height = uiSize.y.toInt
-    unitCanvas.width = uiSize.x.toInt
-    unitCanvas.height = uiSize.y.toInt
-    overlayCanvas.width = uiSize.x.toInt
-    overlayCanvas.height = uiSize.y.toInt
+    Set(backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas).foreach(c=>{
+      c.width = uiSize.x.toInt
+      c.height = uiSize.y.toInt
+    })
     interfaceSize = uiSize / 3
     interfaceCanvas.width = interfaceSize.x.toInt
     interfaceCanvas.height = interfaceSize.y.toInt
