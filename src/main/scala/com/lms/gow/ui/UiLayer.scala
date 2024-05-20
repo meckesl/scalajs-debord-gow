@@ -10,6 +10,8 @@ import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.raw.HTMLImageElement
 
+import scala.scalajs.js
+
 class UiLayer(canvas: Canvas) {
 
   private val l = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
@@ -18,7 +20,8 @@ class UiLayer(canvas: Canvas) {
   def size = new Point(canvas.width, canvas.height)
   def tileSize: Point = size / boardSize
 
-  private def hasUnitMovedEastwards(sq: Square) = (sq.lastMoveDir.equals(CardinalityRepository.SOURCE) && sq.coords.x < boardSize.x/2) ||
+  private def hasUnitMovedEastwards(sq: Square) =
+    (sq.lastMoveDir.equals(CardinalityRepository.SOURCE) && sq.coords.x < boardSize.x/2) ||
     sq.lastMoveDir.equals(CardinalityRepository.E)
 
   def clearTile(sq: Square): Unit = {
@@ -67,7 +70,7 @@ class UiLayer(canvas: Canvas) {
     } else {
       l.drawImage(image, computedX, u.y, tileSize.x, tileSize.y)
     }
-    l.setTransform(1, 0, 0, 1, 0, 0) // Reset the transform to the identity matrix
+    l.setTransform(1, 0, 0, 1, 0, 0)
     l.restore()
   }
 
@@ -106,7 +109,7 @@ class UiLayer(canvas: Canvas) {
     val co = new sqCoords(sq)
 
     def drawLine(a: Point, b: Point, lineWidth: Int = 1): Unit = {
-      l.setLineDash(scala.scalajs.js.Array(5.0, 15.0))
+      //l.setLineDash(js.Array(5.0, 15.0))
       l.globalAlpha = 0.6
       l.lineWidth=lineWidth
       l.beginPath()
@@ -129,9 +132,9 @@ class UiLayer(canvas: Canvas) {
         case W => drawLine(co.source, co.w)
         case NW => drawLine(co.source, co.nw)
         case SOURCE => drawLine(co.n, co.s)
-                           drawLine(co.e, co.w)
-                           drawLine(co.ne, co.sw)
-                           drawLine(co.se, co.nw)
+                       drawLine(co.e, co.w)
+                       drawLine(co.ne, co.sw)
+                       drawLine(co.se, co.nw)
         case _ =>
       }
     })
