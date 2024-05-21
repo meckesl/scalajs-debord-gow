@@ -24,21 +24,21 @@ object App {
     Loader.getStartingGamePosition("init.board","init.units", 25).foreach {
       _ =>
         val game = new Game
-        val ui = UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
+        val uiController = UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)
         import scala.scalajs.js.timers._
-        ui.onResize(new Point(window.innerWidth, window.innerHeight))
+        uiController.onResize(new Point(window.innerWidth, window.innerHeight))
         var handle: SetTimeoutHandle = null
         window.onresize = (_: Event) => {
           clearTimeout(handle)
           handle = setTimeout(200) {
-            ui.onResize(new Point(window.innerWidth, window.innerHeight))
+            uiController.onResize(new Point(window.innerWidth, window.innerHeight))
           }
         }
-        overlayCanvas.onmousemove = (e: MouseEvent) => { ui onMousemove e }
-        overlayCanvas.onclick = (e: MouseEvent) => { ui onClick e }
-        overlayCanvas.onmouseup = (e: MouseEvent) => { ui onMouseup e }
-        overlayCanvas.onmousedown = (e: MouseEvent) => { ui onMousedown e }
-        window.onkeydown = (e: KeyboardEvent) => { ui onKeydown e }
+        overlayCanvas.onmousemove = (e: MouseEvent) => { uiController onMousemove e }
+        overlayCanvas.onclick = (e: MouseEvent) => { uiController onClick e }
+        overlayCanvas.onmouseup = (e: MouseEvent) => { uiController onMouseup e }
+        overlayCanvas.onmousedown = (e: MouseEvent) => { uiController onMousedown e }
+        window.onkeydown = (e: KeyboardEvent) => { uiController onKeydown e }
 
     }
   }
