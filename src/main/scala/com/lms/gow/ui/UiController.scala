@@ -197,25 +197,28 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         audioChannel3.src = Loader.getSoundUrl("nextTurn")
         audioChannel3.play()
       case `downloadGame` =>
-        def doc =
-          game.gameSquares
-            .map(sq => if (!sq.unit.equals(VoidTile)) sq.unit.char else sq.terrain.char)
-            .grouped(RuleRepository.squareX)
-            .map(_.mkString(" "))
-            .mkString("\n")
-        val a = dom.document.createElement("a").asInstanceOf[dom.raw.HTMLAnchorElement]
-        val blob = new Blob(js.Array(doc), BlobPropertyBag("text/plain"))
-        val url = URL.createObjectURL(blob)
-        a.href = url
-        a.setAttribute("download", "game.gow")
-        a.style.display = "none"
-        dom.document.body.appendChild(a)
-        a.click()
-        dom.document.body.removeChild(a)
-        URL.revokeObjectURL(url)
+        downloadGameFile()
       case _ =>
     }
+  }
 
+  private def downloadGameFile(): Unit = {
+    def doc =
+      game.gameSquares
+        .map(sq => if (!sq.unit.equals(VoidTile)) sq.unit.char else sq.terrain.char)
+        .grouped(RuleRepository.squareX)
+        .map(_.mkString(" "))
+        .mkString("\n")
+    val a = dom.document.createElement("a").asInstanceOf[dom.raw.HTMLAnchorElement]
+    val blob = new Blob(js.Array(doc), BlobPropertyBag("text/plain"))
+    val url = URL.createObjectURL(blob)
+    a.href = url
+    a.setAttribute("download", "game.gow")
+    a.style.display = "none"
+    dom.document.body.appendChild(a)
+    a.click()
+    dom.document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
 }
