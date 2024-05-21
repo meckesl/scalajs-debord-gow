@@ -6,12 +6,13 @@ import com.lms.gow.model.repo.TileRepository.{BlueArsenal, Mountain, RedArsenal,
 import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
 
 import scala.collection.mutable
+import scala.util.Random
 
 class Game {
 
   var turnRemainingMoves: Int = RuleRepository.turnMoves
   val turnMovedUnits: mutable.Set[Square] = mutable.Set[Square]()
-  var turnPlayer: Player = if (scala.util.Random.nextBoolean()) Blue else Red
+  var turnPlayer: Player = if (Random.nextBoolean()) Blue else Red
 
   var forcedRetreat: Option[Square] = None
 
@@ -54,7 +55,7 @@ class Game {
         }
       })
     }
-    def subpropagate(source: Square, cursor: Square, dir: Set[Cardinality]): Unit = {
+    def subPropagate(source: Square, cursor: Square, dir: Set[Cardinality]): Unit = {
       val pl = source.unit.player
       if (source.com(pl).nonEmpty)
         dir.filterNot(_.equals(SOURCE)).foreach(d => {
@@ -63,7 +64,7 @@ class Game {
             && !sq.com(pl).contains(CardinalityRepository.opposite(d))) {
             cursor.com(pl) += d
             sq.com(pl) += CardinalityRepository.opposite(d)
-            subpropagate(source, sq, CardinalityRepository.all)
+            subPropagate(source, sq, CardinalityRepository.all)
             if(sq.unit.isCom)
               propagate(sq, sq, CardinalityRepository.all)
           }
@@ -73,7 +74,7 @@ class Game {
     gameSquares.filter(sq => Seq(RedArsenal, BlueArsenal).contains(sq.unit))
       .foreach(sq => propagate(sq, sq, CardinalityRepository.all))
     gameSquares.filter(sq => !sq.unit.isCom && sq.com.values.nonEmpty && !sq.unit.player.equals(Neutral))
-      .foreach(sq => subpropagate(sq, sq, CardinalityRepository.all))
+      .foreach(sq => subPropagate(sq, sq, CardinalityRepository.all))
   }
 
   refreshComLayer()
