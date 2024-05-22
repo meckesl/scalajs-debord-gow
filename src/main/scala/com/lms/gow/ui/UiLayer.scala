@@ -8,7 +8,7 @@ import com.lms.gow.model.repo.TileRepository.VoidTile
 import com.lms.gow.model.{Point, Square}
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
-import org.scalajs.dom.raw.HTMLImageElement
+import org.scalajs.dom.HTMLImageElement
 
 class UiLayer(canvas: Canvas) {
 

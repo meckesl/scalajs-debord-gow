@@ -5,7 +5,7 @@ import com.lms.gow.model.repo.TileRepository.{Tile, VoidTile}
 import com.lms.gow.model.repo.{PlayerRepository, RuleRepository, TileRepository}
 import org.scalajs.dom
 import org.scalajs.dom._
-import org.scalajs.dom.raw.{HTMLImageElement, XMLHttpRequest}
+import org.scalajs.dom.{HTMLImageElement, XMLHttpRequest}
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global

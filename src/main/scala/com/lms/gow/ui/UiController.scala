@@ -5,9 +5,8 @@ import com.lms.gow.model.repo.TileRepository.VoidTile
 import com.lms.gow.model.repo.{RuleRepository, TileRepository}
 import com.lms.gow.model.{Game, Point, Square}
 import org.scalajs.dom
-import org.scalajs.dom.{Blob, BlobPropertyBag, URL}
+import org.scalajs.dom.{Blob, BlobPropertyBag, HTMLAnchorElement, HTMLAudioElement, URL}
 import org.scalajs.dom.html.Canvas
-import org.scalajs.dom.raw.HTMLAudioElement
 
 import scala.scalajs.js
 
@@ -209,8 +208,10 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
         .grouped(RuleRepository.squareX)
         .map(_.mkString(" "))
         .mkString("\n")
-    val a = dom.document.createElement("a").asInstanceOf[dom.raw.HTMLAnchorElement]
-    val blob = new Blob(js.Array(doc), BlobPropertyBag("text/plain"))
+    val a = dom.document.createElement("a").asInstanceOf[HTMLAnchorElement]
+    val pb = new BlobPropertyBag{}
+    pb.`type`="text/plain"
+    val blob = new Blob(js.Array(doc), pb)
     val url = URL.createObjectURL(blob)
     a.href = url
     a.setAttribute("download", "game.gow")
