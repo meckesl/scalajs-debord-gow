@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %%% "utest" % "0.8.3" % "test"
 )
 
-jsDependencies += "org.webjars.npm" % "atmosphere.js" % "3.1.3" / "atmosphere.js" % "compile"
+jsDependencies += "org.webjars" % "atmosphere-javascript" % "3.1.3" / "atmosphere.js"
 Test / jsDependencies := Nil
 packageJSDependencies / skip := false
 Test / packageJSDependencies / skip := true
