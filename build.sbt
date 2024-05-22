@@ -1,5 +1,6 @@
 lazy val root = project.in(file("."))
   .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(JSDependenciesPlugin)
   .settings(
     name := "scalajs-debord-gow",
     version := "0.6"
@@ -17,3 +18,6 @@ libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "2.8.0",
   "com.lihaoyi" %%% "utest" % "0.8.3" % "test"
 )
+
+jsDependencies += "org.webjars.npm" % "atmosphere.js" % "3.1.3" / "atmosphere.js"
+packageJSDependencies / skip := false
