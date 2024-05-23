@@ -1,8 +1,10 @@
+lazy val server = project.in(file("server"))
+
 lazy val root = project.in(file("."))
   .enablePlugins(ScalaJSPlugin)
   .enablePlugins(JSDependenciesPlugin)
   .settings(
-    name := "scalajs-debord-gow",
+    name := "Game of War - Client",
     version := "0.7",
     scalaVersion := "2.13.14"
   )
