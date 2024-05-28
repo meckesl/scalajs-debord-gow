@@ -3,14 +3,18 @@
 ## Usage
 
 Run tests 
-> sbt test
+```sh
+sbt test
+```
 
 Generates Javascript files ready to be run in the browser (optimized)
-> sbt fullOptJS
+```sh
+sbt fullOptJS
+```
 
 ## Screenshot
 
-![Optional Screenshot](./screenshot.png)
+![Optional Screenshot](screenshot.png)
 
 
 ## Game of War

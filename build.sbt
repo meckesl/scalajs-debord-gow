@@ -4,7 +4,7 @@ lazy val root = project.in(file("."))
   .enablePlugins(ScalaJSPlugin)
   .enablePlugins(JSDependenciesPlugin)
   .settings(
-    name := "Game of War - Client",
+    name := "Client",
     version := "0.7",
     scalaVersion := "2.13.14",
     scalacOptions ++= Seq("-feature", "-deprecation", "-P:scalajs:nowarnGlobalExecutionContext"),
