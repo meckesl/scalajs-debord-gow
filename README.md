@@ -2,14 +2,19 @@
 
 ## Usage
 
-Run tests 
+Run client tests 
 ```sh
 sbt test
 ```
 
-Generates Javascript files ready to be run in the browser (optimized)
+Generates client Javascript files ready to be run in the browser (optimized)
 ```sh
 sbt fullOptJS
+```
+
+Runs server
+```sh
+sbt server/run
 ```
 
 ## Screenshot
