@@ -21,7 +21,7 @@ object App {
     val overlayCanvas = getCanvas("overlayCanvas")
     val interfaceCanvas = getCanvas("interfaceCanvas")
 
-    Loader.getStartingGamePosition("init.board","init.units", 25).foreach {
+    Loader.getStartingGamePosition("init.board", "init.units", 25).foreach {
       _ =>
         val game = new Game
         val uiController = UiController(game, backgroundCanvas, comCanvas, terrainCanvas, unitCanvas, overlayCanvas, interfaceCanvas)

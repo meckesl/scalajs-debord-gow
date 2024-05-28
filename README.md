@@ -4,12 +4,12 @@
 
 Run client tests 
 ```sh
-sbt test
+sbt client/test
 ```
 
 Generates client Javascript files ready to be run in the browser (optimized)
 ```sh
-sbt fullOptJS
+sbt client/fullOptJS
 ```
 
 Run server
