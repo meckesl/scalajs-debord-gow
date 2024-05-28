@@ -1,8 +1,8 @@
-package com.lms.gow.io
+package com.github.meckesl.io
 
-import com.lms.gow.model.Square
-import com.lms.gow.model.repo.TileRepository.{Tile, VoidTile}
-import com.lms.gow.model.repo.{PlayerRepository, RuleRepository, TileRepository}
+import com.github.meckesl.Square
+import com.github.meckesl.repo.{PlayerRepository, RuleRepository, TileRepository}
+import com.github.meckesl.repo.TileRepository.{Tile, VoidTile}
 import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.{HTMLImageElement, XMLHttpRequest}

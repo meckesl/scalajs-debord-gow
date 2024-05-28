@@ -1,4 +1,4 @@
-package com.lms.gow.model.repo
+package com.github.meckesl.repo
 
 object CardinalityRepository {
   case class Cardinality(y: Int, x: Int)

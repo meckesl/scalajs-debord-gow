@@ -1,9 +1,9 @@
-package com.lms.gow.ui
+package com.github.meckesl.ui
 
-import com.lms.gow.io.Loader
-import com.lms.gow.model.repo.TileRepository.VoidTile
-import com.lms.gow.model.repo.{RuleRepository, TileRepository}
-import com.lms.gow.model.{Game, Point, Square}
+import com.github.meckesl.io.Loader
+import com.github.meckesl.repo.{RuleRepository, TileRepository}
+import com.github.meckesl.{Game, Point, Square}
+import com.github.meckesl.repo.TileRepository.VoidTile
 import org.scalajs.dom
 import org.scalajs.dom.{Blob, BlobPropertyBag, HTMLAnchorElement, HTMLAudioElement, URL}
 import org.scalajs.dom.html.Canvas

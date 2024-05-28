@@ -1,6 +1,6 @@
-package com.lms.gow.model.repo
+package com.github.meckesl.repo
 
-import com.lms.gow.model.repo.TileRepository.Tile
+import TileRepository.Tile
 
 object RuleRepository {
   val turnMoves = 5

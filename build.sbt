@@ -1,6 +1,10 @@
-lazy val server = project.in(file("server"))
+lazy val shared = project.in(file("shared"))
 
-lazy val root = project.in(file("."))
+lazy val server = project.in(file("server"))
+  .dependsOn(shared)
+
+lazy val client = project.in(file("."))
+  .dependsOn(shared)
   .enablePlugins(ScalaJSPlugin)
   //.enablePlugins(JSDependenciesPlugin)
   .settings(

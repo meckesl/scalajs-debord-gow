@@ -1,4 +1,4 @@
-package com.lms.gow.model.repo
+package com.github.meckesl.repo
 
 object PlayerRepository {
   abstract case class Player(c: Char)

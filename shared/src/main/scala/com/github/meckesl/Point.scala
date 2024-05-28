@@ -1,4 +1,4 @@
-package com.lms.gow.model
+package com.github.meckesl
 
 case class Point(x: Double, y: Double) {
   def +(other: Point): Point = Point(x + other.x, y + other.y)

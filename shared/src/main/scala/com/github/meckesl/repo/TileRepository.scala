@@ -1,6 +1,7 @@
-package com.lms.gow.model.repo
+package com.github.meckesl.repo
 
-import com.lms.gow.model.repo.PlayerRepository._
+import com.github.meckesl.repo.PlayerRepository.{Blue, Neutral, Player, Red}
+import PlayerRepository._
 
 object TileRepository {
   abstract case class Tile(char: Char, speed: Int, range: Int, attack: Int,

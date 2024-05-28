@@ -12,7 +12,7 @@ Generates client Javascript files ready to be run in the browser (optimized)
 sbt fullOptJS
 ```
 
-Runs server
+Run server
 ```sh
 sbt server/run
 ```

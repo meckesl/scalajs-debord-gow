@@ -1,9 +1,9 @@
-package com.lms.gow.model
+package com.github.meckesl
 
-import com.lms.gow.model.repo.CardinalityRepository._
-import com.lms.gow.model.repo.PlayerRepository.{Blue, Neutral, Player, Red}
-import com.lms.gow.model.repo.TileRepository._
-import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository, TileRepository}
+import com.github.meckesl.repo.{CardinalityRepository, RuleRepository, TileRepository}
+import com.github.meckesl.repo.CardinalityRepository._
+import com.github.meckesl.repo.PlayerRepository.{Blue, Neutral, Player, Red}
+import com.github.meckesl.repo.TileRepository._
 
 import scala.collection.{Seq, immutable, mutable}
 

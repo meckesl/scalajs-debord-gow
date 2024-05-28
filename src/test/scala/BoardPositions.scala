@@ -1,6 +1,6 @@
-import com.lms.gow.model.repo.TileRepository.VoidTile
-import com.lms.gow.model.repo.{RuleRepository, TileRepository}
-import com.lms.gow.model.{Game, Square, Point}
+import com.github.meckesl.repo.{RuleRepository, TileRepository}
+import com.github.meckesl.{Game, Point, Square}
+import com.github.meckesl.repo.TileRepository.VoidTile
 
 object BoardPositions {
 

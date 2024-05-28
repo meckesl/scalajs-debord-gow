@@ -1,8 +1,8 @@
-package com.lms.gow
+package com.github.meckesl
 
-import com.lms.gow.io.Loader
-import com.lms.gow.model.{Game, Point}
-import com.lms.gow.ui.UiController
+import com.github.meckesl.io.Loader
+import com.github.meckesl.ui.UiController
+import com.github.meckesl.{Game, Point}
 import org.scalajs.dom._
 import org.scalajs.dom.document._
 import org.scalajs.dom.html

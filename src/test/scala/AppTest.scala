@@ -1,6 +1,6 @@
 import BoardPositions._
-import com.lms.gow.model.repo.TileRepository._
-import com.lms.gow.model.repo.{PlayerRepository, RuleRepository}
+import com.github.meckesl.repo.TileRepository._
+import com.github.meckesl.repo.{PlayerRepository, RuleRepository}
 import utest._
 
 object AppTest extends TestSuite {

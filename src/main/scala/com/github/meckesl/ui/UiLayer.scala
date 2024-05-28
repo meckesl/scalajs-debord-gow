@@ -1,11 +1,11 @@
-package com.lms.gow.ui
+package com.github.meckesl.ui
 
-import com.lms.gow.io.Loader
-import com.lms.gow.model.repo.CardinalityRepository._
-import com.lms.gow.model.repo.PlayerRepository.Neutral
-import com.lms.gow.model.repo.{CardinalityRepository, RuleRepository}
-import com.lms.gow.model.repo.TileRepository.VoidTile
-import com.lms.gow.model.{Point, Square}
+import com.github.meckesl.io.Loader
+import com.github.meckesl.repo.CardinalityRepository._
+import com.github.meckesl.repo.{CardinalityRepository, RuleRepository}
+import com.github.meckesl.{Point, Square}
+import com.github.meckesl.repo.PlayerRepository.Neutral
+import com.github.meckesl.repo.TileRepository.VoidTile
 import org.scalajs.dom
 import org.scalajs.dom.html.Canvas
 import org.scalajs.dom.HTMLImageElement

@@ -1,7 +1,7 @@
-package com.lms.gow.ui
+package com.github.meckesl.ui
 
-import com.lms.gow.model.repo.PlayerRepository
-import com.lms.gow.model.repo.PlayerRepository.Player
+import com.github.meckesl.repo.PlayerRepository
+import PlayerRepository.Player
 
 object Color {
   private def rgb(r: Int, g: Int, b: Int) = s"rgb($r, $g, $b)"
