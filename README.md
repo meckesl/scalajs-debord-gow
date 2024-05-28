@@ -19,7 +19,7 @@ sbt server/run
 
 ## Screenshot
 
-![Optional Screenshot](screenshot.png)
+![Optional Screenshot](gow-client/screenshot.png)
 
 
 ## Game of War
