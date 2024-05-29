@@ -17,7 +17,7 @@ object Loader {
   private val resourcePath = "target/scala-2.13/classes"
 
   def getSoundUrl(sq: Square, sound: String): String = {
-    s"$resourcePath/sounds/${sq.unit.char}/$sound.mp3"
+    s"$resourcePath/sounds/${sq.unit.char.toLower}/$sound.mp3"
   }
 
   def getSoundUrl(sound: String): String = {
@@ -31,9 +31,9 @@ object Loader {
         s"$resourcePath/tiles/dot/0.png"
       else if (TileRepository.units.contains(tile)) {
         val playerTag = if (tile.player.equals(PlayerRepository.Red)) "r" else ""
-        s"$resourcePath/tiles/${tile.char.toString}/0$playerTag.png"
+        s"$resourcePath/tiles/${tile.char.toString.toLowerCase}/0$playerTag.png"
       } else
-        s"$resourcePath/tiles/${tile.char.toString}/0.png"
+        s"$resourcePath/tiles/${tile.char.toString.toLowerCase}/0.png"
     }
 
     if (imageCache.contains(t)) {
