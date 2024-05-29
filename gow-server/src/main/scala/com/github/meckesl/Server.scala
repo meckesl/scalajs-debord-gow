@@ -9,7 +9,7 @@ import akka.stream.{Materializer, SystemMaterializer}
 
 import scala.io.StdIn
 
-object WebSocketServer {
+object Server {
   def main(args: Array[String]): Unit = {
     implicit val system: ActorSystem = ActorSystem("ActorSystem")
     implicit val materializer: Materializer = SystemMaterializer(system).materializer
@@ -19,13 +19,19 @@ object WebSocketServer {
       case _ => TextMessage("Message type unsupported")
     }
 
-    val route =
-      path("ws-echo") {
+    val route = {
+      pathPrefix("ws-echo") {
         handleWebSocketMessages(requestHandler)
       } ~
-      path("/") {
-        getFromResourceDirectory("/web")
-      }
+        get {
+          extractUnmatchedPath { path =>
+            if (path.toString == "/" || path.toString.isEmpty)
+              getFromResource("web/index.html")
+            else
+              getFromResourceDirectory("web")
+          }
+        }
+    }
 
     Http().newServerAt("localhost", 8080).bind(route)
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
