@@ -16,3 +16,10 @@ libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "2.8.0",
   "com.lihaoyi" %%% "utest" % "0.8.3" % "test"
 )
+
+/*jsDependencies ++= Seq(
+  "org.webjars.npm" % "atmosphere.js" % "3.1.3" / "atmosphere.js" % "compile"
+)
+Test / jsDependencies := Nil
+packageJSDependencies / skip := false
+Test / packageJSDependencies / skip := true*/
