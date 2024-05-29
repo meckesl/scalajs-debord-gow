@@ -5,23 +5,22 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.scaladsl.Flow
-import akka.stream.{Materializer, SystemMaterializer}
 
 import scala.io.StdIn
 
 object Server {
+
   def main(args: Array[String]): Unit = {
     implicit val system: ActorSystem = ActorSystem("ActorSystem")
-    implicit val materializer: Materializer = SystemMaterializer(system).materializer
 
-    val requestHandler: Flow[Message, Message, _] = Flow[Message].map {
+    val lobbyHandler: Flow[Message, Message, _] = Flow[Message].map {
       case TextMessage.Strict(txt) => TextMessage("ECHO: " + txt)
       case _ => TextMessage("Message type unsupported")
     }
 
     val route = {
-      pathPrefix("ws-echo") {
-        handleWebSocketMessages(requestHandler)
+      pathPrefix("lobby") {
+        handleWebSocketMessages(lobbyHandler)
       } ~
         get {
           extractUnmatchedPath { path =>
