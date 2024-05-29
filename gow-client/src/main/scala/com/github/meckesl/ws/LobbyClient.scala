@@ -1,10 +1,25 @@
 package com.github.meckesl.ws
 
-import org.scalajs.dom.{Event, HTMLDivElement, HTMLSpanElement, MessageEvent, WebSocket}
+import org.scalajs.dom
+import org.scalajs.dom.{Event, HTMLButtonElement, HTMLDivElement, HTMLInputElement, HTMLSpanElement, MessageEvent, WebSocket}
 
-class LobbyClient(div : HTMLDivElement) {
+class LobbyClient(div : HTMLDivElement, input: HTMLInputElement, send: HTMLButtonElement) {
 
   private val connection = new WebSocket("ws://localhost:8080/lobby")
+
+  input.onkeydown = (e: dom.KeyboardEvent) => {
+    println("lobby message")
+    if (e.keyCode == dom.KeyCode.Enter) {
+      e.preventDefault()
+      sendMessage(input.value)
+      input.value = ""
+    }
+  }
+
+  send.onclick = (e: dom.MouseEvent) => {
+    sendMessage(input.value)
+    input.value = ""
+  }
 
   connection.onopen = (event: Event) => {
     output("WebSocket connection established")
@@ -22,7 +37,7 @@ class LobbyClient(div : HTMLDivElement) {
     output("WebSocket connection closed")
   }
 
-  def sendMessage(message: String, connection: WebSocket): Unit = {
+  private def sendMessage(message: String): Unit = {
     connection.send(message)
   }
 

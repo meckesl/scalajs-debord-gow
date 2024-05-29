@@ -21,9 +21,12 @@ object App {
     val unitCanvas = getCanvas("unitCanvas")
     val overlayCanvas = getCanvas("overlayCanvas")
     val interfaceCanvas = getCanvas("interfaceCanvas")
-    val lobbyDiv = getElementById("lobby").asInstanceOf[html.Div]
 
-    val Lobby = new LobbyClient(lobbyDiv)
+    val lobbyDiv = getElementById("lobby").asInstanceOf[html.Div]
+    val lobbyInput = getElementById("lobbyInput").asInstanceOf[html.Input]
+    val lobbyButton = getElementById("lobbyOk").asInstanceOf[html.Button]
+
+    val Lobby = new LobbyClient(lobbyDiv, lobbyInput, lobbyButton)
 
     Loader.getStartingGamePosition("init.board", "init.units", 25).foreach {
       _ =>

@@ -187,8 +187,8 @@ case class UiController(game: Game, backgroundCanvas: Canvas, comCanvas: Canvas,
 
   def onKeydown(e: dom.KeyboardEvent): Unit = {
     dom.console.log(s"key=${e.keyCode}")
-    val nextTurn = 32
-    val downloadGame = 68
+    val nextTurn = dom.KeyCode.Space
+    val downloadGame = dom.KeyCode.D
     e.keyCode match {
       case `nextTurn` =>
         game.nextTurn()
