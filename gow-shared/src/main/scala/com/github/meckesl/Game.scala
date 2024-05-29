@@ -1,6 +1,5 @@
 package com.github.meckesl
 
-import com.github.meckesl
 import com.github.meckesl.repo.{CardinalityRepository, RuleRepository}
 import com.github.meckesl.repo.CardinalityRepository.{Cardinality, SOURCE}
 import com.github.meckesl.repo.PlayerRepository.{Blue, Neutral, Player, Red}
@@ -21,7 +20,7 @@ class Game {
 
   val gameSquares: Seq[Square] =
     0 until RuleRepository.squareCount map (i => {
-      val sq = meckesl.Square(i, RuleRepository.startingTerrain(i), this)
+      val sq = Square(i, RuleRepository.startingTerrain(i), this)
       sq.unit = RuleRepository.startingUnits(i)
       sq
     })
