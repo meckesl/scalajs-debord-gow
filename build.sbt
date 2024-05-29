@@ -8,19 +8,26 @@ lazy val server = project.in(file("gow-server"))
   .settings(
     inConfig(Compile)(Seq(
       resourceGenerators += Def.task {
-        val outputFolder = resourceManaged.value / "web" / "target" / "scala-2.13"
+        // Client resources
+        val webFolder = resourceManaged.value / "web"
+        val outputFolder = webFolder / "target" / "scala-2.13"
+        val indexFile = (client / baseDirectory).value / "index.html"
         val jsBinary = (client / fullOptJS).value.data
         val jsSourceMap = jsBinary.getParentFile / (jsBinary.getName + ".map")
+        // Replicate folder structure
         IO.copy(Seq((jsBinary, outputFolder / jsBinary.getName), (jsSourceMap, outputFolder / jsSourceMap.getName)))
-        val c = ((client / resourceDirectory).value ** "*").get()
+        IO.copy(Seq((indexFile, webFolder / indexFile.getName)))
+        val staticResources = ((client / resourceDirectory).value ** "*").get()
           .pair(Path.rebase((client / resourceDirectory).value, outputFolder / "classes")).map {
             case (in, out) => IO.copyDirectory(in, out)
               out
           }
+        // Outputs resources items
         Seq(
+          webFolder / indexFile.getName,
           outputFolder / jsBinary.getName,
           outputFolder / jsSourceMap.getName
-        ) ++ c
+        ) ++ staticResources
       }
     ))
   )
