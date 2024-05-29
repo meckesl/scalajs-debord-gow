@@ -28,12 +28,6 @@ jobs:
         distribution: 'temurin'
         cache: 'sbt'
     - name: Run tests
-      run: sbt test
+      run: sbt client/test
     - name: Generate artifact
-      run: sbt fullOptJS
-    - uses: actions/upload-artifact@v4
-      with:
-        name: gow-latest
-        path: | 
-          index.html
-          target/scala-2.13/scalajs-debord-gow-opt/main.js
+      run: sbt client/fullOptJS
