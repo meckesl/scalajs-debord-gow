@@ -2,15 +2,24 @@
 
 ## Usage
 
-Run tests 
-> sbt test
+Run client tests 
+```sh
+sbt client/test
+```
 
-Generates Javascript files ready to be run in the browser (optimized)
-> sbt fullOptJS
+Generates client Javascript files ready to be run in the browser (optimized)
+```sh
+sbt client/fullOptJS
+```
+
+Run server
+```sh
+sbt server/run
+```
 
 ## Screenshot
 
-![Optional Screenshot](./screenshot.png)
+![Optional Screenshot](gow-client/screenshot.png)
 
 
 ## Game of War

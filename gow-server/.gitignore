@@ -4,4 +4,4 @@ target/
 .classpath
 .project
 .settings/
-/.bsp/
+/.bsp/sbt.json
