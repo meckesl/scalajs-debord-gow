@@ -1,7 +1,0 @@
-target/
-.idea
-.cache
-.classpath
-.project
-.settings/
-/.bsp/sbt.json
