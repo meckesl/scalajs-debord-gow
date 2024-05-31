@@ -7,6 +7,7 @@ import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.scaladsl.Flow
 
+import scala.concurrent.duration.DurationInt
 import scala.io.StdIn
 
 object Server {
@@ -14,10 +15,12 @@ object Server {
   def main(args: Array[String]): Unit = {
     implicit val system: ActorSystem = ActorSystem("ActorSystem")
 
-    val lobbyHandler: Flow[Message, Message, _] = Flow[Message].map {
-      case TextMessage.Strict(txt) => TextMessage("ECHO: " + txt)
-      case _ => TextMessage("Message type unsupported")
-    }
+    val lobbyHandler: Flow[Message, Message, _] = Flow[Message]
+      .idleTimeout(10.minutes)
+      .map {
+        case TextMessage.Strict(txt) => TextMessage("ECHO: " + txt)
+        case _ => TextMessage("Message type unsupported")
+      }
 
     val route = {
       respondWithHeaders(
