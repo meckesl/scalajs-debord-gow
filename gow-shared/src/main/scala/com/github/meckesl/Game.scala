@@ -39,42 +39,44 @@ class Game {
     def terrainBlocks(sq: Square) = sq.terrain.equals(Mountain)
     def opponentBlocks(sq: Square, pl: Player) = !Seq(Neutral, pl).contains(sq.unit.player)
 
-    def propagate(source: Square, cursor: Square, dir: Set[Cardinality]): Unit = {
+    def processCommunication(source: Square, cursor: Square, dir: Set[Cardinality], isSubPropagationMode: Boolean): Unit = {
       val pl = source.unit.player
-      dir.foreach(d => {
+
+      if (pl.equals(Neutral) || (isSubPropagationMode && source.com(pl).isEmpty)) return
+
+      val effectiveDir = if (isSubPropagationMode) dir.filterNot(_.equals(SOURCE)) else dir
+
+      effectiveDir.foreach(d => {
         val sq = cursor.adjacentSquare(d)
-        if (null != sq && !sq.com(pl).contains(d)) {
-          sq.com(pl) += CardinalityRepository.opposite(d)
-          if (!terrainBlocks(sq) && (!opponentBlocks(sq, pl) || sq.unit.isCom)) {
-            sq.com(pl) += d
-            if (sq.unit.isCom && sq.unit.player.equals(pl))
-              propagate(sq, sq, CardinalityRepository.all)
-            else
-              propagate(source, sq, Set(d))
+        if (null != sq) {
+          if (isSubPropagationMode) {
+            if (sq.unit.player.equals(pl) && !sq.com(pl).contains(CardinalityRepository.opposite(d))) {
+              cursor.com(pl) += d
+            sq.com(pl) += CardinalityRepository.opposite(d)
+            processCommunication(source, sq, Set(d), true)
+            if (sq.unit.isCom)
+              processCommunication(sq, sq, CardinalityRepository.all, false)
+            }
+          } else { // isPropagateMode
+            if (!sq.com(pl).contains(CardinalityRepository.opposite(d))) {
+              sq.com(pl) += CardinalityRepository.opposite(d)
+              if (!terrainBlocks(sq) && (!opponentBlocks(sq, pl) || sq.unit.isCom)) {
+                sq.com(pl) += d
+                if (sq.unit.isCom && sq.unit.player.equals(pl))
+                  processCommunication(sq, sq, CardinalityRepository.all, false)
+                else
+                  processCommunication(source, sq, Set(d), false)
+              }
+            }
           }
         }
       })
     }
-    def subPropagate(source: Square, cursor: Square, dir: Set[Cardinality]): Unit = {
-      val pl = source.unit.player
-      if (source.com(pl).nonEmpty)
-        dir.filterNot(_.equals(SOURCE)).foreach(d => {
-          val sq = cursor.adjacentSquare(d)
-          if (null != sq && sq.unit.player.equals(pl)
-            && !sq.com(pl).contains(CardinalityRepository.opposite(d))) {
-            cursor.com(pl) += d
-            sq.com(pl) += CardinalityRepository.opposite(d)
-            subPropagate(source, sq, CardinalityRepository.all)
-            if(sq.unit.isCom)
-              propagate(sq, sq, CardinalityRepository.all)
-          }
-        })
-    }
     gameSquares.foreach(_.com.foreach(_._2.clear()))
     gameSquares.filter(sq => Seq(RedArsenal, BlueArsenal).contains(sq.unit))
-      .foreach(sq => propagate(sq, sq, CardinalityRepository.all))
+      .foreach(sq => processCommunication(sq, sq, CardinalityRepository.all, false))
     gameSquares.filter(sq => !sq.unit.isCom && sq.com.values.nonEmpty && !sq.unit.player.equals(Neutral))
-      .foreach(sq => subPropagate(sq, sq, CardinalityRepository.all))
+      .foreach(sq => processCommunication(sq, sq, CardinalityRepository.all, true))
   }
 
   refreshComLayer()
