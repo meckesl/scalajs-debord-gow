@@ -17,7 +17,7 @@ jobs:
     - name: Set up JDK 11 and SBT
       uses: olafurpg/setup-scala@v14
       with:
-        java-version: "temurin@1.11.0-11"  # ou "adopt@1.11.0-11" si nécessaire
+        java-version: "adopt@1.11.0-11"  # ou "adopt@1.11.0-11" si nécessaire
 
     - name: Run tests
       run: sbt client/test
